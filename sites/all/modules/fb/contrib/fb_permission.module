@@ -20,7 +20,7 @@ function fb_permission_access_own($account, $perm) {
 function fb_permission_map() {
   static $perms;
   if (!isset($perms)) {
-    // http://wiki.developers.facebook.com/index.php/Extended_permissions
+    // http://developers.facebook.com/docs/authentication/permissions
     $perms = array(
       'email' => 'Allow %application to send you email', 
       'offline_access' => 'Grant %application access to your Facebook profile.',

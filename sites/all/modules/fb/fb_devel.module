@@ -1,5 +1,5 @@
 <?php
-// $Id: fb_devel.module,v 1.41 2010/04/12 16:23:44 yogadex Exp $
+// $Id: fb_devel.module,v 1.41.2.1 2010/10/16 01:50:15 yogadex Exp $
 /**
  * @file
  * Makes development with Drupal for Facebook much easier.  Keep this
@@ -322,8 +322,8 @@ function fb_devel_form_alter(&$form, $form_state, $form_id) {
 function fb_devel_block($op = 'list', $delta = 0, $edit = array()) {
   if ($op == 'list') {
     // Provide two copies of same block, for iframe scenarios.
-    $items[0]['info'] = t('Facebook Devel Page Info');
-    $items[1]['info'] = t('Facebook Devel Page Info 2');
+    $items['fb_devel']['info'] = t('Facebook Devel Page Info');
+    $items['fb_devel_2']['info'] = t('Facebook Devel Page Info 2');
     return $items;
   }
   elseif ($op == 'view') {

@@ -17,11 +17,16 @@ http://drupal.org/node/761886
 
 To install:
    
-- Make sure you have an up-to-date PHP client from facebook.  You may
-  download a tarball,
-  http://svn.facebook.com/svnroot/platform/clients/packages/facebook-platform.tar.gz,
-  or do this with subversion: 
-  svn co http://svn.facebook.com/svnroot/platform/clients/php/trunk
+- Make sure you have a PHP client from facebook.  For this version of
+  Drupal for Facebook, you need the older PHP client, avaialable at
+  http://github.com/facebook/platform/raw/master/clients/packages/facebook-platform.tar.gz
+  or maybe
+  http://github.com/facebook/platform/blob/master/clients/packages/facebook-platform.tar.gz
+  I can't tell you exactly because facebook always changes it.  Search
+  the web for facebook's older libraries.  Don't use the latest with
+  this release.  If you want updated facebook libraries, use the
+  latest version of Drupal for Facebook (this version is not the
+  latest!)
 
 - If you extract facebook-platform.tar.gz into your modules/fb
   directory, it should be found automatically.  If this is not the

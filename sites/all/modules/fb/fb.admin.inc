@@ -1,5 +1,5 @@
 <?php
-// $Id: fb.admin.inc,v 1.9 2010/04/10 00:23:29 yogadex Exp $
+// $Id: fb.admin.inc,v 1.9.2.1 2010/10/16 01:50:15 yogadex Exp $
 /**
  * @file
  * Admin pages and forms for Drupal for Facebook.
@@ -93,8 +93,8 @@ function fb_admin_page() {
 function fb_admin_app_page($fb_app = NULL) {
   fb_get_app_data($fb_app);
   fb_admin_get_app_properties($fb_app);
-  // placeholder until theming done... XXX
-  // Hide a couple things...
+
+  // Hide these, show secret only on form.
   unset($fb_app->secret); 
   unset($fb_app->data); 
 
@@ -147,13 +147,17 @@ function fb_admin_get_app_properties(&$fb_app) {
   }
   
   if (!isset($cache[$fb_app->apikey])) {
-    if ($fb = fb_api_init($fb_app, FB_FBU_CURRENT)) {
+    if ($fb = fb_api_init($fb_app, FB_FBU_NO_SESSION)) {
       try {
         $props = $fb->api_client->admin_getAppProperties(array_values($props_map));
         $cache[$fb_app->apikey] = $props;
       } catch (Exception $e) {
         fb_log_exception($e, t('Failed to get application properties (%label) from Facebook', array('%label' => $fb_app->label)));
       }
+    }
+    else {
+      drupal_set_message(t("Failed to get application properties.  Could not initialize facebook API."),
+                         'error');
     }
   }
   else {

@@ -12,7 +12,7 @@ define('FB_CONNECT_VAR_PRIMARY', 'fb_connect_primary_label');
 define('FB_CONNECT_VAR_LOGIN', 'fb_connect_login_label');
 define('FB_CONNECT_VAR_THEME_USERNAME_1', 'fb_connect_theme_username_1');
 define('FB_CONNECT_VAR_THEME_USERNAME_2', 'fb_connect_theme_username_2');
-define('FB_CONNECT_VAR_THEME_USERPIC1', 'fb_connect_theme_userpic_1');
+define('FB_CONNECT_VAR_THEME_USERPIC_1', 'fb_connect_theme_userpic_1');
 define('FB_CONNECT_VAR_THEME_USERPIC_2', 'fb_connect_theme_userpic_2');
 
 define('FB_CONNECT_PATH_SESSION_START', 'fb_connect/session_start');
@@ -143,7 +143,7 @@ function fb_connect_receiver() { // DEPRECATED and will go away!
     ? '.debug'
     : '' ;
   
-  $src = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') 
+  $src = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' && !variable_get('fb_force_no_ssl', FALSE)) 
     ? "https://ssl.connect.facebook.com/js/api_lib/v0.4/XdCommReceiver$src_suffix.js" 
     : "http://static.ak.connect.facebook.com/js/api_lib/v0.4/XdCommReceiver$src_suffix.js" ;
   
@@ -265,7 +265,7 @@ function _fb_connect_add_js() {
   static $just_once;
   if (!isset($just_once)) {
     if ($uid = $GLOBALS['user']->uid && module_exists('fb_user')) {
-      $session_start_url = url(FB_CONNECT_PATH_SESSION_START);
+      $session_start_url = url(FB_CONNECT_PATH_SESSION_START, array('absolute' => TRUE));
     }
     drupal_add_js(array(
                     'fb_connect' => array(
@@ -274,7 +274,7 @@ function _fb_connect_add_js() {
                       'uid' => $uid,
                       'in_iframe' => fb_is_iframe_canvas(),
                       'session_start_url' => $session_start_url,
-                      'session_end_url' => url(FB_CONNECT_PATH_SESSION_END),
+                      'session_end_url' => url(FB_CONNECT_PATH_SESSION_END, array('absolute' => TRUE)),
                     ),
                   ), 'setting');
     drupal_add_js(drupal_get_path('module', 'fb_connect') . '/fb_connect.js');
@@ -433,7 +433,7 @@ function fb_connect_footer($is_front) {
 
   global $base_path;
 
-  $fb_feature_src = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') 
+  $fb_feature_src = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' && !variable_get('fb_force_no_ssl', FALSE)) 
     ? "https://ssl.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" 
     : "http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" ;
   
