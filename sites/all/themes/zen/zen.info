@@ -49,3 +49,4 @@ core = "6.x"
 project = "zen"
 datestamp = "1277583313"
 
+scripts[]= scripts/jquery.superSimpleTabs.js
