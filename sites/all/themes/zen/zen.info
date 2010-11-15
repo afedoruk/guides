@@ -50,3 +50,4 @@ project = "zen"
 datestamp = "1277583313"
 
 scripts[]= scripts/jquery.superSimpleTabs.js
+stylesheets[all][] = styles/styles.css

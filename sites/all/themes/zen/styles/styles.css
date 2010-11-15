@@ -1,0 +1,13 @@
+ul.jtabs
+{
+	padding: 0;
+	margin: 0;
+}
+
+.jtabs li
+{
+	float: left;
+	display: inline;
+	border: 1px solid #000;
+	padding: 5px;
+}

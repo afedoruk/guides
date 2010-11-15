@@ -4,22 +4,23 @@ if($page)
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
-	jQuery('#jquery-super-simple-tabs-example ul').superSimpleTabs();	
+	jQuery('#guide-tabs ul').superSimpleTabs();	
 });
 </script>
 <table>
 <tr>
-<td>
+<td style='vertical-align: top'>
 <?=$node->field_photo[0]["filepath"]?theme("imagecache", "guide_face", $node->field_photo[0]["filepath"]):"";?>
 </td>
-<td>
+<td style='vertical-align: top'>
 
-<div id="jquery-super-simple-tabs-example">
-<ul>
+<div id="guide-tabs">
+<ul class='jtabs'>
     <li><a href="#jquery-super-simple-tabs-example-1">Главное</a></li>
     <li><a href="#jquery-super-simple-tabs-example-2">О себе</a></li>
     <li><a href="#jquery-super-simple-tabs-example-3">Отзывы</a></li>
 </ul>
+<div class='clear-block'></div>
 <div id="jquery-super-simple-tabs-example-1">
 <h4>Услуги</h4>
 <?
