@@ -17,7 +17,14 @@ $(document).ready(function() {
 <div id="guide-tabs">
 <ul class='jtabs'>
     <li><a href="#jquery-super-simple-tabs-example-1">Главное</a></li>
+	<?
+	if($content)
+	{
+	?>
     <li><a href="#jquery-super-simple-tabs-example-2">О себе</a></li>
+	<?
+	}
+	?>
     <li><a href="#jquery-super-simple-tabs-example-3">Отзывы</a></li>
 </ul>
 <div class='clear-block'></div>
@@ -49,9 +56,16 @@ $(document).ready(function() {
 	}
 ?>
 </div>
-<div id="jquery-super-simple-tabs-example-2">
-<?=$content?>
-</div>
+<?
+if($content)
+{
+?>
+	<div id="jquery-super-simple-tabs-example-2">
+	<?=$content?>
+	</div>
+	<?
+}
+?>
 <div id="jquery-super-simple-tabs-example-3">
 <?
 //$view = views_get_view('sample_view');
