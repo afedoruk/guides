@@ -1,0 +1,18 @@
+<?php
+// $Id: inline_registration.install,v 1.1.4.2 2009/03/24 07:18:27 livido Exp $
+
+/**
+ * @file
+ *
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function inline_registration_uninstall() {
+  // Delete variables.
+  foreach (node_get_types() as $type) {
+    variable_del('inline_registration_'. $type->type);
+    variable_del('inline_registration_weight_'. $type->type);
+  }  
+}

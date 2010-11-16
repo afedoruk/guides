@@ -1,0 +1,13 @@
+; $Id: inline_registration.info,v 1.1.4.1 2009/03/20 16:55:40 livido Exp $
+name = "Inline Registration"
+description = "Allows anonymous users to register via the node/add page."
+package = Other
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-07-11
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "inline_registration"
+datestamp = "1278834594"
+
