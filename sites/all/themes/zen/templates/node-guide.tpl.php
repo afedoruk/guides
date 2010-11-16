@@ -53,7 +53,11 @@ $(document).ready(function() {
 <?=$content?>
 </div>
 <div id="jquery-super-simple-tabs-example-3">
-    Content 3
+<?
+//$view = views_get_view('sample_view');
+//output the view
+print views_embed_view('testimonials', 'page_1', $node->nid);
+?>
 </div>
 </div>
 </td></tr></table>
