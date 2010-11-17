@@ -1,0 +1,38 @@
+<?php
+function guides_helpers_rules_action_info() {
+  return array(
+    'guides_helpers_publish_action' => array(
+      'label' => t('Publish guide card'),
+      'arguments' => array(
+        'user' => array('type' => 'user', 'label' => t('Current user')),
+      ),
+      'module' => 'User',
+    )
+  );
+}
+
+function guides_helpers_publish_action($user)
+{
+	if(isset($user->uid))
+	{
+		$uid=$user->uid;
+	}
+	else
+	{
+		$uid=$context['uid'];
+	}
+
+   db_query("UPDATE {node} SET status = 1 WHERE uid = %d AND type='guide'", $uid);
+   watchdog('action', 'Published guide card for guide %uid', array('%uid' => $uid));
+}
+
+function guides_helpers_get_card($account=null)
+{
+	if(!$account)
+	{
+		global $user;
+		$account=$user;
+	}
+	$nid=db_result(db_query("SELECT nid FROM {node} WHERE uid=%d AND type='guide'", $account->uid));
+	return $nid;
+}
