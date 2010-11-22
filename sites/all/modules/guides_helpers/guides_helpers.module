@@ -1,4 +1,17 @@
 <?php
+
+function guides_helpers_menu()
+{
+	$items["guides/redirect"]=array(
+		"access arguments"=>array("edit own guide content"),
+		"page callback"=>"guides_helpers_redirect",
+		"type"=>MENU_CALLBACK
+	);
+
+	return $items;
+}
+
+
 function guides_helpers_rules_action_info() {
   return array(
     'guides_helpers_publish_action' => array(
@@ -35,4 +48,17 @@ function guides_helpers_get_card($account=null)
 	}
 	$nid=db_result(db_query("SELECT nid FROM {node} WHERE uid=%d AND type='guide'", $account->uid));
 	return $nid;
+}
+
+function guides_helpers_redirect()
+{
+	if($nid=guides_helpers_get_card())
+	{
+		$path="node/".$nid;
+	}
+	else
+	{
+		$path=drupal_get_normal_path(variable_get('site_frontpage', 'node'));
+	}
+	drupal_goto($path);
 }
