@@ -78,7 +78,7 @@ print views_embed_view('testimonials', 'page_1', $node->nid);
 
 
   <?php print $links; ?>
-</div> <!-- /.node -->
+ <!-- /.node -->
 <?
 }
 else
