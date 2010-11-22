@@ -1,0 +1,11 @@
+; $Id: custom_links.info,v 1.5 2008/01/27 09:16:01 eaton Exp $
+name = Custom Links
+description = Allows administrators to add custom links to nodes. More By This Author, Visit Bob's Blog, etc.
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-01-27
+version = "6.x-1.4"
+core = "6.x"
+project = "custom_links"
+datestamp = "1201425603"
+

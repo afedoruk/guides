@@ -1,0 +1,162 @@
+<?php
+// $Id: custom_links.module,v 1.5 2008/01/27 09:16:01 eaton Exp $
+
+/**
+ * Implementation of hook_menu().
+ */
+function custom_links_menu() {
+  $items = array();
+
+  $items['admin/build/custom_links'] = array(
+    'title' => 'Custom links',
+    'description' => 'Add custom links to specific content types.',
+    'page callback' => 'custom_links_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer custom links'),
+    'file' => 'custom_links.admin.inc',
+  );
+
+  $items['admin/build/custom_links/add'] = array(
+    'title' => 'Add custom breadcrumb',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_links_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer custom links'),
+    'file' => 'custom_links.admin.inc',
+  );
+
+  $items['admin/build/custom_links/edit'] = array(
+    'title' => 'Edit custom breadcrumb',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('custom_links_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer custom links'),
+    'file' => 'custom_links.admin.inc',
+  );
+
+  return $items;
+}
+
+function custom_links_theme() {
+  $items = array();
+  $items['custom_links_block'] = array(
+    'arguments' => array('links' => array()),
+  );
+  return $items;
+}
+
+function custom_links_link($type, $node = NULL, $teaser = FALSE) {
+  if ($type == 'node') {
+    return _custom_links_build_links($node, $teaser);
+  }
+}
+
+function custom_links_perm() {
+  return array('administer custom links');
+}
+
+/**
+ * Implementation of hook_block().
+ *
+ * Generates a block with links for the current node.
+ */
+function custom_links_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Custom node links');
+    return $blocks;
+  }
+  else if ($op == 'view' && arg(0) == 'node' && is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+    $links = _custom_links_build_links($node, FALSE, TRUE);
+    if (count($links)) {
+      $block['subject'] = t('Links');
+      $block['content'] = theme('custom_links_block', $links);
+      return $block;
+    }
+  }
+}
+
+function _custom_links_build_links($node, $teaser = FALSE, $block = FALSE) {
+  $links = array();
+  $custom_links = _custom_links_load_all_links();
+
+  foreach ($custom_links as $link) {
+    if (($block && $link->display != 3) || (!$block && $link->display == 3)) {
+      continue;
+    }
+    if (($link->display == 0 && $teaser) || ($link->display == 1 && !$teaser)) {
+      continue;
+    }
+    if ($link->node_type && $node->type != $link->node_type) {
+      continue;
+    }
+    if ($link->viewer_perm && !user_access($link->viewer_perm)) {
+      continue;
+    }
+    if ($link->author_perm) {
+      $author = user_load(array('uid' => $node->uid));
+      if (!user_access($link->author_perm, $author)) {
+        continue;
+      }
+    }
+
+    $links[$link->link_key]['title'] = $link->title;
+    if (!empty($link->path)) {
+      $links[$link->link_key]['href'] = $link->path;
+    }
+    if (!empty($link->query)) {
+      $links[$link->link_key]['query'] = $link->query;
+    }
+    if (!empty($link->fragment)) {
+      $links[$link->link_key]['fragment'] = $link->fragment;
+    }
+
+    if (module_exists('token')) {
+      $links[$link->link_key] = token_replace($links[$link->link_key], 'node', $node);
+    }
+
+    $links[$link->link_key]['html'] = $link->check_html;
+  }
+  return $links;
+}
+
+function _custom_links_load_link($lid) {
+  $sql = 'SELECT * FROM {custom_link} WHERE lid = %d';
+  $result = db_query($sql, $lid);
+  $link = db_fetch_object($result);
+  return $link;
+}
+
+function _custom_links_load_all_links($refresh = FALSE) {
+  static $links;
+  if ($refresh || !isset($links)) {
+    $sql = 'SELECT * FROM {custom_link}';
+    $result = db_query($sql);
+
+    $links = array();
+    while($link = db_fetch_object($result)) {
+      $links[] = $link;
+    }
+  }
+  return $links;
+}
+
+function _custom_links_save_link($link = NULL) {
+  if (isset($link->lid)) {
+    drupal_write_record('custom_link', $link, 'lid');
+  }
+  else {
+    drupal_write_record('custom_link', $link);
+  }
+}
+
+function _custom_links_delete_link($lid) {
+  $sql = 'DELETE FROM {custom_link} WHERE lid = %d';
+  db_query($sql, $lid);
+}
+
+function theme_custom_links_block($links) {
+  return theme('links', $links);
+}

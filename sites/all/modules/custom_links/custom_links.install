@@ -1,0 +1,114 @@
+<?php
+// $Id: custom_links.install,v 1.2 2008/01/27 09:16:01 eaton Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function custom_links_install() {
+  drupal_install_schema('custom_links');
+}
+
+function custom_links_schema() {
+  $schema['custom_link'] = array(
+    'description' => t('Stores custom links to be added to nodes.'),
+    'fields' => array(
+      'lid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('Unique identifier for the {custom_link}.'),
+      ),
+      'link_key' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t("A unique CSS class for the link.")
+      ),
+      'node_type' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t("The node type the {custom_link} should be associated with.")
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t("The visible title of the {custom_link}.")
+      ),
+      'path' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => t("The URL path of the {custom_link}."),
+      ),
+      'viewer_perm' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+        'description' => t("A role that the viewer must have for the link to be displayed.")
+      ),
+      'author_perm' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => FALSE,
+        'default' => '',
+        'description' => t("A role that the author must have for the link to be displayed.")
+      ),
+      'check_html' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'size' => 'small',
+        'default' => 1,
+        'description' => t('A boolean flag indicating whether the title field contains raw HTML.'),
+      ),
+      'display' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'size' => 'small',
+        'default' => 2,
+        'description' => t('An integer indicating what contexts the link should display in.'),
+      ),
+      'query' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => 'AND',
+        'description' => t("An optional querystring to be appended to the URL path."),
+      ),
+      'fragment' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => 'AND',
+        'description' => t("An optional anchor fragment to be appended to the URL path."),
+      ),
+    ),
+    'primary key' => array('lid'),
+  );
+  return $schema;
+}
+
+function custom_links_update_1() {
+  $ret = array();
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $ret[] = update_sql("ALTER TABLE {custom_link} ADD fragment varchar(255)");
+      $ret[] = update_sql("ALTER TABLE {custom_link} ADD query varchar(255)");
+      break;
+    case 'pgsql':
+      db_add_column($ret, 'custom_link', 'fragment', 'varchar', array('default' => ''));
+      db_add_column($ret, 'custom_link', 'query', 'varchar', array('default' => ''));
+      break;
+  }
+  return $ret;
+}
+
+function custom_links_uninstall() {
+  drupal_uninstall_schema('custom_links');
+}
