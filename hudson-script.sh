@@ -1,0 +1,1 @@
+php ./scripts/run-tests.sh --php C:/php/php.exe --url http://guides.hudson.local GuidesHelpers
