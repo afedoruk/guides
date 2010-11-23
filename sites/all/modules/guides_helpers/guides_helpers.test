@@ -1,0 +1,85 @@
+<?php
+
+class GuidesHelpersTestCase extends DrupalWebTestCase {
+  protected $anonymous_user, $logged_user, $admin;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'GuidesCard Workflow',
+      'description' => 'Guide cards workflow.',
+      'group' => 'GuidesHelpers',
+    );
+  }
+
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+		'content',
+		'guides_helpers',
+		'inline_registration'
+	);
+
+	$settings = array(
+	  'type' => 'guide', // Override default type (a random name)
+	  'name'=>'Карточка гида',
+	  'title_label' => 'Name', // Override default title label ("Title")
+      'body_label' => 'Description', // Override default body label ("Body")
+	  'inline_registration' => 1
+	);
+	$content_type = $this->drupalCreateContentType($settings);
+
+   
+    // Create and log in our privileged user.
+//	$this->anonymous_user=$this->drupalCreateUser(array('create guide content'));	
+//    $this->privileged_user = $this->drupalCreateUser( array('create simpletest_example', 'edit own simpletest_example'));
+
+  }
+
+  public function testGuidesHelpersTestCreateByLogged() {
+    $this->logged_user=$this->drupalCreateUser(array('create guide content'));
+    $this->drupalLogin($this->logged_user);
+	// Create node to edit.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit['body'] = $this->randomName(16);
+    $this->drupalPost('node/add/guide', $edit, t('Save'));
+    $this->assertText(t('Карточка гида @title has been created.', array('@title' => $edit['title'])));
+//	$this->assertTitle($edit['title'], t("Make sure we are on the guide's page"));
+    $this->assertText($edit["body"]);
+  }
+
+    public function testGuidesHelpersTestCreateByAnonymous() {
+	
+	$this->admin=$this->drupalCreateUser(array('administer permissions', 'administer nodes', 'administer content types'));
+    $this->drupalLogin($this->admin);
+	$edit["1[access comments]"]=1;
+	$edit["1[access content]"]=1;
+	$edit["1[create guide content]"]=1;
+	$edit["1[access user profiles]"]=1;
+
+    $this->drupalPost('admin/user/permissions/1', $edit, t('Save permissions'));
+	//$this->assertText(t("Registration inline"));
+	$this->drupalPost('admin/content/node-type/guide', array("inline_registration"=>1), t("Save content type"));
+	$this->drupalLogout();
+
+    // Create node to edit.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit['body'] = $this->randomName(16);
+	$this->drupalGet('node/add/guide');
+    $this->assertText(t('Login or Register as a New User'));
+    $this->drupalPost('node/add/guide', $edit, t('Save'));
+    $this->assertNoText(t('Карточка гида @title has been created.', array('@title' => $edit['title'])));
+	$edit['name'] = $this->randomName(8);
+	$edit['mail'] = $this->randomName(8)."@".$this->randomName(8).".".$this->randomName(2);
+    $this->drupalPost('node/add/guide', $edit, t('Save'));
+    $this->assertText(t('Карточка гида @title has been created.', array('@title' => $edit['title'])));
+	$this->assertText("Ваша карточка гида будет доступна другим пользователям после того, как вы подтвердите свой адрес email");
+
+//	$this->assertTitle($edit['title'], t("Make sure we are on the guide's page"));
+  //  $this->assertText($edit["body"]);
+  }
+}
+
+
+?>
