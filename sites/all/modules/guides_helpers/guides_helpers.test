@@ -87,7 +87,7 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
 	$edit['mail'] = $this->randomName(8)."@".$this->randomName(8).".".$this->randomName(2);
     $this->drupalPost('node/add/guide', $edit, t('Save'));
     $this->assertText(t('Карточка гида @title has been created.', array('@title' => $edit['title'])));
-//	$this->assertText("Ваша карточка гида будет доступна другим пользователям после того, как вы подтвердите свой адрес email");
+	$this->assertText("Ваша карточка гида будет доступна другим пользователям после того, как вы подтвердите свой адрес email");
 
 //	$this->assertTitle($edit['title'], t("Make sure we are on the guide's page"));
   //  $this->assertText($edit["body"]);
