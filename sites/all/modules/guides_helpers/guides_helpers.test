@@ -16,10 +16,11 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
     parent::setUp(
 		'content',
 		'guides_helpers',
-		'inline_registration'
+		'inline_registration',
+		'guide_card'
 	);
 
-	$settings = array(
+/*	$settings = array(
 	  'type' => 'guide', // Override default type (a random name)
 	  'name'=>'Карточка гида',
 	  'title_label' => 'Name', // Override default title label ("Title")
@@ -27,7 +28,7 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
 	  'inline_registration' => 1
 	);
 	$content_type = $this->drupalCreateContentType($settings);
-
+*/
    
     // Create and log in our privileged user.
 //	$this->anonymous_user=$this->drupalCreateUser(array('create guide content'));	
