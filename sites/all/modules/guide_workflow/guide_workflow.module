@@ -1,0 +1,3 @@
+<?php
+
+include_once('guide_workflow.features.inc');
