@@ -29,7 +29,8 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
 		'views',
 		'guides_helpers',
 		'inline_registration',
-		'guide_card'
+		'guide_card',
+		'guide_workflow'
 	);
 
 /*	$settings = array(
