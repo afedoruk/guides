@@ -30,6 +30,8 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
 		'guides_helpers',
 		'inline_registration',
 		'guide_card',
+		'rules',
+		'php',
 		'guide_workflow'
 	);
 
