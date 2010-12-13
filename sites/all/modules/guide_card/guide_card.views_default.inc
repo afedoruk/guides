@@ -264,6 +264,7 @@ function guide_card_views_default_views() {
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->override_option('title', 'Все гиды');
+  $handler->override_option('use_pager', '1');
   $handler->override_option('path', 'guides');
   $handler->override_option('menu', array(
     'type' => 'none',

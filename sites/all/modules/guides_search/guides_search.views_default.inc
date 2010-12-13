@@ -62,6 +62,25 @@ function guides_search_views_default_views() {
       'relationship' => 'none',
       'reduce_duplicates' => 0,
     ),
+    'field_city_country_id' => array(
+      'operator' => '=',
+      'value' => '',
+      'group' => '0',
+      'exposed' => TRUE,
+      'expose' => array(
+        'use_operator' => 0,
+        'operator' => 'field_city_country_id_op',
+        'identifier' => 'field_city_country_id',
+        'label' => 'Город',
+        'optional' => 1,
+        'remember' => 0,
+      ),
+      'case' => 0,
+      'id' => 'field_city_country_id',
+      'table' => 'node_data_field_city',
+      'field' => 'field_city_country_id',
+      'relationship' => 'none',
+    ),
   ));
   $handler->override_option('access', array(
     'type' => 'none',
@@ -78,7 +97,7 @@ function guides_search_views_default_views() {
   ));
   $handler->override_option('exposed_block', TRUE);
   $handler = $view->new_display('page', 'Page', 'page_1');
-  $handler->override_option('path', 'guides/search');
+  $handler->override_option('path', 'guides/search-views');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => '',

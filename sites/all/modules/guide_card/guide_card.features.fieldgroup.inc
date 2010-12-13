@@ -35,7 +35,7 @@ function guide_card_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '0',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_phone',
       '1' => 'field_mail',

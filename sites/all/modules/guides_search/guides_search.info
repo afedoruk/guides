@@ -1,5 +1,6 @@
 core = "6.x"
 dependencies[] = "better_exposed_filters"
+dependencies[] = "content"
 dependencies[] = "context"
 dependencies[] = "guide_card"
 dependencies[] = "taxonomy"

@@ -50,10 +50,66 @@ function guide_card_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Дополнительная информация',
-      'weight' => '-1',
+      'weight' => 0,
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_city
+  $fields['guide-field_city'] = array(
+    'field_name' => 'field_city',
+    'type_name' => 'guide',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'geotest_city_field',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'geotest',
+    'active' => '1',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'country_id' => 'af',
+          'city_id' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Город',
+      'weight' => '7',
+      'description' => '',
+      'type' => 'country_city_entry',
+      'module' => 'geotest',
     ),
   );
 
@@ -201,7 +257,7 @@ function guide_card_content_default_fields() {
       'default_image' => NULL,
       'use_default_image' => 1,
       'label' => 'Фото',
-      'weight' => '-3',
+      'weight' => '-2',
       'description' => '',
       'type' => 'imagefield_widget',
       'module' => 'imagefield',
@@ -263,6 +319,7 @@ function guide_card_content_default_fields() {
   // Included for use with string extractors like potx.
   t('E-mail');
   t('Skype');
+  t('Город');
   t('Дополнительная информация');
   t('Телефон');
   t('Фото');
