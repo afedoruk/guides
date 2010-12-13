@@ -1,0 +1,802 @@
+<?php
+// $Id$
+/**
+ * @file geotest.module
+ * TODO: Enter file description here.
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function geotest_menu() { 
+  // This is the minimum information you can provide for a menu item.
+  $items['geotest'] = array(
+    'title' => 'GeoTest Page',
+    'page callback' => 'geotest_page',
+    'access arguments' => array('access content'),
+  );
+   $items['geotest/autocomplete'] = array(
+    'page callback' => 'geotest_autocomplete',
+    'access arguments' => array('access content'),
+	'type'=>MENU_CALLBACK
+  );
+  /*  $items['geotest/autocomplete/city/%'] = array(
+    'page callback' => 'geotest_autocomplete',
+	'page arguments' => array(3), 
+    'access arguments' => array('access content'),
+	'type'=>MENU_CALLBACK
+  );*/
+
+	$items['geotest/citychange']= array(
+		  'type' => MENU_CALBACK,
+		  'page callback' => 'geotest_citychange',
+		  'access callback' => TRUE,
+		);
+
+	$items['guides/search']= array(
+		  'type' => MENU_CALBACK,
+		  'page callback' => 'geotest_guides_search',
+		  'access callback' => TRUE,
+		);
+
+  return $items;
+}
+
+function geotest_block($op = 'list', $delta = 0, $edit = array()) 
+{
+  if ($op == 'list') {
+    $blocks[0] = array(
+      'info' => t('Guides search form'), 
+	  'cache'=> BLOCK_CACHE_GLOBAL
+	);
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    switch ($delta) {
+      case 0:
+        $block = array(
+          'content' => drupal_get_form("geotest_guides_search_form"),
+        );
+        break;
+    }
+    return $block;
+  }
+}
+
+function geotest_guides_search_form()
+{
+	$vocabs=taxonomy_get_vocabularies("guide");
+	$vocab=array_shift($vocabs);
+
+	$terms=taxonomy_get_tree($vocab->vid);
+	foreach($terms as $term)
+	{
+		$services[$term->tid]=$term->name;
+	}
+
+	$form['services'] = array(
+    '#title' => t( 'Services' ),
+    '#type' => 'checkboxes',
+	'#options'=>$services,
+	"#default_value"=>isset($_GET["services"])?$_GET["services"]:array(),
+	);
+
+
+	$countries[-1]="";
+	$countries+= geotest_country_list();
+	 $form['country_id'] = array(
+    '#title' => t( 'Country' ),
+    '#type' => 'select',
+	'#options'=>$countries,
+	"#default_value"=>isset($_GET["country_id"])?$_GET["country_id"]:"",
+	);
+
+   $form['city'] = array(
+	'#title' => t( 'City' ),
+	'#type' => 'textfield',
+	'#default_value' =>  isset($_GET["city"])?$_GET["city"]:"",
+//	'#autocomplete_path' => 'geotest/autocomplete/city'
+  );
+
+	$form["#method"]="get";
+	$form["#action"]="/guides/search";
+	$form["submit"]=array("#type"=>"submit", "#value"=>t("Search"));
+	return $form;
+}
+
+function geotest_citychange()
+{
+	
+	$form_state    = array('storage' => NULL, 'submitted' => FALSE);
+	$form_build_id = $_POST['form_build_id'];
+ 
+	$form    = form_get_cache($form_build_id, $form_state);
+	$args    = $form['#parameters'];
+	$form_id = array_shift($args);
+	 
+	$form['#post']       = $_POST;
+	$form['#redirect']   = FALSE;
+	$form['#programmed'] = FALSE;
+	$form_state['post']  = $_POST;
+ 
+	  // Prevents _form_builder_ie_cleanup() from incorrectly assigning the
+	  // first button in the form as the clicked button.
+	  // Wim Leers' AHAH Helper Module has more in-depth information.
+	  // @see the ahah_helper project
+	$form_state['submitted'] = TRUE;
+ 
+	 drupal_process_form($form_id, $form, $form_state);
+ 
+  // Once drupal_rebuild_form is called, we no longer have access to
+  // $form_state['values'], so we merge it into $form_state['storage'].
+ /* if (isset($form_state['values'])) {
+    if (!isset($form_state['storage'])) {
+      $form_state['storage'] = array();
+    }
+    $storage = $form_state['storage'];
+    $values  = $form_state['values'];
+    $form_state['storage'] = array_smart_merge($storage, $values);
+  }
+ */
+  // Rebuild the form.
+  $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
+	
+  //$output=
+ /*
+  // IMPORTANT:
+  // This is a simple example, and we know what the new form element is called. In a
+  // real world scenario, you would need to pass a callback function to this AHAH
+  // render function that would return the new content, or get the new content in
+  // some other way - this is just a simple example.
+  $output = $form['content']['simple_select_child'];
+ 
+  // Get the JS settings so we can merge them.
+  $javascript = drupal_add_js(NULL, NULL, 'header');
+  $settings = call_user_func_array('array_merge_recursive', $javascript['setting']);*/
+ 
+$output=$form['geotest_country_city']['city_id'];
+  drupal_json(array(
+    'status'    => TRUE,
+    'data'      => theme('status_messages') . drupal_render($output),
+//    'settings'  => array('ahah' => $settings['ahah']),
+  ));
+  drupal_set_message(print_R($form, 1));
+}
+
+function geotest_page()
+{
+	print_R(node_get_types('names'));
+	$output="<h1>Просто город</h1>".drupal_get_form("geotest_search_form");
+//	$output.="<h1>Сначала страна, потом город</h1>".drupal_get_form("geotest_search_form");
+	return $output;
+}
+
+function geotest_search_form()
+{
+	$form["name"]=array("#type"=>"textfield", "#name"=>"name", '#autocomplete_path' => 'geotest/autocomplete');
+	return $form;
+}
+
+function geotest_autocomplete($type, $string)
+{
+	drupal_Set_message($type." ".$string);
+	$matches=array();
+	if(drupal_strlen($string)>2)
+	{
+		if($type=="country")
+		{
+			$query=array("countryname"=>urlencode($string), "lang"=>"ru");
+			$options=array();
+			$options=array("columns"=>array("name", "countryname"));
+		}
+		else
+		{
+			$query=array("name"=>urlencode($string), "lang"=>"ru");
+			$options=array();
+			$options=array("columns"=>array("name", "countryname", "countrycode", "geonameid"));
+		}
+		$result = geonames_query('search', $query, $options);//$service, $query, $options)
+		if(sizeof($result->results))
+		{
+			foreach($result->results as $res)
+			{
+				$s="<b>".$res["name"]."</b>, ".$res["countryname"];
+				$matches[strip_tags($s)]=$s;
+			}
+			drupal_set_message("<pre>".print_R($result, 1)."</pre>");
+//			$matches=array("test");		
+		}
+	}
+	drupal_json($matches);
+}
+
+function geotest_field_info() {
+  return array(
+    'geotest_city_field' => array('label' => t('Country & City')),
+  );
+}
+
+function geotest_field_settings($op, $field) {
+  switch ($op) {
+    case 'database columns':
+      $columns = array(
+        'country_id' => array('type' => 'varchar', 'length' => 4, 'not null' => TRUE, 'default' => ''),
+        'city_name' => array('type' => 'varchar', 'length' => 50, 'not null' => TRUE, 'default' => ''),
+      );
+      return $columns;
+/*    case 'views data':
+      // Start with the $data created by CCK
+      // and alter it as needed. The following
+      // code illustrates how you would retrieve
+      // the necessary data.
+      $data = content_views_field_views_data($field);
+      $db_info = content_database_info($field);
+      $table_alias = content_views_tablename($field);
+      $field_data = $data[$table_alias][$field['field_name'] .'_value'];
+      // Make changes to $data as needed here.
+      return $data;*/
+   }
+}
+
+function geotest_install() {
+  content_notify('install', 'geotest_city_field');
+}
+
+function geotest_uninstall() {
+  content_notify('uninstall', 'geotest_city_field');
+}
+
+function geotest_enable() {
+  content_notify('enable', 'geotest_city_field');
+}
+
+function geotest_disable() {
+  content_notify('disable', 'geotest_city_field');
+}
+
+function geotest_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    case 'validate':
+		// TODO: check existance
+  /*    if (is_array($items)) {
+        foreach ($items as $delta => $item) {
+          if ($item['email'] != '' && !valid_email_address(trim($item['email']))) {
+            form_set_error($field['field_name'],t('"%mail" is not a valid email address',array('%mail' => $item['email'])));
+          }
+        }
+     }*/
+     break;
+/*
+    case 'sanitize':
+      foreach ($items as $delta => $item) {
+        foreach ( $item as $col => $dat ) {
+          $items[$delta]['safe_' . $col ] = check_plain($item[ $col ]);
+        }
+      }
+      break;*/
+  }
+}
+
+function geotest_content_is_empty($item, $field) {
+  if (empty($item['city_name'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+function geotest_widget_info() {
+  return array(
+    'country_city_entry' => array(
+      'label' => t('Where are you?'),
+      'field types' => array('geotest_city_field'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+/*
+function geotest_elements() {
+	echo "Ddd";
+  $elements = array( 'geotest_country_city_entry' =>
+    array(
+      '#input' => TRUE,
+      '#process' => array( 'geotest_country_city_process' ),
+    ),
+  );
+
+  return $elements;
+}
+
+function geotest_country_city_process($element, $edit, &$form_state, $form) {
+ echo "Z";
+  $defaults = $element['#value'];
+  $field = content_fields($element['#field_name'], $element['#type_name']);
+
+  $element['country_id'] = array(
+    '#title' => t( 'Country' ),
+    '#type' => 'textfield',
+    '#default_value' => $defaults['country_id'],
+    '#weight' => 2,
+  );
+
+  $element['city_id'] = array(
+    '#title' => t( 'City' ),
+    '#type' => 'textfield',
+    '#default_value' => $defaults['city_id'],
+    '#weight' => 3,
+  );
+  return $element;
+}*/
+
+function theme_geotest_country_city_entry($element) {
+	echo "FFF";
+  return $element['#children'];
+}
+
+/*function geotest_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+
+//$defaults = $element['#value'];
+  //$field = content_fields($element['#field_name'], $element['#type_name']);
+
+	/*$script="
+	$(document).ready(function() {
+	alert('ddd');
+	});
+	";*
+
+//	drupal_add_js($script, "inline");
+  $element['geotest_country_city']=array("#prefix"=>"<div id='geotest-country-city-wrapper'>", "#suffix"=>"</div>");
+  $element['geotest_country_city']['country_id'] = array(
+    '#title' => t( 'Country' ),
+    '#type' => 'select',
+	'#options'=> geotest_country_list(),
+    '#default_value' => $items[$delta]['country_id'],
+    '#weight' => 2,
+	'#ahah' => array(
+      'path' => 'geotest/citychange',
+      'wrapper' => 'geotest-city-wrapper',
+	  'event'=>'change'
+    ),
+  );
+
+  $element['geotest_country_city']['city_id']=array("#prefix"=>"<div id='geotest-city-wrapper'>", "#suffix"=>"</div>");
+  if ($form_state['storage']['geotest_country_city']['country_id']) 
+  {
+	   $element['geotest_country_city']['city_id'] = array(
+		'#title' => t( 'City' ),
+		'#type' => 'textfield',
+		'#default_value' =>  $items[$delta]['city_id'],
+		'#weight' => 3,
+		'#autocomplete_path' => 'geotest/autocomplete/city/'.$form_state['storage']['geotest_country_city']['country_id']
+	  );
+  }
+  return $element;
+}*/
+
+function geotest_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+
+//$defaults = $element['#value'];
+  //$field = content_fields($element['#field_name'], $element['#type_name']);
+
+  $element['country_id'] = array(
+    '#title' => t( 'Country' ),
+    '#type' => 'select',
+	'#options'=> geotest_country_list(),
+    '#default_value' => $items[$delta]['country_id'],
+    '#weight' => 2,
+  );
+
+   $element['city_name'] = array(
+	'#title' => t( 'City' ),
+	'#type' => 'textfield',
+	'#default_value' =>  $items[$delta]['city_name'],
+	'#weight' => 3,
+//	'#autocomplete_path' => 'geotest/autocomplete/city'
+  );
+
+  return $element;
+}
+
+function theme_geotest_formatter_default($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  //$flds = array('displayed_name', 'job_title', 'phone');
+  $ret = '<div class="staff_info">';
+
+  $ret=print_R($stuff, 1);
+/*  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
+      '">' . $stuff['safe_email' ] . "</a>";
+  }
+*/
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+function geotest_theme() {
+  return array(
+    // Themes for the formatters.
+    'example_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+    ),
+  /*  'example_formatter_plain' => array(
+      'arguments' => array('element' => NULL),
+    ),*/
+  );
+}
+
+function geotest_field_formatter_info() {
+  return array(
+    // The machine name of the formatter.
+    'default' => array(
+      // The human-readable label shown on the Display
+      // fields screen.
+      'label' => t('Default'),
+      // An array of the field types this formatter
+      // can be used on.
+      'field types' => array('geotest_city_field'),
+      // CONTENT_HANDLE_CORE:   CCK will pass the formatter
+      // a single value.
+      // CONTENT_HANDLE_MODULE: CCK will pass the formatter
+      // an array of all the values. None of CCK's core
+      // formatters use multiple values, that is an option
+      // available to other modules that want it.
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+  );
+}
+
+function geotest_country_list($upper = FALSE) {
+  static $countries;
+
+  if (isset($countries)) {
+    // In fact, the ISO codes for countries are all Upper Case.
+    // So, if someone needs the list as the official records,
+    // it will convert.
+    if (!empty($upper)) {
+      return array_change_key_case($countries, CASE_UPPER);
+    }
+    return $countries;
+  }
+
+  $countries = array(
+    'ad' => t('Andorra'),
+    'ae' => t('United Arab Emirates'),
+    'af' => t('Afghanistan'),
+    'ag' => t('Antigua and Barbuda'),
+    'ai' => t('Anguilla'),
+    'al' => t('Albania'),
+    'am' => t('Armenia'),
+    'an' => t('Netherlands Antilles'),
+    'ao' => t('Angola'),
+    'aq' => t('Antarctica'),
+    'ar' => t('Argentina'),
+    'as' => t('American Samoa'),
+    'at' => t('Austria'),
+    'au' => t('Australia'),
+    'aw' => t('Aruba'),
+    'ax' => t('Aland Islands'),
+    'az' => t('Azerbaijan'),
+    'ba' => t('Bosnia and Herzegovina'),
+    'bb' => t('Barbados'),
+    'bd' => t('Bangladesh'),
+    'be' => t('Belgium'),
+    'bf' => t('Burkina Faso'),
+    'bg' => t('Bulgaria'),
+    'bh' => t('Bahrain'),
+    'bi' => t('Burundi'),
+    'bj' => t('Benin'),
+    'bm' => t('Bermuda'),
+    'bn' => t('Brunei'),
+    'bo' => t('Bolivia'),
+    'br' => t('Brazil'),
+    'bs' => t('Bahamas'),
+    'bt' => t('Bhutan'),
+    'bv' => t('Bouvet Island'),
+    'bw' => t('Botswana'),
+    'by' => t('Belarus'),
+    'bz' => t('Belize'),
+    'ca' => t('Canada'),
+    'cc' => t('Cocos (Keeling) Islands'),
+    'cd' => t('Congo (Kinshasa)'),
+    'cf' => t('Central African Republic'),
+    'cg' => t('Congo (Brazzaville)'),
+    'ch' => t('Switzerland'),
+    'ci' => t('Ivory Coast'),
+    'ck' => t('Cook Islands'),
+    'cl' => t('Chile'),
+    'cm' => t('Cameroon'),
+    'cn' => t('China'),
+    'co' => t('Colombia'),
+    'cr' => t('Costa Rica'),
+    'cs' => t('Serbia And Montenegro'), // Transitional reservation
+    'cu' => t('Cuba'),
+    'cv' => t('Cape Verde'),
+    'cx' => t('Christmas Island'),
+    'cy' => t('Cyprus'),
+    'cz' => t('Czech Republic'),
+    'de' => t('Germany'),
+    'dj' => t('Djibouti'),
+    'dk' => t('Denmark'),
+    'dm' => t('Dominica'),
+    'do' => t('Dominican Republic'),
+    'dz' => t('Algeria'),
+    'ec' => t('Ecuador'),
+    'ee' => t('Estonia'),
+    'eg' => t('Egypt'),
+    'eh' => t('Western Sahara'),
+    'er' => t('Eritrea'),
+    'es' => t('Spain'),
+    'et' => t('Ethiopia'),
+    'fi' => t('Finland'),
+    'fj' => t('Fiji'),
+    'fk' => t('Falkland Islands'),
+    'fm' => t('Micronesia'),
+    'fo' => t('Faroe Islands'),
+    'fr' => t('France'),
+    'ga' => t('Gabon'),
+    'gd' => t('Grenada'),
+    'ge' => t('Georgia'),
+    'gf' => t('French Guiana'),
+    'gg' => t('Guernsey'),
+    'gh' => t('Ghana'),
+    'gi' => t('Gibraltar'),
+    'gl' => t('Greenland'),
+    'gm' => t('Gambia'),
+    'gn' => t('Guinea'),
+    'gp' => t('Guadeloupe'),
+    'gq' => t('Equatorial Guinea'),
+    'gr' => t('Greece'),
+    'gs' => t('South Georgia and the South Sandwich Islands'),
+    'gt' => t('Guatemala'),
+    'gu' => t('Guam'),
+    'gw' => t('Guinea-Bissau'),
+    'gy' => t('Guyana'),
+    'hk' => t('Hong Kong S.A.R., China'),
+    'hm' => t('Heard Island and McDonald Islands'),
+    'hn' => t('Honduras'),
+    'hr' => t('Croatia'),
+    'ht' => t('Haiti'),
+    'hu' => t('Hungary'),
+    'id' => t('Indonesia'),
+    'ie' => t('Ireland'),
+    'il' => t('Israel'),
+    'im' => t('Isle of Man'),
+    'in' => t('India'),
+    'io' => t('British Indian Ocean Territory'),
+    'iq' => t('Iraq'),
+    'ir' => t('Iran'),
+    'is' => t('Iceland'),
+    'it' => t('Italy'),
+    'je' => t('Jersey'),
+    'jm' => t('Jamaica'),
+    'jo' => t('Jordan'),
+    'jp' => t('Japan'),
+    'ke' => t('Kenya'),
+    'kg' => t('Kyrgyzstan'),
+    'kh' => t('Cambodia'),
+    'ki' => t('Kiribati'),
+    'km' => t('Comoros'),
+    'kn' => t('Saint Kitts and Nevis'),
+    'kp' => t('North Korea'),
+    'kr' => t('South Korea'),
+    'kw' => t('Kuwait'),
+    'ky' => t('Cayman Islands'),
+    'kz' => t('Kazakhstan'),
+    'la' => t('Laos'),
+    'lb' => t('Lebanon'),
+    'lc' => t('Saint Lucia'),
+    'li' => t('Liechtenstein'),
+    'lk' => t('Sri Lanka'),
+    'lr' => t('Liberia'),
+    'ls' => t('Lesotho'),
+    'lt' => t('Lithuania'),
+    'lu' => t('Luxembourg'),
+    'lv' => t('Latvia'),
+    'ly' => t('Libya'),
+    'ma' => t('Morocco'),
+    'mc' => t('Monaco'),
+    'md' => t('Moldova'),
+    'me' => t('Montenegro'),
+    'mg' => t('Madagascar'),
+    'mh' => t('Marshall Islands'),
+    'mk' => t('Macedonia'),
+    'ml' => t('Mali'),
+    'mm' => t('Myanmar'),
+    'mn' => t('Mongolia'),
+    'mo' => t('Macao S.A.R., China'),
+    'mp' => t('Northern Mariana Islands'),
+    'mq' => t('Martinique'),
+    'mr' => t('Mauritania'),
+    'ms' => t('Montserrat'),
+    'mt' => t('Malta'),
+    'mu' => t('Mauritius'),
+    'mv' => t('Maldives'),
+    'mw' => t('Malawi'),
+    'mx' => t('Mexico'),
+    'my' => t('Malaysia'),
+    'mz' => t('Mozambique'),
+    'na' => t('Namibia'),
+    'nc' => t('New Caledonia'),
+    'ne' => t('Niger'),
+    'nf' => t('Norfolk Island'),
+    'ng' => t('Nigeria'),
+    'ni' => t('Nicaragua'),
+    'nl' => t('Netherlands'),
+    'no' => t('Norway'),
+    'np' => t('Nepal'),
+    'nr' => t('Nauru'),
+    'nu' => t('Niue'),
+    'nz' => t('New Zealand'),
+    'om' => t('Oman'),
+    'pa' => t('Panama'),
+    'pe' => t('Peru'),
+    'pf' => t('French Polynesia'),
+    'pg' => t('Papua New Guinea'),
+    'ph' => t('Philippines'),
+    'pk' => t('Pakistan'),
+    'pl' => t('Poland'),
+    'pm' => t('Saint Pierre and Miquelon'),
+    'pn' => t('Pitcairn'),
+    'pr' => t('Puerto Rico'),
+    'ps' => t('Palestinian Territory'),
+    'pt' => t('Portugal'),
+    'pw' => t('Palau'),
+    'py' => t('Paraguay'),
+    'qa' => t('Qatar'),
+    're' => t('Reunion'),
+    'ro' => t('Romania'),
+    'rs' => t('Serbia'),
+    'ru' => t('Russia'),
+    'rw' => t('Rwanda'),
+    'sa' => t('Saudi Arabia'),
+    'sb' => t('Solomon Islands'),
+    'sc' => t('Seychelles'),
+    'sd' => t('Sudan'),
+    'se' => t('Sweden'),
+    'sg' => t('Singapore'),
+    'sh' => t('Saint Helena'),
+    'si' => t('Slovenia'),
+    'sj' => t('Svalbard and Jan Mayen'),
+    'sk' => t('Slovakia'),
+    'sl' => t('Sierra Leone'),
+    'sm' => t('San Marino'),
+    'sn' => t('Senegal'),
+    'so' => t('Somalia'),
+    'sr' => t('Suriname'),
+    'st' => t('Sao Tome and Principe'),
+    'sv' => t('El Salvador'),
+    'sy' => t('Syria'),
+    'sz' => t('Swaziland'),
+    'tc' => t('Turks and Caicos Islands'),
+    'td' => t('Chad'),
+    'tf' => t('French Southern Territories'),
+    'tg' => t('Togo'),
+    'th' => t('Thailand'),
+    'tj' => t('Tajikistan'),
+    'tk' => t('Tokelau'),
+    'tl' => t('East Timor'),
+    'tm' => t('Turkmenistan'),
+    'tn' => t('Tunisia'),
+    'to' => t('Tonga'),
+    'tr' => t('Turkey'),
+    'tt' => t('Trinidad and Tobago'),
+    'tv' => t('Tuvalu'),
+    'tw' => t('Taiwan'),
+    'tz' => t('Tanzania'),
+    'ua' => t('Ukraine'),
+    'ug' => t('Uganda'),
+    'uk' => t('United Kingdom'),
+    'um' => t('United States Minor Outlying Islands'),
+    'us' => t('United States'),
+    'uy' => t('Uruguay'),
+    'uz' => t('Uzbekistan'),
+    'va' => t('Vatican'),
+    'vc' => t('Saint Vincent and the Grenadines'),
+    've' => t('Venezuela'),
+    'vg' => t('British Virgin Islands'),
+    'vi' => t('U.S. Virgin Islands'),
+    'vn' => t('Vietnam'),
+    'vu' => t('Vanuatu'),
+    'wf' => t('Wallis and Futuna'),
+    'ws' => t('Samoa'),
+    'ye' => t('Yemen'),
+    'yt' => t('Mayotte'),
+    'za' => t('South Africa'),
+    'zm' => t('Zambia'),
+    'zw' => t('Zimbabwe'),
+  );
+
+  // Sort the list.
+  natcasesort($countries);
+
+  // In fact, the ISO codes for countries are all Upper Case.
+  // So, if someone needs the list as the official records,
+  // it will convert.
+  if (!empty($upper)) {
+    return array_change_key_case($countries, CASE_UPPER);
+  }
+  return $countries;
+}
+
+function geotest_views_api() {
+  return array(
+    'api' => 2,
+    'path' =>
+   drupal_get_path('module', 'geotest'),
+  );
+}
+
+function geotest_guides_search()
+{
+	$join='';
+	$cond=array();
+	$args=array();
+	$query="SELECT * FROM {node} n ";
+
+	if(isset($_GET["country_id"]) && $_GET["country_id"]!=-1)
+	{
+		$join.=" INNER JOIN {content_type_guide} cg ON n.vid=cg.vid";
+		$cond[]="cg.field_city_country_id='%s'";
+		$args[]=$_GET["country_id"];
+	}
+
+	if(isset($_GET["city"]) && $_GET["city"]!="")
+	{
+		if(!strstr($join, "{content_type_guide}"))
+			$join.=" INNER JOIN {content_type_guide} cg ON n.vid=cg.vid";
+		$cond[]="cg.field_city_city_name LIKE '%s%%'";
+		$args[]=$_GET["city"];
+	}
+
+	if(isset($_GET["services"]) && sizeof($_GET["services"]))
+	{
+		$join.=" INNER JOIN {term_node} tn ON tn.vid=n.vid ";
+		foreach($_GET["services"] as $service)
+		{
+			$tids[]=(int)$service;
+		}
+		$cond[]="tn.tid IN (".implode(", ", $tids).")";
+	}
+
+	if(sizeof($cond))
+	{
+		$cond[]="n.status = 1";
+		$cond[]="n.type = 'guide'";
+		$q=$query.$join." WHERE ".implode(" AND ", $cond);
+
+//		echo $q;
+
+		$res=pager_query($q, 10, 0, NULL, $args);
+		while($row=db_fetch_object($res))
+		{
+			$output.=node_view(node_load($row->nid), 1);
+		}
+		if($output)
+			$output.=theme('pager');
+		else
+			$output.="<p>Ничего не найдено :(</p>";
+	}
+	else
+	{
+		$output="<p>Введите хотя бы одно условие для поиска</p>";
+	}
+	return $output;
+}
+?>

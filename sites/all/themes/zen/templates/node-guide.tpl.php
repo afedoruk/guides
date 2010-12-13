@@ -1,6 +1,8 @@
 <?php
+$countries=geotest_country_list();
 if($page)
 {
+	echo "<h4>".$countries[$node->field_city[0]["country_id"]].", ".$node->field_city[0]["city_name"]."</h4>";
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -84,6 +86,16 @@ print views_embed_view('testimonials', 'page_1', $node->nid);
 else
 {
 	?>
-	<table><tr><td style='width: 80px'><?=$node->field_photo[0]["filepath"]?theme("imagecache", "userpic", $node->field_photo[0]["filepath"]):""?></td><td><?=l($node->title, "node/".$node->nid)?></td></tr></table>
+	<table><tr><td style='width: 80px'><?=$node->field_photo[0]["filepath"]?theme("imagecache", "userpic", $node->field_photo[0]["filepath"]):""?></td><td><?=l($node->title, "node/".$node->nid)?><br/>
+	<?
+	
+	echo $countries[$node->field_city[0]["country_id"]].", ".$node->field_city[0]["city_name"]."<br>";
+	foreach($node->taxonomy as $term)
+	{
+		$s[]=$term->name;
+	}
+	echo theme("item_list", $s);
+	?>
+	</td></tr></table>
 	<?
 }

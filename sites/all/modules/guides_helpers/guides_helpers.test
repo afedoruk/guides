@@ -32,7 +32,7 @@ class GuidesHelpersTestCase extends DrupalWebTestCase {
 		'guide_card',
 		'rules',
 		'php',
-		'guide_workflow'
+		'guide_workflow',
 	);
 
 /*	$settings = array(
