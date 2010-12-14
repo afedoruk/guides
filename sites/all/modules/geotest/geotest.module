@@ -81,9 +81,16 @@ function geotest_guides_search_form()
 	"#default_value"=>isset($_GET["services"])?$_GET["services"]:array(),
 	);
 
-
+	$fullcountries=geotest_country_list();
 	$countries[-1]="";
-	$countries+= geotest_country_list();
+	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_type_guide} WHERE field_city_country_id !=''");
+	while($row=db_fetch_object($res))
+	{
+		$countries[$row->field_city_country_id]=$fullcountries[$row->field_city_country_id];
+	}
+
+
+//	$countries+= geotest_country_list();
 	 $form['country_id'] = array(
     '#title' => t( 'Country' ),
     '#type' => 'select',
