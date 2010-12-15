@@ -83,7 +83,7 @@ function geotest_guides_search_form()
 
 	$fullcountries=geotest_country_list();
 	$countries[-1]="";
-	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_type_guide} WHERE field_city_country_id !=''");
+	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_type_guide} WHERE field_city_country_id !='' ORDER BY field_city_country_id");
 	while($row=db_fetch_object($res))
 	{
 		$countries[$row->field_city_country_id]=$fullcountries[$row->field_city_country_id];
