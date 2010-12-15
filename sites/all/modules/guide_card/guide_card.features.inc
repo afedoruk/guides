@@ -38,8 +38,8 @@ function guide_card_imagecache_default_presets() {
           'module' => 'imagecache',
           'action' => 'imagecache_scale_and_crop',
           'data' => array(
-            'width' => '80',
-            'height' => '80',
+            'width' => '62',
+            'height' => '62',
           ),
         ),
       ),
