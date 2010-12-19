@@ -34,9 +34,11 @@ function geotest_menu() {
 		);
 
 	$items['guides/search']= array(
+ 		  'title'=>"Search results",
 		  'type' => MENU_CALBACK,
 		  'page callback' => 'geotest_guides_search',
 		  'access callback' => TRUE,
+		  
 		);
 
   return $items;
@@ -56,6 +58,7 @@ function geotest_block($op = 'list', $delta = 0, $edit = array())
       case 0:
         $block = array(
           'content' => drupal_get_form("geotest_guides_search_form"),
+		  "title"=>t("Guide search")
         );
         break;
     }
@@ -752,9 +755,12 @@ function geotest_views_api() {
 
 function geotest_guides_search()
 {
+	drupal_set_title(t("Search results"));
 	$join='';
 	$cond=array();
 	$args=array();
+	$guides=array();
+
 	$query="SELECT * FROM {node} n ";
 
 	if(isset($_GET["country_id"]) && $_GET["country_id"]!=-1)
@@ -793,10 +799,13 @@ function geotest_guides_search()
 		$res=pager_query($q, 10, 0, NULL, $args);
 		while($row=db_fetch_object($res))
 		{
-			$output.=node_view(node_load($row->nid), 1);
+			$guides[]=node_view(node_load($row->nid), 1);
 		}
-		if($output)
+		if(sizeof($guides))
+		{
+			$output.=theme("item_list", $guides, null, "ul",  array("class"=>"img-list"));
 			$output.=theme('pager');
+		}
 		else
 			$output.="<p>Ничего не найдено :(</p>";
 	}

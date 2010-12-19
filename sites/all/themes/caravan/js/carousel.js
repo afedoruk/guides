@@ -1,4 +1,5 @@
 $(document).ready(function(){  
+	$("#guide-card").tabs();  
 	$("#featured").tabs({fx:{opacity: "toggle"}}).tabs("rotate", 5000, true);  
 		$(".ui-tabs-panel img").toggle(  
 		function() {  

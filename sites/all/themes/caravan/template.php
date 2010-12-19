@@ -98,3 +98,15 @@ function caravan_links($links, $attributes = array('class' => 'links'))
   }
   return $output;
 }
+
+function caravan_preprocess_page(&$vars)
+{
+	if(arg(0)=="node" && is_numeric(arg(1)) && !arg(2))
+	{
+		$node=menu_get_object();
+		if($node->type=="guide")
+		{
+			$vars["template_files"][]="page-node-guide";
+		}
+	}
+}

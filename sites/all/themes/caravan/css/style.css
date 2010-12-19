@@ -480,3 +480,106 @@ h6 {
 			font-size:.91em;
 		}
 /*==========================================*/
+
+.block
+{
+	margin-bottom: 20px;
+}
+
+/*== guide card box begin ==*/
+#guide-card {width:957px; position:relative;}
+#guide-card ul.ui-tabs-nav { position:absolute; top:0; list-style:none; padding:0; margin:0; width:213px; } 
+#guide-card ul.ui-tabs-nav li { padding-bottom:1px;}
+#guide-card ul.ui-tabs-nav li a { 
+	display:block;
+	background:#534b3f;
+	padding:19px 15px 22px 33px;
+	color:#b2b0ac;
+	text-decoration:none;
+	font-size:.91em;
+	line-height:13px;
+}
+
+#guide-card ul.ui-tabs-nav li a:hover {
+	background:#7b7367;
+}
+	#guide-card ul.ui-tabs-nav li a strong {
+		display:block;
+		color:#fff;
+		font-size:18px;
+		line-height:1.2em;
+		font-weight:normal;
+		margin-bottom:4px;
+	}
+
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected a {background:url(../images/arrow2.gif) 190px center no-repeat #7b7367 !important;}
+
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-1 a {background-color: #FFB911 !important;}
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-2 a {background-color: #FF7D01 !important;}
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-3 a {background-color: #8DB526 !important;}
+
+
+#guide-card ul.ui-tabs-nav li.last { padding-right:0;}
+
+#guide-card .ui-tabs-panel {
+	position:relative;
+	z-index:100;
+	width:743px;
+	margin-left: 213px;
+}
+
+#guide-card .ui-tabs-panel .info{ 
+	width: 743px;
+	/*height: 317px;*/
+	min-height: 310px;
+	background:#ffb911;
+	color:#fff;
+	line-height:1.5em;
+	margin-right:1px;
+}
+#guide-card .ui-tabs-panel#fragment-2 .info {
+	background:#ff7d01;
+}
+	#guide-card .ui-tabs-panel .info.bg1 .button {
+		color:#ff7d01;
+	}
+	#guide-card .ui-tabs-panel .info.bg1 .button:hover {
+		color:#000;
+	}
+#guide-card .ui-tabs-panel#fragment-3 .info {
+	background:#8db526;
+}
+	#guide-card .ui-tabs-panel .info.bg2 .button {
+		color:#8db526;
+	}
+	#guide-card .ui-tabs-panel .info.bg2 .button:hover {
+		color:#000;
+	}
+	
+	#guide-card .info .inner { 
+		padding:44px 32px 0 30px;
+	}
+		#guide-card .info h2{ 
+			font-size:44px; 
+			line-height:1.2em;
+			margin-bottom:17px;
+		}
+		#guide-card .info .button {
+			float:left;
+			background:#fff;
+			color:#ffb911;
+			font-weight:bold;
+			text-decoration:none;
+			padding:3px 10px 4px 7px;
+		}
+		#guide-card .info .button:hover { 
+			color:#000;
+		}
+		
+		#guide-card .info p {
+			margin-bottom:24px;
+		}
+
+#guide-card .ui-tabs-hide { display:none; }
+#guide-card img.imagecache-guide_face {float: right; padding: 5px 5px 5px 20px;}
+/*== guide card end ==*/

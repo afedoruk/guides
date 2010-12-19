@@ -23,29 +23,17 @@
          </div>
           <!-- content -->
          <div id="content">
-            <div class="indent1">
-               <div class="row-1">
-               	<div class="wrapper">
-                  	<div class="col-1">
-                     	 <?php //print $breadcrumb; ?>
-						  <?php if ($mission): print '<div id="mission">'. $mission .'</div>'; endif; ?>
-						  <?php if ($tabs): print '<div id="tabs-wrapper" class="clear-block">'; endif; ?>
-						  <?php if (!$is_front && $title): print '<h3'. ($tabs ? ' class="with-tabs"' : '') .'>'. $title .'</h3>'; endif; ?>
-						  <?php if ($tabs): print '<ul class="tabs primary">'. $tabs .'</ul></div>'; endif; ?>
-						  <?php if ($tabs2): print '<ul class="tabs secondary">'. $tabs2 .'</ul>'; endif; ?>
-						  <?php if ($show_messages && $messages): print $messages; endif; ?>
-						  <?php print $help; ?>
-						  <div class="clear-block">
-							<?php print $content ?>
-						  </div>
-                     </div>
-                     <div class="col-2">
-                     	<?=$right?>
-                     </div>
-                  </div>
-               </div>
-               
-            </div>
+		 <?php //print $breadcrumb; ?>
+		  <?php if ($mission): print '<div id="mission">'. $mission .'</div>'; endif; ?>
+		  <?php if ($tabs): print '<div id="tabs-wrapper" class="clear-block">'; endif; ?>
+		  <?php if (!$is_front && $title): print '<h3'. ($tabs ? ' class="with-tabs"' : '') .'>'. $title .'</h3>'; endif; ?>
+		  <?php if ($tabs): print '<ul class="tabs primary">'. $tabs .'</ul></div>'; endif; ?>
+		  <?php if ($tabs2): print '<ul class="tabs secondary">'. $tabs2 .'</ul>'; endif; ?>
+		  <?php if ($show_messages && $messages): print $messages; endif; ?>
+		  <?php print $help; ?>
+		  <div class="clear-block">
+			<?php print $content ?>
+		  </div>
          </div>
          <!-- footer -->
          <div id="footer">

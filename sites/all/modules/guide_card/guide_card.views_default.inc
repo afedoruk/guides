@@ -108,6 +108,7 @@ function guide_card_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
+  $handler->override_option('items_per_page', 3);
   $handler->override_option('row_plugin', 'node');
   $handler->override_option('row_options', array(
     'relationship' => 'none',
@@ -152,11 +153,11 @@ function guide_card_views_default_views() {
     ),
   ));
   $handler->override_option('title', 'Новые гиды');
-  $handler->override_option('row_plugin', 'fields');
   $handler->override_option('row_options', array(
-    'inline' => array(),
-    'separator' => '',
-    'hide_empty' => 0,
+    'relationship' => 'none',
+    'build_mode' => 'teaser',
+    'links' => 0,
+    'comments' => 0,
   ));
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
@@ -251,19 +252,17 @@ function guide_card_views_default_views() {
   ));
   $handler->override_option('title', 'Один из гидов');
   $handler->override_option('items_per_page', 1);
-  $handler->override_option('row_plugin', 'fields');
   $handler->override_option('row_options', array(
-    'inline' => array(
-      'title' => 'title',
-      'field_photo_fid' => 'field_photo_fid',
-    ),
-    'separator' => '',
-    'hide_empty' => 1,
+    'relationship' => 'none',
+    'build_mode' => 'teaser',
+    'links' => 0,
+    'comments' => 0,
   ));
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('page', 'Page', 'page_1');
   $handler->override_option('title', 'Все гиды');
+  $handler->override_option('items_per_page', 10);
   $handler->override_option('use_pager', '1');
   $handler->override_option('path', 'guides');
   $handler->override_option('menu', array(

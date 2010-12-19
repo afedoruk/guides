@@ -66,6 +66,8 @@ function guides_news_views_default_views() {
     'type' => 'none',
   ));
   $handler->override_option('title', 'Новости');
+  $handler->override_option('header_format', '2');
+  $handler->override_option('header_empty', 0);
   $handler->override_option('use_pager', '1');
   $handler->override_option('use_more', 1);
   $handler->override_option('use_more_always', 0);
