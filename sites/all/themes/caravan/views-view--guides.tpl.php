@@ -38,7 +38,7 @@
 
 
   <?php if ($rows): ?>
-      <?php print  ' <ul class="img-list">'.$rows.'</ul>'; ?>
+      <?php print $rows; ?>
   <?php elseif ($empty): ?>
       <?php print $empty; ?>
   <?php endif; ?>

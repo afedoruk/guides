@@ -445,6 +445,10 @@ function geotest_theme() {
     'example_formatter_default' => array(
       'arguments' => array('element' => NULL),
     ),
+	'geotest_guides_list' => array(
+      'arguments' => array("guides"=>array()), 
+      'template' => 'geotest_guides_list',
+    ),
   /*  'example_formatter_plain' => array(
       'arguments' => array('element' => NULL),
     ),*/
@@ -799,11 +803,11 @@ function geotest_guides_search()
 		$res=pager_query($q, 10, 0, NULL, $args);
 		while($row=db_fetch_object($res))
 		{
-			$guides[]=node_view(node_load($row->nid), 1);
+			$guides[]=node_load($row->nid);
 		}
 		if(sizeof($guides))
 		{
-			$output.=theme("item_list", $guides, null, "ul",  array("class"=>"img-list"));
+			$output.=theme("geotest_guides_list", $guides);
 			$output.=theme('pager');
 		}
 		else
