@@ -62,3 +62,11 @@ function guides_helpers_redirect()
 	}
 	drupal_goto($path);
 }
+
+function guides_helpers_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
+{
+	if($node->type=="testimonial" && $op=="view" && $a4)
+	{
+		$node->guide=node_load($node->field_guide[0]["nid"]);
+	}
+}

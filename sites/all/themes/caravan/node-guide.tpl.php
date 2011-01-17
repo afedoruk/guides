@@ -34,8 +34,11 @@ if($page)
                   </li>
 				  <?
 					}
-					?>
+				   ?>
                </ul>
+			   <?
+ 			   print "<div class='service' style='position: absolute; bottom: 0px'>".$links."</div>";
+			   ?>
                <!-- First Content -->
                <div id="fragment-1" class="ui-tabs-panel">			    
                   <div class="info">	
@@ -80,8 +83,7 @@ if($page)
 				<div id="fragment-2" class="ui-tabs-panel ui-tabs-hide">
                   <div class="info bg1">	
                   <?=$node->field_photo[0]["filepath"]?theme("imagecache", "guide_face", $node->field_photo[0]["filepath"]):"";?>
-					 <div class="inner">
-                        <h2>О себе</h2> 
+					 <div class="inner"> 
 	                      <?=$content?>
                      </div>
 					  <div class='clear-block'></div>
@@ -112,7 +114,8 @@ if($page)
 				?>
             </div>
             <!-- featured box begin -->
-<?
+<?	
+			;
 }
 else
 {

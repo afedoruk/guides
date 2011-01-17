@@ -557,7 +557,7 @@ h6 {
 	}
 	
 	#guide-card .info .inner { 
-		padding:44px 32px 0 30px;
+		padding:19px 32px 0 30px;
 	}
 		#guide-card .info h2{ 
 			font-size:44px; 
@@ -583,3 +583,31 @@ h6 {
 #guide-card .ui-tabs-hide { display:none; }
 #guide-card img.imagecache-guide_face {float: right; padding: 5px 5px 5px 20px;}
 /*== guide card end ==*/
+
+.guide-preview 
+{
+	float: right;
+	background: #FFB911;
+	padding: 10px;
+	margin: 0 0 10px 10px;
+}
+
+.service ul.links.inline li
+{
+	display: block;
+}
+
+#comments h2
+{
+	margin-bottom: 17px;
+}
+
+#comments .list1
+{
+	margin-bottom: 0;
+}
+
+.new
+{
+	color: #fff;
+}
