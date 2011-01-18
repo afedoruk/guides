@@ -41,13 +41,15 @@ function guides_helpers_publish_action($user)
 
 function guides_helpers_get_card($account=null)
 {
+	static $nids;
 	if(!$account)
 	{
 		global $user;
 		$account=$user;
 	}
-	$nid=db_result(db_query("SELECT nid FROM {node} WHERE uid=%d AND type='guide'", $account->uid));
-	return $nid;
+	if(!isset($nids[$account->uid]))
+		$nids[$account->uid]=db_result(db_query("SELECT nid FROM {node} WHERE uid=%d AND type='guide'", $account->uid));
+	return $nids[$account->uid];
 }
 
 function guides_helpers_redirect()
@@ -68,5 +70,17 @@ function guides_helpers_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
 	if($node->type=="testimonial" && $op=="view" && $a4)
 	{
 		$node->guide=node_load($node->field_guide[0]["nid"]);
+	}
+}
+
+function guides_helpers_form_alter(&$form, &$form_state, $form_id)
+{
+	if($form_id=="guide_node_form")
+	{
+		if($nid=guides_helpers_get_card())
+		{
+			drupal_set_message("У вас уже есть карточка гида, вот она", "error");
+			drupal_goto("node/".$nid);
+		}
 	}
 }

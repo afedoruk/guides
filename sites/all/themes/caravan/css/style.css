@@ -577,7 +577,11 @@ h6 {
 		}
 		
 		#guide-card .info p {
-			margin-bottom:24px;
+			margin-bottom: 12px;
+		}
+
+		#guide-card .info .alignright a {
+			margin-bottom: 20px;
 		}
 
 #guide-card .ui-tabs-hide { display:none; }
@@ -610,4 +614,11 @@ h6 {
 .new
 {
 	color: #fff;
+}
+
+.submitted
+{
+  color: #AAA9A6;
+  font-style: italic;
+  margin-bottom: 12px;
 }
