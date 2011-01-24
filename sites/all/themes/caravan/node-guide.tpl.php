@@ -3,7 +3,9 @@ $countries=geotest_country_list();
 if($page)
 {
 	$testimonials=views_embed_view('testimonials', 'page_1', $node->nid);
+	print "<div class='service'>".$links."</div>";
 	echo "<h4>".$countries[$node->field_city[0]["country_id"]].", ".$node->field_city[0]["city_name"]."</h4>";
+    
 ?>
     <!-- featured box begin -->
             <div id="guide-card">
@@ -36,9 +38,6 @@ if($page)
 					}
 				   ?>
                </ul>
-			   <?
- 			   print "<div class='service' style='position: absolute; bottom: 0px'>".$links."</div>";
-			   ?>
                <!-- First Content -->
                <div id="fragment-1" class="ui-tabs-panel">			    
                   <div class="info">	

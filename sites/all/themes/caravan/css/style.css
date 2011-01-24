@@ -596,9 +596,29 @@ h6 {
 	margin: 0 0 10px 10px;
 }
 
-.service ul.links.inline li
+.col-1 .col-2.guide-preview 
 {
-	display: block;
+	float: right;
+}
+
+.col-1 .guide-preview 
+{
+	width: 100%;
+	float: none;
+	margin: 0 10px 10px 0;
+}
+
+.service 
+{
+	width: 500px;
+	float: right;
+	text-align: right;
+}
+
+.flag-message 
+{
+	margin-left: -190px;
+	width: 400px;
 }
 
 #comments h2
@@ -622,3 +642,172 @@ h6 {
   font-style: italic;
   margin-bottom: 12px;
 }
+
+#block-block-2
+{
+	background:	#8DB526;
+}
+
+#block-block-2 a
+{
+	color: #fff;
+}
+
+#block-block-2 h4
+{
+	padding: 10px 10px 5px 10px;
+}
+
+.img-list .item-list ul
+{
+	padding: 1em 0;	
+}
+
+.block .img-list li, .guide-preview .img-list li
+{
+	padding-bottom: 3px;
+}
+
+.img-list .item-list ul li 
+{
+	margin: 0;
+}
+
+/* tables */
+
+table
+{
+	width: 100%;
+}
+
+td, th
+{
+	padding: 5px;
+}
+
+thead th
+{
+    color: #484848;
+    font-size: 1em;
+    font-style: italic;
+    margin-bottom: 18px;
+	border: none;
+}
+
+tr.even, tr.odd
+{
+	border: none;
+	background: #fff;
+}
+
+tr.odd
+{
+	background: #eee;
+}
+
+td.active 
+{
+	background: #ddd;
+}
+
+fieldset
+{
+	border-color: #eee;
+}
+
+tbody
+{
+	border: 0;
+}
+
+/* tables end */
+
+/* tabs */
+#tabs-wrapper
+{
+	margin-bottom: 10px;
+}
+
+ul.primary
+{
+	border: none;
+	padding: 0;
+	margin: 5px 0;
+}
+
+ul.primary li a 
+{
+	border: none;
+	background: #FF7D01;
+	color: #fff;
+	padding: 5px;
+}
+
+
+ul.primary li a:hover
+{
+	color: #FF7D01;
+}
+
+ul.primary li.active a
+{
+	border: none;
+	color: #fff;
+	background: #FFB911;
+	font-weight: bold;
+}
+
+ul.secondary 
+{
+	border: 0;
+	margin: 10px 0 0 0;
+	padding: 0.5em 0;
+}
+
+ul.secondary li 
+{
+	border: none;
+	padding: 0;
+}
+
+ul.secondary li a
+{
+	background: #FFB911;
+}
+
+/* tabs end */
+
+/* private msgs */
+.right-column
+{
+	margin-left: 150px;
+	width: 450px;
+}
+
+.privatemsg-box-fb 
+{
+	padding: 10px 0;
+}
+
+div.odd
+{
+	background: #eee;
+}
+
+.message-participants 
+{
+	border: none;
+	margin: 0 0 10px 150px;
+}
+
+.message-body 
+{
+	margin: 0;
+}
+
+.privatemsg-view-pager {
+    margin: 10px 0 10px 150px;
+    width: 300px;
+	padding: 0;
+}
+/* private msgs end */

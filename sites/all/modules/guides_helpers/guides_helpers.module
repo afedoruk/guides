@@ -77,10 +77,50 @@ function guides_helpers_form_alter(&$form, &$form_state, $form_id)
 {
 	if($form_id=="guide_node_form")
 	{
-		if($nid=guides_helpers_get_card())
+		if($nid=guides_helpers_get_card() && arg(2)!="edit")
 		{
 			drupal_set_message("У вас уже есть карточка гида, вот она", "error");
 			drupal_goto("node/".$nid);
 		}
 	}
+	if($form_id=="testimonial_node_form")
+	{
+		global $user;
+		$node=node_load(arg(3));
+		if($node->uid==$user->uid)
+		{
+			drupal_set_message("Нельзя написать отзыв о самом себе :)", "error");
+			drupal_goto("node/".$node->nid);
+		}
+	}
 }
+
+function guides_helpers_user($op, &$edit, &$account, $category = NULL)
+{
+	if($op=="view")
+	{
+		if($nid=guides_helpers_get_card($account))
+		{
+			$guide=node_load($nid);
+			$account->content["guide"]["#value"]=node_view($guide, 1);
+		}
+		$res=db_query("SELECT * FROM {node} WHERE uid=%d AND status=1 AND type='testimonial' ORDER BY created DESC", $account->uid);
+		while($row=db_fetch_object($res))
+		{
+			$testimonials[]=node_load($row->nid);
+		}
+		if(sizeof($testimonials))
+			$account->content["testimonials"]["#value"]=theme("guides_helpers_user_testimonials", $testimonials);
+	}
+}
+
+function guides_helpers_theme($existing, $type, $theme, $path) 
+{
+  return array(
+    'guides_helpers_user_testimonials' => array(
+      'arguments' => array('testimonials'=>array()),
+	  'file'=>"guides_helpers.theme.inc"
+    ),    
+  );
+}
+
