@@ -1,5 +1,34 @@
 <?php
 
+function guides_helpers_init()
+{
+	ctools_include('ajax');
+	ctools_include('modal');
+	ctools_modal_add_js();
+	$sample_style = array(
+    'ctools-sample-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 500,
+        'height' => 300,
+        'addWidth' => 20,
+        'addHeight' => 15,
+      ),
+      'modalOptions' => array(
+        'opacity' => .8,
+        'background-color' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'CToolsSampleModal',
+	  'closeText' => t("Close"),
+      'throbber' => theme('image', ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), t('Loading...'), t('Loading')),
+    ),
+  );
+		   		  drupal_add_js($sample_style, 'setting');
+				    ctools_add_js('ctools-ajax-sample', 'ctools_ajax_sample');
+  ctools_add_css('ctools-ajax-sample', 'ctools_ajax_sample');
+}
+
 function guides_helpers_menu()
 {
 	$items["guides/redirect"]=array(
@@ -8,9 +37,37 @@ function guides_helpers_menu()
 		"type"=>MENU_CALLBACK
 	);
 
+	$items["guides/%ctools_js/login"]=array(
+	  'title' => 'Login',
+      'page callback' => 'guides_helpers_login',
+      'page arguments' => array(1),
+      'access callback' => "user_is_anonymous",
+      'type' => MENU_CALLBACK,
+	);
+
 	return $items;
 }
 
+function guides_helpers_login($js = NULL)
+{
+	// Fall back if $js is not set.
+  if (!$js) {
+    return drupal_get_form('user_login');
+  }
+
+  ctools_include('modal');
+  ctools_include('ajax');
+  $form_state = array(
+    'title' => t('Login'),
+    'ajax' => TRUE,
+  );
+  $output = ctools_modal_form_wrapper('user_login', $form_state);
+  if (empty($output)) {
+    $output = array();
+	$output[]=ctools_ajax_command_reload();
+  }
+  ctools_ajax_render($output);
+}
 
 function guides_helpers_rules_action_info() {
   return array(

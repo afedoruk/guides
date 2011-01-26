@@ -811,3 +811,32 @@ div.odd
 	padding: 0;
 }
 /* private msgs end */
+
+/* login place */
+.login-place
+{
+	background: #101010;
+    border-bottom: 1px solid #999999;
+    color: #FFFFFF;
+    font: bold 11px/20px "Lucida Grande",Verdana,sans-serif;
+    list-style-image: none;
+    text-align: right;
+    width: 100%;
+  
+    position: relative;
+    z-index: 9999;
+	padding: 4px 0;
+}
+
+.login-place a
+{
+	color: #fff;
+    text-align: left;
+    text-decoration: none;
+    text-shadow: 0 1px 1px #000000;
+}
+
+.login-place a.reglink
+{
+	padding: 0 10px;
+}
