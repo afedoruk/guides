@@ -14,6 +14,13 @@
 <body id="page2">
    <div class="tail-bottom">
       <div id="main">
+	    <?
+	  global $user;
+	  if(!$user->uid)
+	  {   
+		 echo "<div class='login-place'>".ctools_modal_text_button(t('Login'), 'guides/nojs/login', t('Login'), 'ctools-modal-ctools-sample-style')." <a href=\"/\" onclick=\"window.location = Drupal.settings.basePath + &#039;twitter/redirect&#039;; return false;\"><img src='/".path_to_theme()."/images/twitter.png'></a>  ".l("Зарегистрироваться", "user/register", array("attributes"=>array("class"=>"reglink")))."</div>";
+	  }
+	  ?>
          <!-- header -->
          <div id="header">
             <div class="logo"><a href="/"><img alt="" src="/<?=path_to_theme()?>/images/logo.gif" /></a></div>

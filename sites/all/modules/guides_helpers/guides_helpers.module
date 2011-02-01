@@ -24,8 +24,8 @@ function guides_helpers_init()
       'throbber' => theme('image', ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), t('Loading...'), t('Loading')),
     ),
   );
-		   		  drupal_add_js($sample_style, 'setting');
-				    ctools_add_js('ctools-ajax-sample', 'ctools_ajax_sample');
+  drupal_add_js($sample_style, 'setting');
+  ctools_add_js('ctools-ajax-sample', 'ctools_ajax_sample');
   ctools_add_css('ctools-ajax-sample', 'ctools_ajax_sample');
 }
 

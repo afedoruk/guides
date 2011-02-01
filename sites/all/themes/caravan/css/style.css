@@ -643,20 +643,6 @@ h6 {
   margin-bottom: 12px;
 }
 
-#block-block-2
-{
-	background:	#8DB526;
-}
-
-#block-block-2 a
-{
-	color: #fff;
-}
-
-#block-block-2 h4
-{
-	padding: 10px 10px 5px 10px;
-}
 
 .img-list .item-list ul
 {
@@ -671,6 +657,35 @@ h6 {
 .img-list .item-list ul li 
 {
 	margin: 0;
+}
+
+/* my card block */
+
+.my-card
+{
+	background:	#8DB526;
+}
+
+.my-card a, .created-my-card a
+{
+	color: #fff;
+}
+
+.my-card h4
+{
+	padding: 10px 10px 5px 10px;
+}
+
+.created-my-card
+{
+	background: #f00;
+	padding: 10px;
+}
+
+.created-my-card a
+{
+	font-size: 24px;
+	text-decoration: none;
 }
 
 /* tables */
@@ -824,7 +839,7 @@ div.odd
     width: 100%;
   
     position: relative;
-    z-index: 9999;
+ /*   z-index: 9999;*/
 	padding: 4px 0;
 }
 
@@ -840,3 +855,12 @@ div.odd
 {
 	padding: 0 10px;
 }
+
+/* login box */
+
+div.ctools-sample-modal-content div.popups-title 
+{
+	background: #FF7D01;
+}
+
+/* end of login box */
