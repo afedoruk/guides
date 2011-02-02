@@ -10,3 +10,5 @@ scripts[] = js/carousel.js
 scripts[] = js/cufon-yui.js
 scripts[] = js/cufon-replace.js
 scripts[] = js/Fenice_BT_italic_400.font.js
+scripts[] = js/jquery.colorBlend.min.js
+scripts[] = js/scripts.js

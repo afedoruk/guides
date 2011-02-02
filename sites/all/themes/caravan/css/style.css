@@ -864,3 +864,15 @@ div.ctools-sample-modal-content div.popups-title
 }
 
 /* end of login box */
+
+.messages.error 
+{
+	background: #fcc;
+	border: none;
+}
+
+div.messages
+{
+	padding: 10px;
+	margin: 10px 0;
+}
