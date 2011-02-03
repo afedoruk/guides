@@ -1,0 +1,3 @@
+<?php
+
+include_once('guides_helper_modules.features.inc');
