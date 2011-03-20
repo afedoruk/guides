@@ -1,5 +1,4 @@
 <?php
-// $Id: module_builder.module,v 1.41.2.40 2009/10/24 13:06:36 joachim Exp $
 
 /**
  * @file
@@ -70,7 +69,7 @@ function module_builder_perm() {
  * @ingroup module_builder_core
  */
 function module_builder_menu() {
-  $items['module_builder'] = array(
+  $items['admin/build/module_builder'] = array(
     'title' => 'Module builder',
     'description' => t('Builds scaffolding for custom modules.'),
     'page callback' => 'drupal_get_form',

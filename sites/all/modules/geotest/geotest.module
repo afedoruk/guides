@@ -13,7 +13,7 @@ function geotest_menu() {
   $items['geotest'] = array(
     'title' => 'GeoTest Page',
     'page callback' => 'geotest_page',
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer nodes'),
   );
    $items['geotest/autocomplete'] = array(
     'page callback' => 'geotest_autocomplete',
@@ -765,7 +765,7 @@ function geotest_guides_search()
 	$args=array();
 	$guides=array();
 
-	$query="SELECT * FROM {node} n ";
+	$query="SELECT DISTINCT(n.nid) FROM {node} n ";
 
 	if(isset($_GET["country_id"]) && $_GET["country_id"]!=-1)
 	{

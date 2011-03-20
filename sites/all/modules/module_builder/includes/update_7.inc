@@ -1,5 +1,4 @@
 <?php
-// $Id: update_7.inc,v 1.1.2.2 2010/01/02 23:30:19 joachim Exp $
 
 /**
  * @file

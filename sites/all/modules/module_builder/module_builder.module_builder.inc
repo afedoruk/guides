@@ -1,5 +1,4 @@
 <?php
-// $Id: module_builder.module_builder.inc,v 1.1.2.15 2010/04/25 17:43:27 joachim Exp $
 
 /**
  * Implementation of hook_module_builder_info().

@@ -10,10 +10,10 @@ $aliases['devhudson'] = array(
 );
   
 $aliases['prod'] = array(
-  'uri' => 'http://deploy-prod.openconsole.ru/',
-  'db-url' => 'mysqli://deploypr_deploy:makelove@localhost/deploypr_deploypr',
-  'remote-host' => '174.121.78.170',
-  'remote-user' => 'deploypr',
-  'root' => '~/www',
+  'uri' => 'http://theguides.ru/',
+  'db-url' => 'mysql://guide:roxgZaaF6TnzB4RpKI3c@localhost/guides',
+  'remote-host' => '178.79.152.226',
+  'remote-user' => 'root',
+  'root' => '/var/www/theguides.ru/public_html/sites/theguides.ru',
 );
 ?>

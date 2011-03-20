@@ -1,0 +1,3 @@
+<?php
+
+include_once('translation_helpers.features.inc');

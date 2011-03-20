@@ -1,5 +1,4 @@
 <?php
-// $Id: module_builder.pages.inc,v 1.1.2.5 2009/10/24 13:27:18 joachim Exp $
 
 /**
  * @file

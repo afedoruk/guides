@@ -1,4 +1,3 @@
-/* $Id: module_builder.js,v 1.1.2.1 2009/08/04 14:55:54 joachim Exp $ */
 
 /**
  * For a given hook grouping, selects/deselects all hooks associated with it.

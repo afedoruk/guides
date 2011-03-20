@@ -1,5 +1,4 @@
 <?php
-// $Id: generate_info_7.inc,v 1.1.2.3 2009/12/05 09:39:07 joachim Exp $
 
 /**
  * @file
@@ -25,17 +24,6 @@
  */
 function module_builder_generate_info($module_data) {
   //print_r($module_data);
-  
-  // Some defaults
-  $module_data_defaults = array(
-    'module_short_description' => 'TODO: Description of module',
-    'module_readable_name'     => ucfirst(str_replace('_', ' ', $module_data['module_root_name'])),
-  );
-  foreach ($module_data as $key => $data) {
-    if (!$data) {
-      $module_data[$key] = $module_data_defaults[$key];
-    }
-  }
 
   // The weird syntax stops this from getting mangled by CVS
   $info = '; $' . 'Id$' . "\n";
@@ -53,7 +41,7 @@ function module_builder_generate_info($module_data) {
   }
   $info .= "core = 7.x\n";
   
-  if (is_array($module_data['module_files'])) {
+  if (isset($module_data['module_files'])) {
     foreach ($module_data['module_files'] as $file) {
       $info .= 'files[] = '. $file ."\n";      
     }

@@ -1,9 +1,11 @@
 <?php
-// $Id: common.inc,v 1.1.2.21 2010/09/22 06:57:03 joachim Exp $
 
 /**
  * @file common.inc
- *   Stuff needed both by module and drush command.
+ * Stuff needed both by module and drush command.
+ *
+ * IMPORTANT: This file should be identical across all versions of Drupal
+ * since Drush uses it.
  *
  */
 
@@ -91,6 +93,8 @@ function _module_builder_drupal_major_version() {
 
 /**
  * Create a directory to store hook files if it does not exist.
+ *
+ * IMPORTANT: this function should only be used on Drupal 5 and 6.
  *
  * This logic blatantly ripped off from image.module -- thanks James! :)
  // somewhat obsolete.
@@ -267,10 +271,14 @@ function _module_builder_invoke_hook() {
   $module_data = array();
   
   foreach ($mb_files as $file) {
-    include_once($file->filename);
-    $module = str_replace('.module_builder.inc', '', $file->basename);
+    // Our system listing wrapper ensured that there is a uri property on all versions.
+    include_once($file->uri);
+    // Use a property of the (badly-documented!) $file object that is common to both D6 and D7.
+    $module = str_replace('.module_builder', '', $file->name);
     // Note that bad data got back from the hook breaks things.
-    $module_data = array_merge($module_data, module_invoke($module, 'module_builder_info'));    
+    if ($result = module_invoke($module, 'module_builder_info')) {
+      $module_data = array_merge($module_data, $result);
+    }
   }
   
   //print_r($module_data);

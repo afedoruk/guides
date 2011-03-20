@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.7.2.4 2010/09/28 07:48:29 joachim Exp $
 
 Welcome to module_builder.module! 
 This is a module designed to help expedite the process of creating custom 

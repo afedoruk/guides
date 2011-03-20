@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.1.4.2 2010/07/05 07:53:52 livido Exp $
 
 inline_registration.module
 

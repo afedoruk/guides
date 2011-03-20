@@ -1,5 +1,4 @@
 <?php
-// $Id: module_builder.admin.inc,v 1.1.2.8 2010/01/03 11:20:37 joachim Exp $
 
 /**
  * @file

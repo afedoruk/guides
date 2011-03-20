@@ -1,5 +1,4 @@
 <?php
-// $Id: common_version_7.inc,v 1.1.2.4 2010/09/18 18:38:20 joachim Exp $
 
 /**
  * @file common_version_7.inc
@@ -27,7 +26,7 @@ function module_builder_create_directory(&$directory, $common = FALSE) {
   else {
     // Relative, and so assumed to be in Drupal's files folder: prepend this to
     // the given directory.
-    $directory = 'public:/' . $directory;
+    $directory = 'public://' . $directory;
   }
 
   // If the directory is common, append the version number subdir.
