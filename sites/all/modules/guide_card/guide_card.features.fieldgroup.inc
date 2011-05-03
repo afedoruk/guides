@@ -40,6 +40,7 @@ function guide_card_fieldgroup_default_groups() {
       '0' => 'field_phone',
       '1' => 'field_mail',
       '2' => 'field_skype',
+      '3' => 'field_restrict_contact',
     ),
   );
 

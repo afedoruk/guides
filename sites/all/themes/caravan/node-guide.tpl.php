@@ -2,6 +2,7 @@
 $countries=geotest_country_list();
 if($page)
 {
+	global $user;
 	$testimonials=views_embed_view('testimonials', 'page_1', $node->nid);
 	print "<div class='service'>".$links."</div>";
 	echo "<h4>".$countries[$node->field_city[0]["country_id"]].", ".$node->field_city[0]["city_name"]."</h4>";
@@ -56,17 +57,24 @@ if($page)
 							echo $node->field_addinfo[0]["view"];
 						}
 						echo "<h4>Контакты</h4>";
-						if($node->field_phone[0]["value"])
+						if($user->uid || !$node->field_restrict_contact)
 						{
-							echo "Телефон: ".$node->field_phone[0]["view"];
+							if($node->field_phone[0]["value"])
+							{
+								echo "Телефон: ".$node->field_phone[0]["view"];
+							}
+							if($node->field_mail[0]["value"])
+							{
+								echo "Почта: ".$node->field_mail[0]["view"];
+							}
+							if($node->field_skype[0]["value"])
+							{
+								echo "Skype: ".$node->field_skype[0]["view"];
+							}
 						}
-						if($node->field_mail[0]["value"])
+						else
 						{
-							echo "Почта: ".$node->field_mail[0]["view"];
-						}
-						if($node->field_skype[0]["value"])
-						{
-							echo "Skype: ".$node->field_skype[0]["view"];
+							echo "Этот гид разрешил показывать свои контакты только зарегистрированным пользователям сайта. ".l("Зарегистрируйтесь", "user/register")." или ".l("войдите на сайт", "guides/nojs/login").", чтобы увидеть контакты гида";
 						}
 					?>
                      </div>

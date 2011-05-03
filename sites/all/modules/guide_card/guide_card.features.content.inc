@@ -151,7 +151,7 @@ function guide_card_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'E-mail',
-      'weight' => '35',
+      'weight' => '39',
       'description' => '',
       'type' => 'email_textfield',
       'module' => 'email',
@@ -202,7 +202,7 @@ function guide_card_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Телефон',
-      'weight' => '34',
+      'weight' => '38',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -264,6 +264,68 @@ function guide_card_content_default_fields() {
     ),
   );
 
+  // Exported field: field_restrict_contact
+  $fields['guide-field_restrict_contact'] = array(
+    'field_name' => 'field_restrict_contact',
+    'type_name' => 'guide',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'number_integer',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'number',
+    'active' => '1',
+    'prefix' => '',
+    'suffix' => '',
+    'min' => '',
+    'max' => '',
+    'allowed_values' => '0
+1|показывать мои контакты только зарегистрированным пользователям',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Приватность',
+      'weight' => '41',
+      'description' => '',
+      'type' => 'optionwidgets_onoff',
+      'module' => 'optionwidgets',
+    ),
+  );
+
   // Exported field: field_skype
   $fields['guide-field_skype'] = array(
     'field_name' => 'field_skype',
@@ -308,7 +370,7 @@ function guide_card_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Skype',
-      'weight' => '36',
+      'weight' => '40',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -321,6 +383,7 @@ function guide_card_content_default_fields() {
   t('Skype');
   t('Город');
   t('Дополнительная информация');
+  t('Приватность');
   t('Телефон');
   t('Фото');
 
