@@ -134,6 +134,14 @@ function guides_helpers_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
 
 function guides_helpers_form_alter(&$form, &$form_state, $form_id)
 {
+	if (isset($form['#node']) && $form_id == $form['#node']->type .'_node_form') 
+	{
+		$form['body_field']['teaser_include'] = array(
+	      '#type' => 'value',
+		  '#value' => TRUE,
+	    );
+	}
+
 	if($form_id=="guide_node_form")
 	{
 		$nid=guides_helpers_get_card();
@@ -184,3 +192,14 @@ function guides_helpers_theme($existing, $type, $theme, $path)
   );
 }
 
+function guides_helpers_link_alter(&$links, $node, $comment = NULL)
+{
+	global $user;
+	if($node->uid==$user->uid)
+	{
+		unset($links['testimonial_field_guide']);
+		unset($links['flag-bookmarks']);
+		unset($links['privatemsg_guide']);
+	}
+//	print_r($links);
+}

@@ -656,7 +656,9 @@ h6 {
 
 .img-list .item-list ul li 
 {
+	list-style: disc inside;
 	margin: 0;
+	overflow: auto;
 }
 
 /* my card block */
@@ -876,3 +878,4 @@ div.messages
 	padding: 10px;
 	margin: 10px 0;
 }
+
