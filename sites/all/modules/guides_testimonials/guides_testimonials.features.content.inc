@@ -45,15 +45,6 @@ function guides_testimonials_content_default_fields() {
     'advanced_view' => '--',
     'advanced_view_args' => '',
     'widget' => array(
-      'autocomplete_match' => 'starts_with',
-      'size' => '60',
-      'default_value' => array(
-        '0' => array(
-          'nid' => NULL,
-          '_error_element' => 'default_value_widget][field_guide][0][nid][nid',
-        ),
-      ),
-      'default_value_php' => NULL,
       'node_link' => array(
         'teaser' => 0,
         'full' => 1,
@@ -63,6 +54,15 @@ function guides_testimonials_content_default_fields() {
       ),
       'fallback' => 'page_not_found',
       'edit_fallback' => 0,
+      'autocomplete_match' => 'starts_with',
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_guide][0][nid][nid',
+        ),
+      ),
+      'default_value_php' => NULL,
       'label' => 'Гид',
       'weight' => '31',
       'description' => '',

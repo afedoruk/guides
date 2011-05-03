@@ -20,7 +20,6 @@ function guides_private_messages_strongarm() {
     'participants' => 'participants',
     'thread_started' => 0,
     'count' => 0,
-    'tags' => 0,
   );
 
   $export['privatemsg_display_fields'] = $strongarm;

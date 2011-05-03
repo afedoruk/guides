@@ -9,7 +9,7 @@ function guides_testimonials_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'ant_pattern_testimonial';
-  $strongarm->value = 'Отзыв о гиде [field_guide-title] от ';
+  $strongarm->value = 'Отзыв о гиде [field_guide-title] от [author-name]';
 
   $export['ant_pattern_testimonial'] = $strongarm;
   $strongarm = new stdClass;
