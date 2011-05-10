@@ -766,6 +766,7 @@ function geotest_guides_search()
 	$guides=array();
 
 	$query="SELECT DISTINCT(n.nid) FROM {node} n ";
+	$count_query="SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ";
 
 	if(isset($_GET["country_id"]) && $_GET["country_id"]!=-1)
 	{
@@ -797,10 +798,11 @@ function geotest_guides_search()
 		$cond[]="n.status = 1";
 		$cond[]="n.type = 'guide'";
 		$q=$query.$join." WHERE ".implode(" AND ", $cond);
+		$cq=$count_query.$join." WHERE ".implode(" AND ", $cond);
 
 //		echo $q;
 
-		$res=pager_query($q, 10, 0, NULL, $args);
+		$res=pager_query($q, 10, 0, $cq, $args);
 		while($row=db_fetch_object($res))
 		{
 			$guides[]=node_load($row->nid);
