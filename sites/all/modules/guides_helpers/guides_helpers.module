@@ -45,6 +45,13 @@ function guides_helpers_menu()
       'type' => MENU_CALLBACK,
 	);
 
+	 $items['guides/user-name-autocomplete'] = array(
+		'page callback'    => 'guides_user_name_autocomplete',
+		'access callback'  => 'privatemsg_user_access',
+		'access arguments' => array('write privatemsg'),
+		'type'             => MENU_CALLBACK,
+		'weight'           => -10,
+	  );
 	return $items;
 }
 
@@ -161,6 +168,44 @@ function guides_helpers_form_alter(&$form, &$form_state, $form_id)
 			drupal_goto("node/".$node->nid);
 		}
 	}
+	if($form_id=="privatemsg_new")
+	{
+		unset($form['privatemsg']['preview']);
+		//print_r( $form['privatemsg']['recipient'] );
+		$form['privatemsg']['recipient']['#autocomplete_path'] = 'guides/user-name-autocomplete';
+		if($form['privatemsg']['recipient']['#default_value'])
+		{
+			$names=explode(",", $form['privatemsg']['recipient']['#default_value']);
+			foreach($names as $name)
+			{
+				$account=user_load(array("name"=>trim($name)));
+				$recipients[]=$account->profile_name." (".$account->uid.")";
+			}
+			$form['privatemsg']['recipient']['#default_value']=implode(", ", $recipients);
+		}
+	//	array_unshift($form['privatemsg']['preview']['#validate'], 'naimi_pm_send_validate');
+		array_unshift($form['privatemsg']['submit']['#validate'], 'guides_pm_send_validate');
+	}
+}
+
+function guides_pm_send_validate($form, &$form_state) 
+{
+//	print_R($form_state);
+	$names=explode(",", $form_state['values']['recipient']);
+
+	foreach($names as $name)
+	{
+		if(strstr($name, "("))
+		{
+			preg_match("/\((.*?)\)/", $name, $matches);
+	//		drupal_set_message(print_R($matches[1], 1));
+	//		$account=user_load($matches[1]);
+			$recipients[]=$matches[1];
+		}
+		else
+			$recipients[]=$name;
+	}
+	$form_state['values']['recipient']=implode(", ", $recipients);
 }
 
 function guides_helpers_user($op, &$edit, &$account, $category = NULL)
@@ -202,4 +247,40 @@ function guides_helpers_link_alter(&$links, $node, $comment = NULL)
 		unset($links['privatemsg_guide']);
 	}
 //	print_r($links);
+}
+
+function guides_user_name_autocomplete($string) {
+  $names = array();
+  // 1: Parse $string and build list of valid user names.
+  $fragments = explode(',', $string);
+  foreach ($fragments as $index => $name) {
+    if ($name = trim($name)) {
+      $names[$name] = $name;
+    }
+  }
+  // By using user_validate_user we can ensure that names included in $names are at least logisticaly possible.
+  // 2: Find the next user name suggestion.
+  $fragment = array_pop($names);
+  $matches = array();
+  if (!empty($fragment)) {
+
+	$query['query']="SELECT u.uid, u.name, n.title FROM {users} u LEFT JOIN {node} n ON n.uid=u.uid WHERE (n.title LIKE '%s%%' OR u.name LIKE '%s%%') AND u.status=1 AND (n.status=1 OR n.status IS NULL) AND (n.type='guide' OR n.type IS NULL) ORDER BY u.name ASC";
+
+
+    $result = db_query_range($query['query'], $fragment, $fragment, 0, 10);
+    $prefix = count($names) ? implode(", ", $names) .", " : '';
+    // 3: Build proper suggestions and print.
+    while ($user = db_fetch_object($result)) {
+		if($user->title)
+		{
+		     $matches[$prefix . $user->title ." (".$user->name."), "] = $user->title." (".$user->name.")";
+		}
+		else
+		{
+		     $matches[$prefix . $user->name] = $user->name;
+		}
+    }
+  }
+  // convert to object to prevent drupal bug, see http://drupal.org/node/175361
+  drupal_json((object)$matches);
 }

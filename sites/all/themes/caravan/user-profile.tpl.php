@@ -15,7 +15,7 @@ if(user_access("write privatemsg"))
 if(isset($profile['guide']))
 {
 ?>
-<h3>Карточка гида</h3>
+<h3 class='padded'>Карточка гида</h3>
 <div class='guide-preview'>
 <ul class='img-list'><?=$profile['guide']?></ul>
 </div>

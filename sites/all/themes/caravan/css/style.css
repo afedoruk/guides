@@ -879,3 +879,7 @@ div.messages
 	margin: 10px 0;
 }
 
+h3.padded
+{
+	margin-top: 10px;
+}
