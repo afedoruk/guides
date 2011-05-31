@@ -61,15 +61,19 @@ if($page)
 						{
 							if($node->field_phone[0]["value"])
 							{
-								echo "Телефон: ".$node->field_phone[0]["view"];
+								echo "Телефон: ".$node->field_phone[0]["view"]."<br>";
 							}
-							if($node->field_mail[0]["value"])
+
+							if($node->field_mail[0]["email"])
 							{
-								echo "Почта: ".$node->field_mail[0]["view"];
+								echo "Почта: ".$node->field_mail[0]["view"]."<br>";
 							}
 							if($node->field_skype[0]["value"])
 							{
-								echo "Skype: ".$node->field_skype[0]["view"];
+								echo "Skype: ";
+								echo '<script type="text/javascript" src="http://download.skype.com/share/skypebuttons/js/skypeCheck.js"></script>';
+								echo '<a href="skype:'.$node->field_skype[0]["value"].'?call"><img src="http://download.skype.com/share/skypebuttons/buttons/call_blue_transparent_34x34.png" style="border: none;" width="34" height="34" alt="Skype Me™!" /></a>';
+								echo $node->field_skype[0]["view"]."<br>";
 							}
 						}
 						else
