@@ -57,7 +57,7 @@ if($page)
 							echo $node->field_addinfo[0]["view"];
 						}
 						echo "<h4>Контакты</h4>";
-						if($user->uid || !$node->field_restrict_contact)
+						if($user->uid || !$node->field_restrict_contact[0]["value"])
 						{
 							if($node->field_phone[0]["value"])
 							{

@@ -9,6 +9,21 @@
 <!--[if lt IE 7]>
 	<link href="/<?=path_to_theme()?>/css/ie_style.css" rel="stylesheet" type="text/css" />
 <![endif]-->
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-130670-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
 </head>
 
 <body id="page2">
@@ -23,7 +38,7 @@
 	  ?>
          <!-- header -->
          <div id="header">
-            <div class="logo"><a href="/"><img alt="" src="/<?=path_to_theme()?>/images/logo.gif" /></a></div>
+            <div class="logo"><a href="/">The Guides</a></div>
 			<?php if (isset($primary_links)) : ?>
 				<?php print theme('links', $primary_links, array('class' => 'links primary-links')) ?>
 	        <?php endif; ?>         
@@ -64,5 +79,19 @@
    </div>
    <script type="text/javascript"> Cufon.now(); </script>
      <?php print $closure ?>
+	 <!-- Yandex.Metrika counter -->
+<div style="display:none;"><script type="text/javascript">
+(function(w, c) {
+    (w[c] = w[c] || []).push(function() {
+        try {
+            w.yaCounter7152100 = new Ya.Metrika({id:7152100, enableAll: true});
+        }
+        catch(e) { }
+    });
+})(window, 'yandex_metrika_callbacks');
+</script></div>
+<script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
+<noscript><div><img src="//mc.yandex.ru/watch/7152100" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 </body>
 </html>

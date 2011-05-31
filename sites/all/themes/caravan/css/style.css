@@ -883,3 +883,15 @@ h3.padded
 {
 	margin-top: 10px;
 }
+
+#header .logo 
+{
+	padding-left: 0;
+	padding-top: 45px;
+}
+
+.logo a
+{
+	font-size: 36px;
+	text-decoration: none;
+}

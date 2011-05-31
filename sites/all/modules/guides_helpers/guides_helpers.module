@@ -179,7 +179,15 @@ function guides_helpers_form_alter(&$form, &$form_state, $form_id)
 			foreach($names as $name)
 			{
 				$account=user_load(array("name"=>trim($name)));
-				$recipients[]=$account->profile_name." (".$account->uid.")";
+				$res=db_query("SELECT * FROM {node} n WHERE n.type='guide' AND n.status=1 AND n.uid=%d", $account->uid);
+				if($row=db_fetch_object($res))
+				{
+					$recipients[]=$account->name;
+				}
+				else
+				{
+					$recipients[]=$row->title." (".$account->name.")";
+				}
 			}
 			$form['privatemsg']['recipient']['#default_value']=implode(", ", $recipients);
 		}
