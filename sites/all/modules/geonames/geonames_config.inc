@@ -1,5 +1,4 @@
 <?php
-// $Id: geonames_config.inc,v 1.1.2.2.2.16 2010/01/14 09:31:28 lyricnz Exp $
 
 /*
  * @file
@@ -24,7 +23,6 @@
 
 function geonames_config($a = NULL, $b = NULL) {
   $config['search'] = array(
-    'service_name'        => 'search',
     'service_full_name'   => 'GeoNames Fulltext Search',
     'description'         => t('Search provides names and information for geographical locations, it is probably the most comprehensive search available from GeoNames and has numereous possible parameter combinations. Note that this service allows some parameters to be arrays: country, featureclass and featurecode.'),
     'service_path'        => 'search',
@@ -68,7 +66,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'detect_style'   => TRUE,
   );
   $config['postalcodecountryinfo'] = array(
-    'service_name'        => 'postalcodecountryinfo',
     'service_full_name'   => 'Postal Code Country Info',
     'description'         => 'Find countries for which postal code geocoding is available.',
     'service_path'        => 'postalCodeCountryInfo',
@@ -87,7 +84,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['children'] = array(
-    'service_name'        => 'children',
     'service_full_name'   => 'Place Hierarchy: Children',
     'description'         => t('Find the children of a given geonameId.'),
     'service_path'        => 'children',
@@ -107,7 +103,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'detect_style'        => TRUE,
   );
   $config['countrycode'] = array(
-    'service_name'        => 'countrycode',
     'service_full_name'   => 'Country Code (reverse geocoding)',
     'description'         => t('Find Country Code from latitude and longitude'),
     'service_path'        => 'countrycode',
@@ -132,7 +127,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'columns' => array('countrycode', 'countryname'),
   );
   $config['countryinfo'] = array(
-    'service_name'        => 'countryinfo',
     'service_full_name'   => 'Country Info (Bounding Box, Capital, Area in square km, Population)',
     'description'         => 'Find countries for which postal code geocoding is available.',
     'service_path'        => 'countryInfo',
@@ -164,7 +158,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['countrysubdivision'] = array(
-    'service_name'        => 'countrysubdivision',
     'service_full_name'   => 'Country Subdivision (reverse geocoding)',
     'description'         => t('Find Country Code from latitude and longitude'),
     'service_path'        => 'countrySubdivision',
@@ -185,7 +178,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'columns' => array('countrycode', 'countryname', 'admincode1', 'adminname1'),
   );
   $config['get'] = array(
-    'service_name'        => 'get',
     'service_full_name'   => 'Get',
     'parser_function'     => 'geonames_parse_get_xml',
     'description'         => 'Retrieve GeoNames record by geonameid',
@@ -202,7 +194,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['gtopo30'] = array(
-    'service_name'             => 'gtopo30',
     'service_full_name'        => 'Elevation - GTOPO30',
     'parser_function'          => 'geonames_parse_elevation_xml',
     'description'              => t('GTOPO30 is a global digital elevation model (DEM) with a horizontal grid spacing of 30 arc seconds (approximately 1 kilometer). GTOPO30 was derived from several raster and vector sources of topographic information.'),
@@ -226,7 +217,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['hierarchy'] = array(
-    'service_name'        => 'hierarchy',
     'service_full_name'   => 'Place Hierarchy: Hierarchy',
     'description'         => t('Find all Geonames higher up in the hierarchy of a place name.'),
     'service_path'        => 'hierarchy',
@@ -245,8 +235,7 @@ function geonames_config($a = NULL, $b = NULL) {
     'required_parameters_type' => 'single',
     'detect_style'        => TRUE,
   );
-  $config['nearby'] = array(
-    'service_name'        => 'nearby',
+  $config['findnearby'] = array(
     'service_full_name'   => 'Find Nearby (reverse geocoding)',
     'description'         => t('Find Nearby (reverse geocoding)'),
     'service_path'        => 'findNearby',
@@ -273,8 +262,7 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
     'required_parameters_type' => 'all',
   );
-  $config['nearbyplace'] = array(
-    'service_name'             => 'nearbyplace',
+  $config['findnearbyplacename'] = array(
     'service_full_name'        => 'Find nearby Place Name (reverse geocoding)',
     'description'              => t('Find nearby place name (reverse geocoding)'),
     'service_path'             => 'findNearbyPlaceName',
@@ -298,8 +286,7 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
     'required_parameters_type' => 'all',
   );
-  $config['nearbypostalcodes'] = array(
-    'service_name'        => 'nearbypostalcodes',
+  $config['findnearbypostalcodes'] = array(
     'service_full_name'   => 'Find nearby Postal Codes (reverse geocoding)',
     'description'         => 'Find nearby Postal Codes (reverse geocoding)',
     'service_path'        => 'findNearbyPostalCodes',
@@ -341,8 +328,7 @@ function geonames_config($a = NULL, $b = NULL) {
       'adminname3',
     ),
   );
-  $config['nearbywikipedia'] = array(
-    'service_name'        => 'nearbywikipedia',
+  $config['findnearbywikipedia'] = array(
     'service_full_name'   => 'Find nearby Wikipedia Entries (reverse geocoding)',
     'description' => 'Find nearby Wikipedia Entries (reverse geocoding)',
     'service_path'        => 'findNearbyWikipedia',
@@ -384,7 +370,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['neighbours'] = array(
-    'service_name'        => 'neighbours',
     'service_full_name'   => 'Place Hierarchy: Neighbours',
     'description'     => t('Returns the neighbours for a given geonameId.'),
     'service_path'        => 'neighbours',
@@ -404,7 +389,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'detect_style'   => TRUE,
   );
   $config['postalcodesearch'] = array(
-    'service_name'        => 'postalcodesearch',
     'service_full_name'   => 'Postal Code Search',
     'description'         => t('Postalcode search provides placenames/postalcodes for locations.'),
     'service_path'        => 'postalCodeSearch',
@@ -443,7 +427,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['siblings'] = array(
-    'service_name'        => 'siblings',
     'service_full_name'   => 'Place Hierarchy: Siblings',
     'description'         => t('Returns the siblings for a given geonameId.'),
     'service_path'        => 'siblings',
@@ -463,7 +446,6 @@ function geonames_config($a = NULL, $b = NULL) {
     'detect_style'        => TRUE,
   );
   $config['srtm3'] = array(
-    'service_name'             => 'srtm3',
     'service_full_name'        => 'Elevation - SRTM3',
     'parser_function'          => 'geonames_parse_elevation_xml',
     'description'              => t('Shuttle Radar Topography Mission (SRTM) elevation data. The dataset covers land areas between 60 degrees north and 56 degrees south. This web service is using SRTM3 data with data points located every 3-arc-second (approximately 90 meters) on a latitude/longitude grid. Result: a single number giving the elevation in meters according to srtm3, ocean areas have been masked as "no data" and have been assigned a value of -32768'),
@@ -487,7 +469,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['timezone'] = array(
-    'service_name'             => 'timezone',
     'service_full_name'        => 'Timezone',
     'description'              => t('Find the timezone for a given lat/lng with gmt offset (1. January) and dst offset (1. July)'),
     'service_path'             => 'timezone',
@@ -519,8 +500,7 @@ function geonames_config($a = NULL, $b = NULL) {
       'time',
     ),
   );
-  $config['wikipediabbox'] = array(
-    'service_name'        => 'wikipediabbox',
+  $config['wikipediaboundingbox'] = array(
     'service_full_name'   => 'Wikipedia Articles from Bounding Box',
     'description'         => 'Search Wikipedia entries within the Bounding Box',
     'service_path'        => 'wikipediaBoundingBox',
@@ -560,7 +540,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['wikipediasearch'] = array(
-    'service_name'        => 'wikipediasearch',
     'service_full_name'   => 'Wikipedia Fulltext Search',
     'description'         => 'Search Wikipedia entries in Fulltext',
     'service_path'        => 'wikipediaSearch',
@@ -596,7 +575,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['cities'] = array(
-    'service_name'        => 'cities',
     'service_full_name'   => 'Cities and Placenames',
     'description'         => 'returns a list of cities and placenames in the bounding box, ordered by relevancy (capital/population)',
     'service_path'        => 'cities',
@@ -634,7 +612,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['findNearbyStreets'] = array(
-    'service_name'             => 'findNearbyStreets',
     'service_full_name'        => 'Find nearby Streets',
     'description'              => t('Finds the nearest street for a given lat/lng pair.'),
     'service_path'             => 'findNearbyStreets',
@@ -672,8 +649,37 @@ function geonames_config($a = NULL, $b = NULL) {
       'countrycode',
     ),
   );
+  // The Open Street Map version - reverse geocoding
+  $config['findNearbyStreetsOSM'] = array(
+    'service_full_name'        => 'Find nearby Streets (Open Street Map)',
+    'description'              => t('Finds the nearest street for a given lat/lng pair - OSM.'),
+    'service_path'             => 'findNearbyStreetsOSM',
+    'credit_cost'              => 1,
+    'result_cache_prefix'      => 'nearbystreetsosmres:',
+    'data_cache_prefix'        => 'nearbystreetsosmdat:',
+    'allowed_parameters'       => array(
+      //our style  geonames style
+      'lat'      => 'lat',
+      'lng'      => 'lng',
+    ),
+    'required_parameters'      => array( // If you have set query_defaults you should not include the parameter here
+      'lat',
+      'lng'
+    ),
+    'required_parameters_type' => 'all',
+    'query_defaults' => array(
+      'type' => 'xml'
+    ),
+    'columns' => array(
+      'name',
+      'line',
+      'distance',
+      'highway',
+      'oneway',
+      'ref',
+    ),
+  );
   $config['findNearestIntersection'] = array(
-    'service_name'             => 'findNearestIntersection',
     'service_full_name'        => 'Find nearest Intersection',
     'description'              => t('Finds the nearest street and the next crossing street for a given lat/lng pair.'),
     'service_path'             => 'findNearestIntersection',
@@ -708,8 +714,38 @@ function geonames_config($a = NULL, $b = NULL) {
       'countrycode',
     ),
   );
+  $config['findNearestIntersectionOSM'] = array(
+    'service_full_name'        => 'Find nearest Intersection (Open Street Map)',
+    'description'              => t('Finds the nearest street and the next crossing street for a given lat/lng pair.'),
+    'service_path'             => 'findNearestIntersectionOSM',
+    'credit_cost'              => 1,
+    'result_cache_prefix'      => 'nearbyintosmres:',
+    'data_cache_prefix'        => 'nearbyintosmdat:',
+    'allowed_parameters'       => array(
+      //our style  geonames style
+      'lat'      => 'lat',
+      'lng'      => 'lng',
+    ),
+    'required_parameters'      => array( // If you have set query_defaults you should not include the parameter here
+      'lat',
+      'lng'
+    ),
+    'required_parameters_type' => 'all',
+    'query_defaults' => array(
+      'type' => 'xml'
+    ),
+    'columns' => array(
+      'name',
+      'street1',
+      'highway1',
+      'street2',
+      'highway2',
+      'lat',
+      'lng',
+      'distance',
+    ),
+  );
   $config['findNearestAddress'] = array(
-    'service_name'             => 'findNearestAddress',
     'service_full_name'        => 'Find nearest Address',
     'description'              => t('Find nearest Address'),
     'service_path'             => 'findNearestAddress',
@@ -745,7 +781,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['neighbourhood'] = array(
-    'service_name'             => 'neighbourhood',
     'service_full_name'        => 'Neighbourhood / reverse geocoding',
     'description'              => t('The neighbourhood for US cities. Data provided by Zillow under cc-by-sa license.'),
     'service_path'             => 'neighbourhood',
@@ -777,7 +812,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['findNearByWeather'] = array(
-    'service_name'             => 'findNearByWeather',
     'service_full_name'        => 'Weather Station with most recent weather observation / reverse geocoding',
     'description'              => t('returns a weather station with the most recent weather observation'),
     'service_path'             => 'findNearByWeatherXML',
@@ -816,7 +850,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['ocean'] = array(
-    'service_name'             => 'ocean',
     'service_full_name'        => 'Ocean / reverse geocoding',
     'description'              => t('The name of the ocean or sea.'),
     'service_path'             => 'ocean',
@@ -841,7 +874,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['extendedFindNearby'] = array(
-    'service_name'             => 'extendedFindNearby',
     'service_full_name'        => 'Extended Find nearby toponym / reverse geocoding',
     'description'              => t('returns the most detailed information available for the lat/lng query.'),
     'service_path'             => 'extendedFindNearby',
@@ -890,7 +922,6 @@ function geonames_config($a = NULL, $b = NULL) {
     ),
   );
   $config['astergdem'] = array(
-    'service_name'             => 'astergdem',
     'service_full_name'        => 'Elevation - Aster Global Digital Elevation Model',
     'parser_function'          => 'geonames_parse_elevation_xml',
     'description'              => t('a single number giving the elevation in meters according to aster gdem.'),
@@ -917,9 +948,52 @@ function geonames_config($a = NULL, $b = NULL) {
       'astergdem',
     ),
   );
+  // eg: http://ws.geonames.org/weatherIcaoXML?formatted=true&ICAO=LSZH&style=full
+  $config['weatherIcao'] = array(
+    'service_full_name'        => 'Weather Observation',
+    // 'parser_function'          => 'geonames_parse_elevation_xml',
+    'description'              => t('A single weather observation for the given site.'),
+    'service_path'             => 'weatherIcaoXML',
+    'credit_cost'              => 1,
+    'result_cache_prefix'      => 'weathericaores:',
+    'data_cache_prefix'        => 'weathericaodat:',
+    'allowed_parameters'       => array(
+      //our style  geonames style
+      'code'    => 'ICAO', // icaoCode
+      'formatted'  => 'formatted',
+      'style' => 'style',
+    ),
+    'required_parameters'      => array( // If you have set query_defaults you should not include the parameter here
+      'code',
+    ),
+    'required_parameters_type' => 'all',
+    'query_defaults' => array(
+      'type' => 'xml',
+      'formatted' => 'true',
+      'style' => 'full',
+    ),
+    'columns' => array(
+      'observation',
+      'stationname',
+      'icao',
+      'countrycode',
+      'elevation',
+      'lat',
+      'lng',
+      'temperature',
+      'dewpoint',
+      'humidity',
+      'clouds',
+      'weathercondition',
+      'hectopascaltimeter',
+      'winddirection',
+      'windspeed',
+    ),
+  );
 
   // Prepend all cache prefixes with 'geonames_'
-  foreach ($config as &$c) {
+  foreach ($config as $service_name => &$c) {
+    $c['service_name'] = $service_name;
     $c['result_cache_prefix'] = 'geonames_'. $c['result_cache_prefix'];
     $c['data_cache_prefix'] = 'geonames_'. $c['data_cache_prefix'];
   }

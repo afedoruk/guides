@@ -1,5 +1,4 @@
 <?php
-// $Id: geonames.doc.inc,v 1.1.2.2 2009/10/22 10:16:55 lyricnz Exp $
 
 /**
  * @file

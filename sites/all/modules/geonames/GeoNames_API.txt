@@ -1,6 +1,5 @@
-$id$
 
-Geonames API Documentation, by Erlend Eide erlend (|) edesign.no
+Geonames API Documentation
 
 Defining new services: Service Definitions (Service Modules)
 --------------------------------------------------------------------------------

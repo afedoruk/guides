@@ -1,5 +1,4 @@
 <?php
-// $Id: pm_email_notify.module,v 1.1.2.17 2010/08/05 09:25:12 berdir Exp $
 
 /**
  * @file
@@ -125,6 +124,7 @@ function pm_email_notify_mail($key, &$message, $params) {
  */
 function _pm_email_notify_token($recipient, $message, $language) {
   $tokens = array(
+    '!author_uid' => $message['author']->uid,
     '!author' => $message['author']->name,
     '!pm_subject' => trim(drupal_html_to_text(check_plain($message['subject']))),
     '!pm_body' => trim(drupal_html_to_text(check_markup($message['body'], $message['format'], FALSE))),

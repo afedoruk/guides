@@ -1,14 +1,12 @@
 <?php
-// $Id: geonames.module,v 1.1.4.1.2.31 2010/04/11 05:04:28 lyricnz Exp $
 
 /**
  * @file
- *   GeoNames API / by Erlend Eide, erlend(|)edesign.no
+ *   GeoNames API
  *
  * The GeoNames API provides a framework for the GeoNames Services.
  *
  * Commercial Services credit cost: http://www.geonames.org/professional-webservices.html
- *
  */
 
 /**
@@ -30,7 +28,7 @@
  * Constants
   * hrmpf...
  */
-DEFINE('GEONAMES_FREE_SERVER_URL', 'http://ws.geonames.org');
+DEFINE('GEONAMES_FREE_SERVER_URL', 'http://api.geonames.org');
 
 require("geonames_config.inc");
 
@@ -56,7 +54,7 @@ function geonames_metadata_update() {
   $file = drupal_http_request("http://download.geonames.org/export/dump/countryInfo.txt?app=drupal");
   if ($file->code == 200) {
     // Truncate the table, so we can do inserts
-    db_query("TRUNCATE TABLE {$tablename}");
+    db_query('TRUNCATE TABLE {'. $tablename .'}');
 
     // Use the Schema API to get a list of columns
     $schema = drupal_get_schema($tablename);
@@ -66,7 +64,9 @@ function geonames_metadata_update() {
     $num = preg_match_all('/^[A-Z].*?$/ms', $file->data, $matches);
     foreach ($matches[0] as $line) {
       $object = array_combine($field_names, split("\t", $line));
-      drupal_write_record($tablename, $object);
+      if ($object['geonameid'] != 0) {
+        drupal_write_record($tablename, $object);
+      }
     }
 
     watchdog("geonames", "Successfully updated the $tablename table");
@@ -76,12 +76,16 @@ function geonames_metadata_update() {
     $failed = TRUE;
   }
 
+  // TODO:
+  // http://download.geonames.org/export/dump/admin1Codes.txt
+  // http://download.geonames.org/export/dump/admin2Codes.txt
+
   // Feature code tables
   $tablename = 'geonames_featurecodes';
   $file = drupal_http_request("http://download.geonames.org/export/dump/featureCodes_en.txt?app=drupal");
   if ($file->code == 200) {
     // Truncate the table, so we can do inserts
-    db_query("TRUNCATE TABLE {$tablename}");
+    db_query('TRUNCATE TABLE {'. $tablename .'}');
 
     // Use the Schema API to get a list of columns
     $schema = drupal_get_schema($tablename);
@@ -286,7 +290,6 @@ function geonames_us_states($state = NULL) {
  *     result object (or FALSE on failure)
  */
 function geonames_query($service, $query = array(), $options = NULL) {
-//function geonames_query($service, $query = array(), $columns = FALSE) {
 
   if ($query == NULL || $query == FALSE || $query == '') {
     $query = array();
@@ -313,7 +316,7 @@ function geonames_query($service, $query = array(), $options = NULL) {
 
   // remove empty-value parameters from query
   foreach ($query as $key => $val) {
-    if (empty($val)) {
+    if (!isset($val)) {
       unset($query[$key]);
     }
   }
@@ -341,7 +344,7 @@ function geonames_query($service, $query = array(), $options = NULL) {
     }
     if (array_key_exists('columns', $options) ) {
       $columns = $options['columns'];
-      array_walk($columns, '_aw_val_to_lower'); // lowercase all column values
+      array_walk($columns, '_geonames_aw_val_to_lower'); // lowercase all column values
     }
     if (array_key_exists('sortby', $options)) {
       $sortby = $options['sortby'];
@@ -419,7 +422,7 @@ function geonames_query($service, $query = array(), $options = NULL) {
     }
     $data = $response->data;
     // increase credit counter if commercial server is used
-    if (variable_get('geonames_commercial_active', FALSE)) {
+    if (variable_get('geonames_count_credits', FALSE)) {
       geonames_credits_pay($service);
     }
     if ($geonames_cache && $columns) {
@@ -444,7 +447,7 @@ function geonames_query($service, $query = array(), $options = NULL) {
       $result->request['cached']= 'data';
     }
     if (geonames_config($service, 'pager')) {
-      $result->pager            = _prepare_pager_data($query['maxrows'], $query['startrow'], $result->total_results_count);
+      $result->pager            = _geonames_prepare_pager_data($query['maxrows'], $query['startrow'], $result->total_results_count);
     }
     if ($geonames_cache && !$columns) {
       cache_set($cache_geores, $result, $geonames_cache_table, time() + $geonames_cache_limit);
@@ -471,12 +474,9 @@ function geonames_query($service, $query = array(), $options = NULL) {
 function geonames_service_url($service) {
   $service_path = geonames_config($service, 'service_path');
   if ($service_path) {
-    if (variable_get('geonames_commercial_active', FALSE)) {
-      return variable_get('geonames_commercial_server', '') .'/'. $service_path .'?username='. variable_get('geonames_commercial_username', '') .'&';
-    }
-    else {
-      return GEONAMES_FREE_SERVER_URL .'/'. $service_path .'?';
-    }
+    $server = variable_get('geonames_server', GEONAMES_FREE_SERVER_URL);
+    $username = variable_get('geonames_username', '');
+    return $server .'/'. $service_path .'?username='. $username .'&';
   }
   return FALSE;
 }
@@ -525,7 +525,7 @@ function geonames_prepare_query_string($service, $query) {
  * out unwanted/disallowed elements from the query.
  *
  * @param $service
- *   string (ex: 'search' or 'nearbyplace')
+ *   string (ex: 'search' or 'findnearbyplacename')
  *
  * @see geonames_prepare_query_string()
  */
@@ -554,7 +554,7 @@ function geonames_prepare_query_string_element($service, $key, $val) {
     }
     // switch to GeoNames style parameter names
     $key = $parameters[$key];
-    if ($val != '') {
+    if ($val !== '') {
       $qs_element = "&$key=$val";
     }
   }
@@ -762,6 +762,8 @@ function geonames_parse_elevation_xml($data) {
  * Commercial Service: Increase the Credits Counter ;)
  */
 function geonames_credits_pay($service) {
+  // TODO: using variables is an inefficient way to store the current credts - it
+  //       causes invalidation of the big $variables blob
   $cost =  (is_numeric($service)) ? $service : geonames_config($service, 'credit_cost');
   variable_set('geonames_commercial_credits', $cost + variable_get('geonames_commercial_credits', 0));
 }
@@ -793,7 +795,7 @@ function geonames_menu() {
     'page arguments' => array(TRUE),
     'file' => 'geonames.admin.inc',
   );
-  $docpath = variable_get('geonames_documentation_path', 'geonames/docs');
+  $docpath = variable_get('geonames_docs_path', 'geonames/docs');
   $items[$docpath] = array(
     'title' => 'Geonames Docs',
     'access arguments' => array('geonames docs'),
@@ -831,7 +833,7 @@ function geonames_perm() {
  * @return
  *   array with useful data ;)
  */
-function _prepare_pager_data($rowsperpage = 15, $startrow, $totalhits) {
+function _geonames_prepare_pager_data($rowsperpage = 15, $startrow, $totalhits) {
   // $maxrows = rows per page
   $total_pages  = ceil($totalhits / $rowsperpage);
   $current_page = ($startrow == 0) ? $current_page = 1 : (floor($startrow / $rowsperpage) + 1);
@@ -1049,7 +1051,7 @@ function theme_geonames_table($resultobj) {
     $forstring = ($querywords) ? ' for <b>'. $querywords .'</b>' : '';
 
     return 'Displaying '. $cache .'results '. $display_from .' - '. $display_to .' of '. $resultobj->total_results_count
-               . $forstring .' (<i>'. round($resultobj->request['seconds'], 3) .'</i> seconds)'. theme('table', _readable_fieldnames($header), $rows);
+               . $forstring .' (<i>'. round($resultobj->request['seconds'], 3) .'</i> seconds)'. theme('table', _geonames_readable_fieldnames($header), $rows);
   }
   else {
     return 'No results (in '. round($resultobj->request['seconds'], 3) .' seconds)';
@@ -1073,7 +1075,7 @@ function _geonames_sort(&$results, $key, $order) {
   if (array_key_exists($key, $results[0])) {
     global $_geonames_sort_by_key;
     $_geonames_sort_by_key = $key;
-    uasort($results, '_results_cmp');
+    uasort($results, '_geonames_results_cmp');
   }
   else {
     drupal_set_message("Results cannot be sorted on '$key' - this field does not exist in results", 'warning');
@@ -1088,7 +1090,7 @@ function _geonames_sort(&$results, $key, $order) {
  *
  * @see _geonames_sort()
  */
-function _results_cmp($a, $b) {
+function _geonames_results_cmp($a, $b) {
   global $_geonames_sort_by_key;
 
   $sortable = array(drupal_strtolower($a[$_geonames_sort_by_key]), drupal_strtolower($b[$_geonames_sort_by_key]));
@@ -1101,7 +1103,7 @@ function _results_cmp($a, $b) {
 /**
  * String to lowercase for Associative Arrays (for use with array_walk)
  */
-function _aw_val_to_lower(&$val) {
+function _geonames_aw_val_to_lower(&$val) {
   $val = drupal_strtolower($val);
 }
 
@@ -1114,7 +1116,7 @@ function _aw_val_to_lower(&$val) {
  * @return
  *   array of non-nerd-readable field names
  */
-function _readable_fieldnames($header) {
+function _geonames_readable_fieldnames($header) {
   $fieldnames = geonames_fields();
   foreach ($header as $key => $val) {
     $val = drupal_strtolower($val);

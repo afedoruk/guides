@@ -3,9 +3,9 @@ description = Builds scaffolding for custom modules.
 package = Development
 core = 6.x
 
-; Information added by drupal.org packaging script on 2011-02-28
+; Information added by drupal.org packaging script on 2011-03-21
 version = "6.x-2.x-dev"
 core = "6.x"
 project = "module_builder"
-datestamp = "1298852052"
+datestamp = "1300666509"
 

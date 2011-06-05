@@ -1,5 +1,4 @@
 <?php
-// $Id: geonames.install,v 1.1.2.2.2.13 2010/04/11 04:12:25 lyricnz Exp $
 
 /*
  * @file
@@ -230,7 +229,7 @@ function geonames_requirements($phase) {
       'title' => $t('Geonames Metadata'),
       'value' => $t('!updated (!numcountries countries and !numfeaturecodes feature codes)', $values),
     );
-    if ($updated ==0 || $values['!numcountries'] == 0 || $values['!numfeaturecodes'] == 0) {
+    if ($updated == 0 || $values['!numcountries'] == 0 || $values['!numfeaturecodes'] == 0) {
       $requirements['geonames_metadata']['description'] = $t('Metadata is incomplete. Please check the !link to manually refresh.', array('!link' => l('geonames settings', 'admin/settings/geonames')));
       $requirements['geonames_metadata']['severity'] = REQUIREMENT_WARNING;
     }
@@ -276,7 +275,7 @@ function geonames_update_6002() {
       $result = db_query("SELECT cid FROM {". $cache ."} WHERE cid LIKE '%s%%'", $oldprefix);
       while ($row = db_fetch_object($result)) {
         db_query("UPDATE {". $cache ."} SET cid = '%s' WHERE cid = '%s'", $prefix . $row->cid, $row->cid);
-        // don't update $ret because there may be MANY queries here
+        // don't update $ret using update_sql() because there may be MANY queries here
       }
     }
   }
@@ -308,5 +307,33 @@ function geonames_update_6004() {
   $ret = array();
   // Change the geonames_countryinfo.iso_numeric to be small-int not tiny-int (values don't fit)
   db_change_field($ret, 'geonames_countryinfo', 'iso_numeric', 'iso_numeric', array('type' => 'int', 'not null' => TRUE, 'size' => 'small', 'unsigned' => TRUE));
+  return $ret;
+}
+
+function geonames_update_6005() {
+  $ret = array();
+
+  // The configuration relating to the commercial web-service has been
+  // simplified.  Now there are just explicit settings for the URL to use,
+  // whether to count credits, and which username to use. For the new
+  // servers at api.geonames.org username is *required*.
+
+  $commercial_active = variable_get('geonames_commercial_active', FALSE);
+  $server = $commercial_active ? variable_get('geonames_commercial_server', '') : GEONAMES_FREE_SERVER_URL;
+  $username = variable_get('geonames_commercial_username', '');
+  if ($username === '') {
+    $link = l('GeoNames settings', 'admin/settings/geonames');
+    drupal_set_message('Geonames server username is not set. Please configure this at '. $link, 'warning');
+  }
+
+  variable_set('geonames_server', $server);
+  variable_set('geonames_count_credits', $commercial_active);
+  variable_set('geonames_username', $username);
+
+  variable_del('geonames_commercial_active');
+  variable_del('geonames_commercial_server');
+  variable_del('geonames_commercial_username');
+
+
   return $ret;
 }

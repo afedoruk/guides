@@ -146,7 +146,7 @@ class ModuleBuilderGeneratorCode extends ModuleBuilderGenerator {
       '%module' => $module_data['module_root_name'],
       '%description' => str_replace("'", "\'", $module_data['module_short_description']),
       '%name' => !empty($module_data['module_readable_name']) ? str_replace("'", "\'", $module_data['module_readable_name']) : $module_data['module_root_name'],
-      '%help' => !empty($module_data['module_help_text']) ? str_replace("'", "\'", $module_data['module_help_text']) : t('TODO: Create admin help text.'),
+      '%help' => !empty($module_data['module_help_text']) ? str_replace('"', '\"', $module_data['module_help_text']) : t('TODO: Create admin help text.'),
       '%readable' => str_replace("'", "\'", $module_data['module_readable_name']),
     );
     $code = strtr($code, $variables);
@@ -293,6 +293,13 @@ function module_builder_generate_module(&$module_data, $bare = FALSE) {
   if (is_null($hook_file_data)) {
     return NULL;
   }
+
+  // There must always be a MODULE.module file, even if there are no hooks to
+  // go in it.
+  // (Slight niggle: it gets put at the end :/)
+  $hook_file_data += array(
+    $module_data['module_root_name'] . '.module' => array(),
+  );
   
   //print_r($module_data);
   //dsm($hook_file_data);

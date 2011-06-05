@@ -1,6 +1,6 @@
 // $Id
 
-Geonames API, by Erlend Eide (erlend | edesign.no) september 2007
+Geonames API
 
 INSTALLATION
 --------------------------------------------------------------------------------
@@ -29,8 +29,7 @@ PROGRAMMING API - the geonames_search function
   
    http://www.geonames.org/export/geonames-search.html
 
-2) Read the Docs provided by the module on your site,
-   or read them here: http://geonames.edesign.no
+2) Read the Docs provided by the module on your site
 
 CACHING 
 --------------------------------------------------------------------------------
