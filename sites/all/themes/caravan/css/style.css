@@ -512,12 +512,8 @@ h6 {
 		margin-bottom:4px;
 	}
 
-#guide-card ul.ui-tabs-nav li.ui-tabs-selected a {background:url(../images/arrow2.gif) 190px center no-repeat #7b7367 !important;}
-
-#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-1 a {background-color: #FFB911 !important;}
-#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-2 a {background-color: #FF7D01 !important;}
-#guide-card ul.ui-tabs-nav li.ui-tabs-selected#nav-fragment-3 a {background-color: #8DB526 !important;}
-
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected a {background: #ddd;}
+#guide-card ul.ui-tabs-nav li.ui-tabs-selected a strong {color: #534B3F;}
 
 #guide-card ul.ui-tabs-nav li.last { padding-right:0;}
 
@@ -532,25 +528,22 @@ h6 {
 	width: 743px;
 	/*height: 317px;*/
 	min-height: 310px;
-	background:#ffb911;
-	color:#fff;
+	background:#ddd;
+	color: #534B3F;
 	line-height:1.5em;
 	margin-right:1px;
 }
-#guide-card .ui-tabs-panel#fragment-2 .info {
-	background:#ff7d01;
+
+#guide-card .ui-tabs-panel .info.bg1 .button {
+	color:#43BADA;
 }
-	#guide-card .ui-tabs-panel .info.bg1 .button {
-		color:#ff7d01;
-	}
-	#guide-card .ui-tabs-panel .info.bg1 .button:hover {
-		color:#000;
-	}
-#guide-card .ui-tabs-panel#fragment-3 .info {
-	background:#8db526;
+
+#guide-card .ui-tabs-panel .info.bg1 .button:hover {
+	color:#000;
 }
+
 	#guide-card .ui-tabs-panel .info.bg2 .button {
-		color:#8db526;
+		color:#43BADA;
 	}
 	#guide-card .ui-tabs-panel .info.bg2 .button:hover {
 		color:#000;
@@ -894,4 +887,21 @@ h3.padded
 {
 	font-size: 36px;
 	text-decoration: none;
+}
+
+.info .inner h4
+{
+	margin-bottom: 5px;
+	margin-top: 20px;
+}
+
+.info .inner h4.first
+{
+	margin-top: 0;
+}
+
+.share-links
+{
+	text-align: right;
+	margin-top: 10px;
 }

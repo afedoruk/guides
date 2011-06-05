@@ -44,7 +44,7 @@ if($page)
                   <div class="info">	
 				  <?=$node->field_photo[0]["filepath"]?theme("imagecache", "guide_face", $node->field_photo[0]["filepath"]):"";?>
                      <div class="inner">											 
-						<h4>Услуги</h4>
+						<h4 class='first'>Услуги</h4>
 						<?
 						foreach($node->taxonomy as $term)
 						{
@@ -82,7 +82,7 @@ if($page)
 						}
 					?>
                      </div>
-					  <div class='clear-block'></div>
+					  <div class='clear-block' style='padding: 0 0 15px 0;'></div>
                   </div>
 	  		     
                </div>
@@ -125,8 +125,12 @@ if($page)
 				?>
             </div>
             <!-- featured box begin -->
+			<div class='share-links'>
+			<script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+			<div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="button" data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,friendfeed,moikrug"></div> 
+			</div>
 <?	
-			;
+
 }
 else
 {
