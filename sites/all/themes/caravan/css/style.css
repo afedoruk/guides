@@ -905,3 +905,25 @@ h3.padded
 	text-align: right;
 	margin-top: 10px;
 }
+
+.content ul, .content ol
+{
+	margin-left: 25px;
+}
+
+.content ul li, .content ol li
+{
+	margin-bottom: 10px;
+}
+
+.content ol
+{
+	list-style-type: disc;
+	list-style-position: outside;
+}
+
+.content ol
+{
+	list-style-type: decimal;
+	list-style-position: outside;
+}
