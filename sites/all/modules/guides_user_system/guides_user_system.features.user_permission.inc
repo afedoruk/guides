@@ -10,8 +10,9 @@ function guides_user_system_user_default_permissions() {
   $permissions['access user profiles'] = array(
     'name' => 'access user profiles',
     'roles' => array(
-      '0' => 'anonymous user',
-      '1' => 'authenticated user',
+      '0' => 'admin',
+      '1' => 'anonymous user',
+      '2' => 'authenticated user',
     ),
   );
 

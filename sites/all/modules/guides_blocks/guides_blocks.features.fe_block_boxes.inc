@@ -15,16 +15,13 @@ if(function_exists("guides_helpers_get_card"))
 {
 if($nid=guides_helpers_get_card())
 {
-$guide=node_load($nid);
 echo "<div class=\'my-card\'>";
-echo "<h4>Моя карточка гида</h4>";
-echo \'<ul class="img-list">\';
-echo node_view($guide, 1);
-echo \'</ul></div>\';
+echo "<h4>".l("Моя карточка гида", "node/".$nid)."</h4>";
+echo \'</div>\';
 }
 else
 {
-echo "<div class=\'created-my-card\'>".l("Стань гидом!", "node/add/guide")."</div>";
+echo "<div class=\'created-my-card\'>".l("Стать гидом!", "node/add/guide")."</div>";
 }
 }
 ?>';

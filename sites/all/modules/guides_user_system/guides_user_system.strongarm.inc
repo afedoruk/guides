@@ -44,24 +44,24 @@ function guides_user_system_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'user_mail_password_reset_body';
-  $strongarm->value = '!username,
+  $strongarm->value = '!username!
 
-A request to reset the password for your account has been made at !site.
+К нам на сайт !site поступил запрос на восстановление забытого пароля.
 
-You may now log in to !uri_brief by clicking on this link or copying and pasting it in your browser:
+Для восстановления пароля перейдите по этой ссылке (или скопируйте ее в адресную строку вашего браузера):
 
 !login_url
 
-This is a one-time login, so it can be used only once. It expires after one day and nothing will happen if it\'s not used.
+Это одноразовая ссылка, она действительна одни сутки..
 
-After logging in, you will be redirected to !edit_uri so you can change your password.';
+После того, как вы перейдете по ссылке, вы попадете на страницу !edit_uri, где сможете поменять свой пароль на удобный вам.';
 
   $export['user_mail_password_reset_body'] = $strongarm;
   $strongarm = new stdClass;
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'user_mail_password_reset_subject';
-  $strongarm->value = 'Replacement login information for !username at !site';
+  $strongarm->value = 'Восстановление пароля для !username на сайте !site';
 
   $export['user_mail_password_reset_subject'] = $strongarm;
   $strongarm = new stdClass;
@@ -98,30 +98,30 @@ After logging in, you will be redirected to !edit_uri so you can change your pas
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'user_mail_register_no_approval_required_body';
-  $strongarm->value = '!username,
+  $strongarm->value = '!username!
 
-Thank you for registering at !site. You may now log in to !login_uri using the following username and password:
+Спасибо за регистрацию на нашем сайте !site.  Вы теперь можете войти на сайт, используя логин и пароль:
 
-username: !username
-password: !password
+логин: !username
+пароль: !password
 
-You may also log in by clicking on this link or copying and pasting it in your browser:
+Вы так же можете зайти на сайт, перейдя по ссылке (или скопировав ее в адресную строку браузера):
 
 !login_url
 
-This is a one-time login, so it can be used only once.
+Это одноразовая ссылка.
 
-After logging in, you will be redirected to !edit_uri so you can change your password.
+После входа на сайт вы попадете на страницу !edit_uri, где сможете поменять пароль на более удобный вам.
 
-
---  !site team';
+--  
+Команда сайта !site';
 
   $export['user_mail_register_no_approval_required_body'] = $strongarm;
   $strongarm = new stdClass;
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'user_mail_register_no_approval_required_subject';
-  $strongarm->value = 'Account details for !username at !site';
+  $strongarm->value = 'Регистрация !username на сайте !site';
 
   $export['user_mail_register_no_approval_required_subject'] = $strongarm;
   $strongarm = new stdClass;

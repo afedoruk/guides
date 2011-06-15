@@ -911,6 +911,12 @@ h3.padded
 	margin-left: 25px;
 }
 
+
+.content .col-2 ul, .content .col-2 ol
+{
+	margin-left: 0px;
+}
+
 .content ul li, .content ol li
 {
 	margin-bottom: 10px;
