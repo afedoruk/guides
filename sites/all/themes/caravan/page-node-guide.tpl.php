@@ -47,11 +47,11 @@ _bacct = "UA-130670-11";
 	        <?php endif; ?>         
          </div>
           <!-- content -->
-         <div id="content" class="vcard">
+         <div id="content" class="vcard" itemscope itemtype="http://schema.org/Person">
 		 <?php //print $breadcrumb; ?>
 		  <?php if ($mission): print '<div id="mission">'. $mission .'</div>'; endif; ?>
 		  <?php if ($tabs): print '<div id="tabs-wrapper" class="clear-block">'; endif; ?>
-		  <?php if (!$is_front && $title): print '<h3'. ($tabs ? ' class="with-tabs fn"' : ' class="fn"') .'>'. $title .'</h3>'; endif; ?>
+		  <?php if (!$is_front && $title): print '<h3'. ($tabs ? ' class="with-tabs fn"' : ' class="fn"') .' itemprop="name">'. $title .'</h3>'; endif; ?>
 		  <?php if ($tabs): print '<ul class="tabs primary">'. $tabs .'</ul></div>'; endif; ?>
 		  <?php if ($tabs2): print '<ul class="tabs secondary">'. $tabs2 .'</ul>'; endif; ?>
 		  <?php if ($show_messages && $messages): print $messages; endif; ?>

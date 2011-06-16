@@ -5,7 +5,7 @@ if($page)
 	global $user;
 	$testimonials=views_embed_view('testimonials', 'page_1', $node->nid);
 	print "<div class='service'>".$links."</div>";
-	echo "<h4 class='adr'><span class='country-name'>".$countries[$node->field_city[0]["country_id"]]."</span>, <span class='locality'>".$node->field_city[0]["city_name"]."</span></h4>";
+	echo "<h4 class='adr' itemprop='address' itemscope itemtype='http://schema.org/PostalAddress'><span class='country-name' itemprop='addressCountry'>".$countries[$node->field_city[0]["country_id"]]."</span>, <span class='locality' itemprop='addressLocality'>".$node->field_city[0]["city_name"]."</span></h4>";
     
 ?>
     <!-- featured box begin -->
@@ -42,7 +42,7 @@ if($page)
                <!-- First Content -->
                <div id="fragment-1" class="ui-tabs-panel">			    
                   <div class="info">	
-				  <?=$node->field_photo[0]["filepath"]?theme("imagecache", "guide_face", $node->field_photo[0]["filepath"], "Фотография гида", "Гид ".geotest_get_in_country($node->field_city[0]["country_id"])." ".$node->title, array("class"=>"photo imagecache imagecache-guide_face")):"";?>
+				  <?=$node->field_photo[0]["filepath"]?theme("imagecache", "guide_face", $node->field_photo[0]["filepath"], "Фотография гида", "Гид ".geotest_get_in_country($node->field_city[0]["country_id"])." ".$node->title, array("class"=>"photo imagecache imagecache-guide_face", "itemprop"=>"image")):"";?>
                      <div class="inner">											 
 						<h4 class='first'>Услуги</h4>
 						<?
@@ -61,12 +61,12 @@ if($page)
 						{
 							if($node->field_phone[0]["value"])
 							{
-								echo "Телефон: <span class='tel'>".$node->field_phone[0]["view"]."</span><br>";
+								echo "Телефон: <span class='tel' itemprop='telephone'>".$node->field_phone[0]["view"]."</span><br>";
 							}
 
 							if($node->field_mail[0]["email"])
 							{
-								echo "Почта: <a href='mailto:".$node->field_mail[0]["email"]."' class='email'>".$node->field_mail[0]["email"]."</a><br>";
+								echo "Почта: <a href='mailto:".$node->field_mail[0]["email"]."' class='email' itemprop='email'>".$node->field_mail[0]["email"]."</a><br>";
 							}
 							if($node->field_skype[0]["value"])
 							{
