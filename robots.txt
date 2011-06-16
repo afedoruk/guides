@@ -18,6 +18,7 @@
 
 User-agent: *
 Crawl-delay: 10
+Sitemap: http://theguides.ru/sitemap.xml
 # Directories
 Disallow: /includes/
 Disallow: /misc/
@@ -43,9 +44,11 @@ Disallow: /comment/reply/
 Disallow: /logout/
 Disallow: /node/add/
 Disallow: /search/
-Disallow: /user/register/
-Disallow: /user/password/
-Disallow: /user/login/
+Disallow: /user
+#Disallow: /user/register/
+#Disallow: /user/password/
+#Disallow: /user/login/
+Disallow: /guides/search
 # Paths (no clean URLs)
 Disallow: /?q=admin/
 Disallow: /?q=comment/reply/
@@ -55,3 +58,4 @@ Disallow: /?q=search/
 Disallow: /?q=user/password/
 Disallow: /?q=user/register/
 Disallow: /?q=user/login/
+
