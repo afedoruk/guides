@@ -1178,10 +1178,10 @@ function geotest_countries_page()
 		natcasesort($excountries);	
 		foreach($excountries as $code=>$title)
 		{
-			$items[]=l($title, "countries/".$code);
+			$items[]=l(theme("countryicons_icon", $code), "countries/".$code, array("html"=>true))." ".l($title, "countries/".$code);
 		}
 		$output="<p>Если какой-либо страны нет в списке, значит нет зарегистрированных гидов из нее. Как только первый гид из этой страны зарегистрируется на сайте и оформит карточку гида, страна появится в этом списке.</p>";
-		$output.=theme("item_list", $items);
+		$output.=theme("item_list", $items, null, "ul", array("id"=>"country-list"));
 		return $output;
 	}
 }

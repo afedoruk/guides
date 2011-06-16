@@ -933,3 +933,15 @@ h3.padded
 	list-style-type: decimal;
 	list-style-position: outside;
 }
+
+.item-list ul#country-list li 
+{
+	margin: 0 0 15px 0;
+}
+
+#country-list li
+{
+	float: left;
+	width: 200px;
+	list-style: none;
+}

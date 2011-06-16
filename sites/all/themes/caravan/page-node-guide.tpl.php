@@ -23,6 +23,10 @@
   })();
 
 </script>
+<script type="text/javascript">
+_bacct = "UA-130670-11";
+</script>
+<script type="text/javascript" src="http://u.begun.ru/begun.js"></script>
 </head>
 
 <body id="page2">
