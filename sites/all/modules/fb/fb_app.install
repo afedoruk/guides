@@ -1,9 +1,8 @@
 <?php
-// $Id: fb_app.install,v 1.17 2010/03/21 18:53:33 yogadex Exp $
 /**
  * @file
  * Installs database tables and settings required by fb_app module.
- * 
+ *
  */
 
 /**
@@ -12,8 +11,8 @@
 function fb_app_install() {
   // Create tables.
   drupal_install_schema('fb_app');
-  
-  drupal_set_message(st('Facebook Application module installed. Please grant yourself <a href="!perm">permissions</a> and then browse to <a href="!create">Admin >> Facebook Applications</a> to get started.', array('!perm' => url('admin/user/permissions'), '!create' => url(FB_PATH_ADMIN))));
+
+  drupal_set_message(st('Facebook Application module installed. Please grant yourself <a href="!perm">permissions</a> and then browse to <a href="!create">Admin >> Facebook Applications</a> to get started.', array('!perm' => url('admin/user/permissions'), '!create' => url('admin/build/fb') /* FB_PATH_ADMIN */)));
 
 }
 
@@ -39,49 +38,49 @@ function fb_app_schema() {
         'type' => 'int',
         'not null' => TRUE,
         'default' => 1),
-      
+
       // nid for backward-compatibility only.  DEPRECATED and will be removed!
       'nid' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
 
       'label' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'Unique textual id for app.',
       ),
       'apikey' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'Provided by facebook, copy and pasted by user',
       ),
       'id' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'Provided by facebook, copy and pasted by user',
       ),
       'secret' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'Provided by facebook, copy and pasted by user',
       ),
       'canvas' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'We learn this from facebook app properties',
       ),
       'title' => array(
-        'type' => 'varchar', 
-        'length' => 255, 
-        'not null' => TRUE, 
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
         'description' => 'We learn this from facebook app properties',
       ),
       'data' => array(
-        'type' => 'text', 
-        'size' => 'big', 
+        'type' => 'text',
+        'size' => 'big',
         'description' => 'Module-specific additional settings.'),
     ),
     'unique keys' => array(
@@ -90,8 +89,8 @@ function fb_app_schema() {
     ),
     'primary key' => array('fba_id'),
   );
-  
-  return $schema;  
+
+  return $schema;
 }
 
 function fb_app_update_6100() {
@@ -126,12 +125,12 @@ function fb_app_update_6202() {
 function fb_app_update_6203() {
   $ret = array();
   db_drop_primary_key($ret, 'fb_app'); // replace primary key nid with fba_id.
-  db_add_field($ret, 'fb_app', 'fba_id', 
+  db_add_field($ret, 'fb_app', 'fba_id',
                array(
-                 'type' => 'int', 
-                 'type' => 'serial', 
-                 'unsigned' => TRUE, 
-                 'not null' => TRUE, 
+                 'type' => 'int',
+                 'type' => 'serial',
+                 'unsigned' => TRUE,
+                 'not null' => TRUE,
                ),
                array(
                  'unique keys' => array(
@@ -175,3 +174,58 @@ function fb_app_update_6206() {
                   array('type' => 'int', 'not null' => TRUE, 'default' => 0));
   return $ret;
 }
+
+function fb_app_update_6300() {
+  $ret = array();
+  fb_install_property_message($ret, st('Event callbacks have changed.'));
+  return $ret;
+}
+
+/**
+ * Change app labels to all lower case.
+ *
+ * This include some code specific to fb_connect.module (because easier to do here than fb_connect.install).
+ */
+function fb_app_update_6302() {
+  $ret = array();
+  $query = db_query("SELECT fba_id, label FROM {fb_app} ORDER BY fba_id");
+  while ($app = db_fetch_object($query)) {
+    //change label names to lowercase
+    $label_old = $app->label;
+    $label_new = strtolower($label_old);
+    if ($label_old != $label_new){
+
+      // Change app name to lowercase.
+      $ret[] = update_sql("UPDATE {fb_app} SET label = '$label_new' WHERE fba_id = {$app->fba_id}");
+      drupal_set_message(t("Changed fb application name from %label_old to %label_new. Please adjust any custom code or settings which rely on app's label.", array(
+                             '%label_old' => $label_old,
+                             '%label_new' => $label_new,
+                           )), 'warning');
+
+      // begin fb_connect.module settings which use label.
+      if (variable_get('fb_connect_primary_label', NULL) == $label_old) {
+        // Primary label has changed.
+        variable_set('fb_connect_primary_label', $label_new);
+      }
+
+      // fb_connect.module blocks.
+      $variable_name_old = 'fb_connect_block_login_' . $label_old;
+      $variable_name_new = 'fb_connect_block_login_' . $label_new;
+      $variable_content = variable_get($variable_name_old, NULL);
+      variable_del($variable_name_old);
+      if ($variable_content) {
+        variable_set($variable_name_new, $variable_content);
+      }
+
+      // change deltas of blocks
+      $old_delta = 'login_' . $label_old;
+      $new_delta = 'login_' . $label_new;
+      $ret[] = update_sql("UPDATE {blocks} SET delta = '$new_delta' WHERE (module = 'fb_connect' AND delta = '$old_delta')");
+
+      // end fb_connect.module settings.
+
+    }
+  }
+  return $ret;
+}
+

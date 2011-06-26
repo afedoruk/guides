@@ -1,5 +1,4 @@
 <?php
-// $Id: fb_views_handler_profile_pic.inc,v 1.3 2010/03/21 04:44:26 yogadex Exp $
 /**
  * @file
  * Render fbml tag for user's picture.

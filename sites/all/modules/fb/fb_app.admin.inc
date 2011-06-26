@@ -1,9 +1,8 @@
 <?php
-// $Id: fb_app.admin.inc,v 1.11 2010/04/10 00:22:02 yogadex Exp $
 /**
  * @file
  * Admin pages and forms for facebook applications.
- * 
+ *
  */
 
 include drupal_get_path('module', 'fb') . '/fb.admin.inc';
@@ -14,12 +13,12 @@ include drupal_get_path('module', 'fb') . '/fb.admin.inc';
 function fb_app_fb_admin($op, $data, &$return) {
   $fb = isset($data['fb']) ? $data['fb'] : NULL;
   $fb_app = isset($data['fb_app']) ? $data['fb_app'] : NULL;
-  
+
   if ($op == FB_ADMIN_OP_SET_PROPERTIES) {
     // URLs for Facebook events we support.
-    $return['uninstall_url'] = url(FB_APP_PATH_EVENT . '/' . FB_APP_EVENT_POST_REMOVE,
+    $return['uninstall_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_REMOVE . '/',
                                    array('absolute' => TRUE));
-    $return['authorize_url'] = url(FB_APP_PATH_EVENT . '/' . FB_APP_EVENT_POST_AUTHORIZE,
+    $return['authorize_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_AUTHORIZE . '/',
                                    array('absolute' => TRUE));
   }
   elseif ($op == FB_ADMIN_OP_LIST_PROPERTIES) {
@@ -33,7 +32,6 @@ function fb_app_fb_admin($op, $data, &$return) {
   elseif (($op == FB_ADMIN_OP_LOCAL_LINKS) && isset($fb_app->fba_id)) {
     // Path to edit this app.
     $return[t('edit')] = FB_PATH_ADMIN_APPS . '/' . $fb_app->label . '/fb_app';
-    // TODO!!! Support delete, and maybe view.
   }
 }
 
@@ -46,12 +44,12 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
   // If app is managed by this module, it has fba_id.
   if (isset($fb_app) && !$fb_app->fba_id) {
     drupal_set_message(t('Application %label not found.', array(
-                           '%label' => $label)),
+                           '%label' => $fb_app->label)),
                        'warning');
     drupal_not_found();
     exit();
   }
-  
+
   if (!isset($fb_app)) {
     // Defaults for new app.
     $fb_app = (object) array(
@@ -68,11 +66,11 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
   else {
     //drupal_set_title(t('Edit %label', array('%label' => $fb_app->label)));
   }
-  
-  $form['#fb_app'] = $fb_app; // Similar to #node 
-  
+
+  $form['#fb_app'] = $fb_app; // Similar to #node
+
   //$form['#node'] = (object) array('fb_app' => $fb_app);  // deprecated! backward compatibility!
-  
+
   if (!$fb_app->label) {
     // Helpful link
     // http://wiki.developers.facebook.com/index.php/How_To_Write_A_Good_Connect_Plugin
@@ -91,23 +89,35 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
       '#value' => t($helptext),
       '#weight' => -10,
     );
+    $form['helptext2'] = array(
+      '#markup' => t('It is recommended to administer drupal in one browser (this one) and log into facebook in another browser, so no cookies are shared.  So for example if using Chrome, follow the create app link above in an incognito window.'),
+      '#prefix' => '<p><em>', '#suffix' => '</em></p>',
+    );
+
   }
-  
+
   $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Label'),
     '#required' => TRUE,
     '#default_value' => $fb_app->label,
-    '#description' => t('A short name for this application.  Use letters and numerals only (no spaces, etc). <br/>This label will be used by code to customize the behavior of this app.<br/>Working with multiple copies of a site (i.e. development, staging, production)?  Use the <strong>same label</strong> on all servers!  Apikey, secret and ID usually change from server to server, but <strong>the label remains the same</strong>.'),
+    '#description' => t('A short name for this application.  Use letters and numerals only (no spaces, etc). <br/>Module code may refer to this label, in order to customize the behavior of this app.<br/>When working with multiple copies of an application (i.e. development, staging, production),  use the <strong>same label</strong> on all servers.  Apikey, secret and ID will change from server to server, but <strong>the label remains the same</strong>.'),
   );
   $form['status'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enabled'),
     '#default_value' => $fb_app->status,
-    '#description' => t('Uncheck if this server no longer hosts this application.'),
+    '#description' => t('Uncheck if this server no longer hosts this application, but you prefer not to delete the settings.'),
   );
 
   // ID, apikey and secret are shown on facebook.  User copies and pastes values.
+  $form['id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Facebook App ID'),
+    '#required' => FALSE,
+    '#default_value' => $fb_app->id,
+    '#description' => t('Facebook will generate this value when you create the application.'),
+  );
   $form['apikey'] = array(
     '#type' => 'textfield',
     '#title' => t('API Key'),
@@ -119,30 +129,21 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
     '#type' => 'textfield',
     '#title' => t('Secret'),
     '#required' => TRUE,
-    '#default_value' => $fb_app->secret,
-    '#description' => t('Facebook will generate this value when you create the application.'),
-  );
-  $form['id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Facebook App ID'),
-    '#required' => FALSE,
-    '#default_value' => $fb_app->id,
+    '#default_value' => isset($fb_app->secret) ? $fb_app->secret : NULL,
     '#description' => t('Facebook will generate this value when you create the application.'),
   );
 
-  
-  
   // fb_app_data is a placeholder where other modules can attach settings.
-  $form['fb_app_data'] = array('#tree' => TRUE);  
-  
+  $form['fb_app_data'] = array('#tree' => TRUE);
+
   // Add our own fields to fb_app_data.  Other modules use hook_form_alter to do this.
 
   $data = fb_get_app_data($fb_app);
   $form['fb_app_data']['fb_app']['set_app_props'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Set Application Properties Automatically'),
-    '#default_value' => $data['fb_app']['set_app_props'],
-    '#description' => t('Automatically update Facebook settings for this application.  Disable this if you have customized your callback URL, for example.  Also disable if another Drupal instance hosts the same application (i.e. with shared subdomain).'),
+    '#title' => t('Set application properties automatically'),
+    '#default_value' => isset($data['fb_app']) ? $data['fb_app']['set_app_props'] : NULL,
+    '#description' => t('Synchronize Facebook settings for this application when you save this form.  Disable this if you have customized your callback URL, or other settings on facebook.com.  Also disable if another Drupal instance hosts the same application (i.e. with shared subdomain).'),
   );
 
   $form['buttons'] = array();
@@ -150,8 +151,9 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
     '#type' => 'submit',
     '#value' => t('Save'),
     '#weight' => 5,
-    '#submit' => array('fb_app_admin_form_submit'),
   );
+
+  $form['#submit'] = array('fb_app_admin_form_submit');
   if ($fb_app->fba_id) {
     $form['buttons']['delete'] = array(
       '#type' => 'submit',
@@ -170,8 +172,13 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
 function fb_app_edit_form_validate($form, &$form_state) {
   $fb_app = (object) $form_state['values'];
   $fb_app->data = serialize($fb_app->fb_app_data);
-  
+
   if ($form_state['values']['op'] != t('Delete')) {
+    // Labels must be alphanumeric.
+    if (preg_match('/[^a-z0-9_]/', $fb_app->label)) {
+      form_error($form['label'], t('Label must be lower-case alphanumeric or underscores only.'));
+    }
+
     // Labels must be unique.
     $apps = fb_get_all_apps();
     foreach ($apps as $app) {
@@ -185,7 +192,9 @@ function fb_app_edit_form_validate($form, &$form_state) {
     // Getting properties confirms apikey and secret.
     fb_admin_get_app_properties($fb_app);
     if (!$fb_app->application_name) {
-      form_set_error('fb_app][apikey', t('Unable to get application properties.  Confirm both apikey and secret.'));
+      // Don't use form_set_error(), as that will prevent the user from saving any data.
+      drupal_set_message(t("Unable to get application properties.  Possibly, you've given the wrong apikey or secret.  Possibly, this server is unable to reach facebook's servers.  Your application will not work properly!"), 'error');
+      $fb_app->application_name = 'UNKOWN';
     }
   }
 }
@@ -193,14 +202,14 @@ function fb_app_edit_form_validate($form, &$form_state) {
 function fb_app_admin_form_submit($form, &$form_state) {
   $fb_app = (object)$form_state['values'];
   $fb_app->data = serialize($fb_app->fb_app_data);
-  
+
   // Get canvas_name, application_name from facebook.
   fb_admin_get_app_properties($fb_app);
-  
+
   $orig_app = $form['#fb_app'];
   if ($orig_app->fba_id) {
     // Updating.
-    
+
     db_query("UPDATE {fb_app} SET label='%s', status = %d, apikey='%s', secret='%s', id='%s', canvas='%s', title='%s',data='%s' WHERE fba_id = %d",
              $fb_app->label,
              $fb_app->status,
@@ -211,16 +220,16 @@ function fb_app_admin_form_submit($form, &$form_state) {
              $fb_app->application_name, // From facebook, not form.
              $fb_app->data,
              $orig_app->fba_id);
-    
+
     watchdog('fb_app', 'Updated Facebook Application %label.',
              array('%label' => $fb_app->label,
              ),
              WATCHDOG_NOTICE,
              l(t('view apps'), FB_PATH_ADMIN_APPS));
-    
+
     drupal_set_message(t('Saved changes to facebook application %title (%label).',
                          array('%title' => $fb_app->application_name,
-                               '%label' => $fb_app->label))); 
+                               '%label' => $fb_app->label)));
   }
   else {
     // Inserting.
@@ -233,22 +242,22 @@ function fb_app_admin_form_submit($form, &$form_state) {
              $fb_app->canvas_name, // From facebook, not form.
              $fb_app->application_name, // From facebook, not form.
              $fb_app->data);
-    
+
     watchdog('fb_app', 'Created Facebook Application %label.',
              array('%label' => $fb_app->label,
              ),
              WATCHDOG_NOTICE,
              l(t('view apps'), FB_PATH_ADMIN_APPS));
-    
+
     drupal_set_message(t('Created facebook application %title (%label).',
                          array('%label' => $fb_app->label,
                                '%title' => $fb_app->application_name)));
   }
-  
+
   if ($fb_app->status) {
     fb_app_set_app_properties($fb_app); // Set callback URL, etc.
   }
-  
+
   $form_state['redirect'] = FB_PATH_ADMIN;
 }
 
@@ -274,7 +283,7 @@ function fb_app_admin_delete_confirm_form(&$form_state, $fb_app) {
     '#type' => 'value',
     '#value' => $fb_app->fba_id,
   );
-  
+
   return confirm_form($form,
                       t('Are you sure you want to delete %title?', array('%title' => $fb_app->title)),
                       isset($_GET['destination']) ? $_GET['destination'] : FB_PATH_ADMIN_APPS . '/' . $fb_app->label,
@@ -291,8 +300,8 @@ function fb_app_admin_delete_confirm_form_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
     $fba_id = $form_state['values']['fba_id'];
 
-    // TODO: invoke hooks so that third-party modules may act.
-    
+    // @TODO: invoke hooks so that third-party modules may act.
+
     db_query("DELETE FROM {fb_app} WHERE fba_id = %d",
              $fba_id);
   }
@@ -303,7 +312,7 @@ function fb_app_admin_delete_confirm_form_submit($form, &$form_state) {
 
 
 /**
- * Sets callback URLs and other properties of a facebook app.  Calls the facebook 
+ * Sets callback URLs and other properties of a facebook app.  Calls the facebook
  */
 function fb_app_set_app_properties($fb_app) {
   $data = fb_get_app_data($fb_app);
@@ -311,10 +320,12 @@ function fb_app_set_app_properties($fb_app) {
   $props = fb_invoke(FB_ADMIN_OP_SET_PROPERTIES, array('fb_app' => $fb_app), array(), FB_ADMIN_HOOK);
   if (count($props)) {
     if ($fb_app_data['set_app_props']) {
-      if ($fb = fb_api_init($fb_app, FB_FBU_CURRENT)) {
+      if ($fb = fb_api_init($fb_app)) {
         try {
-          $fb->api_client->admin_setAppProperties($props);
-          drupal_set_message(t('Note that it may take several minutes for property changes to propigate to all facebook servers.'));
+          $result = fb_call_method($fb, 'admin.setAppProperties', array(
+                                     'properties' => json_encode($props),
+                                   ));
+          drupal_set_message(t('Note that it may take several minutes for property changes to propagate to all facebook servers.'));
           if (fb_verbose()) {
             drupal_set_message(t('Set the following properties for %label application:<br/><pre>!props</pre>', array('%label' => $fb_app->label, '!props' => print_r($props, 1))));
             watchdog('fb_app', 'Set facebook app properties for %label.',
@@ -324,6 +335,7 @@ function fb_app_set_app_properties($fb_app) {
                      l(t('view apps'), FB_PATH_ADMIN));
           }
         } catch (Exception $e) {
+          drupal_set_message(t('Failed to set the following properties for %label application.  You may need to manually editing remote settings!<br/><pre>!props</pre>', array('%label' => $fb_app->label, '!props' => print_r($props, 1))), 'error');
           fb_log_exception($e, t('Failed to set application properties on Facebook'));
         }
       }

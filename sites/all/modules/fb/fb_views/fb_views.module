@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Facebook-specific views arguments, filters, etc...
@@ -41,11 +42,8 @@ function fb_views_views_handlers() {
 }
 
 function fb_views_views_data() {
-  // The fb_user_app table allows us to associate a node author's uid to a
-  // facebook id.
-  // Will be present if fb_user.module is used.
-  // This might need to be improved to take the apikey into account (for sites that host more than one app.)
-  $data['fb_user_app'] = array(
+  // fb_user table will only exists when fb_user.module enabled.
+  $data['fb_user'] = array(
     'table' => array(
       'group' => t('Drupal for Facebook'),
       'join' => array(
@@ -77,30 +75,13 @@ function fb_views_views_data() {
       'filter' => array('handler' => 'fb_views_handler_filter_friends'),
       'help' => t('Limit results to friends of the current user.  This filter will succeed when users are logged into Facebook Connect or Canvas pages.'),
     ),
-  );
-
-  // Authmap is the definitive link between a drupal account and facebook user id (fbu)
-  $data['authmap'] = array(
-    'table' => array(
-      'group' => t('Drupal for Facebook'),
-      'join' => array(
-        'node' => array(
-          'left_field' => 'uid',
-          'field' => 'uid',
-        ),
-        'users' => array(
-          'left_field' => 'uid',
-          'field' => 'uid',
-        ),
-      ),
-    ),
     'fb_views_filter_profile_tab' => array(
       'title' => t('Profile Tab Owner'),
       'filter' => array('handler' => 'fb_views_handler_filter_profile_tab'),
       'help' => t('Limit results to profile tab user.  Only works on Facebook Profile Tabs.'),
     ),
   );
-  
+
   return $data;
 }
 
@@ -109,12 +90,12 @@ function fb_views_views_data() {
 
 /**
  * Introduce a theme style that mimics a facebook discussion board.
- * 
+ *
  * To use: make a theme which provides a page view, and select view type
  * 'Facebook Discussion'.  Then under Fields, include Node: Title, Node:
  * Created Time, Node: Author Name, Comment: Count, Comment: Last Comment
  * Author, Comment: Last Comment Time.
- * 
+ *
  * It may not look exactly like a facebook discussion, but comes close.
  */
 function fb_views_views_style_plugins() {
@@ -138,7 +119,7 @@ function fb_views_views_style_plugins() {
 
 function theme_views_fb_discussion($view, $nodes, $type) {
   //drupal_set_message("theme_views_fb_discussion, type is '$type'" . print_r($view, 1) . dprint_r($nodes, 1));  // debug
-  
+
   if ($type == 'page') {
     // use tablesort code to generate the sort links.
     $sorts = array();
@@ -148,7 +129,7 @@ function theme_views_fb_discussion($view, $nodes, $type) {
       $sorts[] = $th['data'];
     }
     $output .= theme('sortable_header_links', $sorts);
-    
+
     $output .= theme('fb_discussion_nodes', $view, $nodes);
   }
   elseif ($type == 'block') {

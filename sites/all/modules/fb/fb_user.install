@@ -1,9 +1,8 @@
 <?php
-// $Id: fb_user.install,v 1.14 2010/04/04 19:51:07 yogadex Exp $
 /**
  * @file
  * Install file for fb_user.module.
- * 
+ *
  */
 
 /**
@@ -20,43 +19,44 @@ function fb_user_install() {
 function fb_user_uninstall() {
   // Remove tables.
   drupal_uninstall_schema('fb_user');
+
+  foreach (array(FB_USER_VAR_USERNAME_STYLE,
+                 FB_USER_VAR_ALTER_REGISTER,
+                 FB_USER_VAR_ALTER_LOGIN,
+                 FB_USER_VAR_ALTER_LOGIN_BLOCK,
+                 FB_USER_VAR_ALTER_CONTACT,
+                 FB_USER_VAR_TEXT_REGISTER,
+                 FB_USER_VAR_TEXT_LOGIN,
+                 FB_USER_VAR_TEXT_LOGIN_BLOCK,
+           ) as $var) {
+    variable_del($var);
+  }
 }
 
 
 function fb_user_schema() {
-  $schema['fb_user_app'] = array(
+  // Note fb_user_app table has been moved to fb_user_app.module.
+
+  $schema['fb_user'] = array(
     'fields' => array(
-      'apikey' => array(
-        'type' => 'varchar', 'length' => 128, 'not null' => TRUE,
-      ),
-      'fbu' => array('type' => 'int', 'size' => 'big', 'not null' => TRUE, ),
       'uid' => array(
-        'type' => 'int', 'size' => 'normal', 'not null' => TRUE,
-      ),
-      'added' => array(
         'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,
       ),
-      'proxied_email' => array(
-        'type' => 'varchar', 'length' => 255, 'not null' => TRUE,
-      ),
-      'time_cron' => array(
-        'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,
-      ),
-      'time_access' => array(
-        'type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE,
-      ),
-      'session_key' => array(
-        'type' => 'varchar', 'length' => 255, 'not null' => FALSE,
-      ),
-      'session_key_expires' => array(
-        'type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE,
+      'fbu' => array(
+        // http://forum.developers.facebook.net/viewtopic.php?pid=4676
+        'type' => 'int', 'size' => 'big', 'not null' => TRUE,
       ),
     ),
-    'primary key' => array('apikey', 'fbu'),
+    'primary key' => array('uid'),
+    'unique keys' => array(
+      'fbu' => array('fbu')),
   );
-  
+
+
   return $schema;
 }
+
+//// Note that update functions referring to fb_user_app table are old (through 6005), but not safe to delete from this file.
 
 function fb_user_update_1() {
   fb_user_install();
@@ -124,7 +124,7 @@ function fb_user_update_6004() {
 
 function fb_user_update_6005() {
   $ret = array();
-  
+
   // Making uid unique was a bad idea.  It can be 0.
   // One of the following should work, depending on whether the key was added during install or update.
   // The other will create a warning, unfortunately.
@@ -147,3 +147,32 @@ function fb_user_update_6006() {
   return $ret;
 }
 
+/**
+ * Install fb_user table and move entries in authmap table to fb_user.
+ */
+function fb_user_update_6007() {
+  $table_schema = fb_user_schema();
+  $ret = '';
+
+  db_create_table($ret, 'fb_user', $table_schema['fb_user']);
+
+  // Move everything across
+  $sql = "INSERT INTO {fb_user} SELECT uid, authname FROM {authmap} WHERE module = 'fb_user'";
+  $ret[] = update_sql($sql);
+
+  // Delete authmap table entries, careful to only delete after above insert.
+  $sql = "DELETE FROM {authmap} WHERE module = 'fb_user' AND uid IN (SELECT uid FROM {fb_user})";
+  $ret[] = update_sql($sql);
+
+  return $ret;
+}
+
+function fb_user_update_6008() {
+  $ret = array();
+  $message = 'Manual action required!  If you have a custom implementation of hook_fb() which responds to user operations (i.e. FB_OP_PRE_USER or FB_OP_POST_USER), those operations have been moved to a new hook, hook_fb_user().  You will have to edit your code.';
+  $args = array();
+  drupal_set_message(t($message, $args), 'warning', FALSE);
+  watchdog('fb_user', $message, $args, WATCHDOG_WARNING);
+  $ret[] = array('success' => FALSE, 'query' => $message, array());
+  return $ret;
+}

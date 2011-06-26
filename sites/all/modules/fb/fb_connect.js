@@ -1,210 +1,134 @@
 
+/**
+ * @file
+ *
+ * Javascript specific to facebook connect pages.  This means pages
+ * which are not canvas pages, and where fb_connect.module has
+ * initialized the facebook api.  The user may or may not have
+ * authorized the app, this javascript will still be loaded.
+ *
+ * Note (!) much of the work done here is deprecated, and moved to fb.js
+ * (where code works equally well on both connect pages and canvas
+ * pages).  If your app needs the features here, please report your
+ * use case to our issue queue (http://drupal.org/project/issues/fb),
+ * otherwise these features may go away...
+ */
+
 Drupal.behaviors.fb_connect = function(context) {
-  // Respond to connected events
-  var events = $(document).data('events');
-  if (!events || !events.fb_connect_status) {
-    $(document).bind('fb_connect_status', FB_Connect.statusHandle);
-  }
 
-  // Sanity check.  Not sure when this can happen, but if it does we can't expect anything to work.
-  if (typeof FB_RequireFeatures == 'undefined') {
-    return;
+  // Logout of facebook when logging out of drupal.
+  jQuery("a[href^='" + Drupal.settings.basePath + "logout']", context).click(FB_Connect.logoutHandler);
+
+  // Support markup for dialog boxes.
+  FB_Connect.enablePopups(context);
+
+  var events = jQuery(document).data('events');
+  if (!events || !events.fb_session_change) {
+    jQuery(document).bind('fb_session_change', FB_Connect.sessionChangeHandler);
   }
-    
-  // Tell Facebook to parse any XFBML elements found in the context.
-  FB_RequireFeatures(['XFBML'], function() {
-      $(context).each(function() {
-          var elem = $(this).get(0);
-          //alert('fb_connect: ' + elem + $(elem).html()); // debug
-          FB.XFBML.Host.parseDomElement(elem);
-          
-      });
-      // Respect fb_connect classes on new content.
-      $('.fb_connect_show', context).show();
-      $('.fb_connect_hide', context).hide();
+};
+
+
+
+FB_Connect = function(){};
+
+// JQuery pseudo-event handler.
+FB_Connect.sessionChangeHandler = function(context, status) {
+  jQuery('.block-fb_connect')
+    .ajaxStart(function() {
+      jQuery(this).html('<div class="progress fb_connect_pb"><div class="bar"><div class="filled"></div></div></div>');
+    })
+    .ajaxStop(function() {
+      jQuery(this).html('');
+    })
+  ;
+
+  // Call the default handler, too.
+  FB_JS.sessionChangeHandler(context, status);
+};
+
+// click handler
+FB_Connect.logoutHandler = function(event) {
+  if (typeof(FB) != 'undefined') {
+    FB.logout(function () {
+    });
+    // Facebook's invalid cookies persist if third-party cookies disabled.
+    // Let's try to clean up the mess.
+    FB_JS.deleteCookie('fbs_' + FB._apiKey, '/', ''); // app id
+    FB_JS.deleteCookie('fbs_' + Drupal.settings.fb.apikey, '/', ''); // apikey
+  }
+};
+
+/**
+ * Move new dialogs to visible part of screen.
+ **/
+FB_Connect.centerPopups = function() {
+  var scrollTop = $(window).scrollTop();
+  $('.fb_dialog:not(.fb_popup_centered)').each(function() {
+    var offset = $(this).offset();
+    if (offset.left == 0) {
+      // This is some facebook cruft that cannot be centered.
+    }
+    else if (offset.top < 0) {
+      // Not yet visible, don't center.
+    }
+    else if (offset.top < scrollTop) {
+      $(this).css('top', offset.top + scrollTop + 'px');
+      $(this).addClass('fb_popup_centered'); // Don't move this dialog again.
+    }
   });
+};
 
+
+FB_Connect.enablePopups = function(context) {
   // Support for easy fbml popup markup which degrades when javascript not enabled.
   // Markup is subject to change.  Currently...
-  // <div class=fb_connect_fbml_popup_wrap><a title="POPUP TITLE">LINK MARKUP</a><div class=fb_connect_fbml_popup><fb:SOME FBML>...</fb:SOME FBML><div></div>
-  $('.fb_connect_fbml_popup:not(.fb_connect_fbml_popup-processed)', context).addClass('fb_connect_fbml_popup-processed').prev().each(
+  // <div class=fb_fbml_popup_wrap><a title="POPUP TITLE">LINK MARKUP</a><div class=fb_fbml_popup><fb:SOME FBML>...</fb:SOME FBML></div></div>
+  $('.fb_fbml_popup:not(.fb_fbml_popup-processed)', context).addClass('fb_fbml_popup-processed').prev().each(
     function() {
       this.fbml_popup = $(this).next().html();
       this.fbml_popup_width = parseInt($(this).next().attr('width'));
       this.fbml_popup_height = parseInt($(this).next().attr('height'));
-      //alert("stored fbml_popup markup: " + this.fbml_popup); // debug
+      //console.log("stored fbml_popup markup: " + this.fbml_popup); // debug
       $(this).next().remove(); // Remove FBML so facebook does not expand it.
     })
-  // Handle clicks on the link element.
-  .bind('click', 
-        function (e) {
-          var popup;
-          //alert('Clicked!  Will show ' + this.fbml_popup); // debug
-          popup = new FB.UI.FBMLPopupDialog($(this).attr('title'), this.fbml_popup, true, true);
-          if (this.fbml_popup_width) {
-            popup.setContentWidth(this.fbml_popup_width);
-          }
-          if (this.fbml_popup_height) {
-            popup.setContentHeight(this.fbml_popup_height);
-          }
-          popup.set_placement(FB.UI.PopupPlacement.topCenter);
-          popup.show();
-          e.preventDefault();      
-        })
-  .parent().show();
-  
+    // Handle clicks on the link element.
+    .bind('click',
+          function (e) {
+            var popup;
+            //console.log('Clicked!  Will show ' + this.fbml_popup); // debug
+
+	    // http://forum.developers.facebook.net/viewtopic.php?pid=243983
+	    var size = FB.UIServer.Methods["fbml.dialog"].size;
+	    if (this.fbml_popup_width) {
+	      size.width=this.fbml_popup_width;
+	    }
+	    if (this.fbml_popup_height) {
+	      size.height=this.fbml_popup_height;
+	    }
+	    FB.UIServer.Methods['fbml.dialog'].size = size;
+
+	    // http://forum.developers.facebook.net/viewtopic.php?id=74743
+	    var markup = this.fbml_popup;
+	    if ($(this).attr('title')) {
+	      markup = '<fb:header icon="true" decoration="add_border">' + $(this).attr('title') + '</fb:header>' + this.fbml_popup;
+	    }
+	    var dialog = {
+	      method: 'fbml.dialog', // triple-secret undocumented feature.
+	      display: 'dialog',
+	      fbml: markup,
+	      width: this.fbml_popup_width,
+	      height: this.fbml_popup_height
+	    };
+	    var popup = FB.ui(dialog, function (response) {
+	      console.log(response);
+	    });
+
+	    // Start a timer to keep popups centered.
+	    // @TODO - avoid starting timer more than once.
+	    window.setInterval(FB_Connect.centerPopups, 500);
+
+            e.preventDefault();
+          })
+    .parent().show();
 };
-
-
-// The following functions help us keep track of when a user is logged into Facebook Connect.
-FB_Connect = function(){};
-
-// Global to keep track of connected state.  Better than facebook's 'reloadIfSessionStateChanged' option.
-FB_Connect.fbu = null; // null, not 0
-
-FB_Connect.statusHandle = function(e, data) {
-  if (data.changed) {
-    // Status has changed, user has logged in or logged out.
-    var destination = Drupal.settings.fb_connect.destination;
-    if (destination) {
-      window.location.href = destination;
-    }
-    else if (data.fbu) {
-      // User has connected.
-      FB_Connect.sessionStart(function(data) {
-	  //alert("reloading because user connected.");
-	  window.location.reload();
-	});
-    }
-    else {
-      // Refresh page for not-connected user.
-      FB_Connect.sessionEnd(function(data) {
-	  //alert("reloading because user disconnected.");
-	  
-	  // User has disconnected.
-	  // Sometimes bogus cookies are left behind, here we try to clean up.
-	  FB_Connect.purgeCookies();
-	  
-	  window.location.reload();
-	});
-    }
-  }
-};
-
-FB_Connect.sessionStart = function(callback) {
-  if (Drupal.settings.fb_connect.session_start_url) {
-    var data = {
-      'fb_session_no': 1, // allow drupal to control session.
-      'apikey': FB.Facebook.apiKey
-    };
-    $.post(Drupal.settings.fb_connect.session_start_url, data, callback);
-  }
-  else {
-    callback();
-  }
-};
-
-FB_Connect.sessionEnd = function(callback) {
-  if (Drupal.settings.fb_connect.session_end_url) {
-    var data = {
-      //'fb_session_no': 0, // TBD: are the facebook cookies still set when we get here?
-      'apikey': FB.Facebook.apiKey
-    };
-    $.post(Drupal.settings.fb_connect.session_end_url, data, callback);
-  }
-  else {
-    callback();
-  }
-};
-
-// TODO: for some reason, when you start connected, then log out of facebook and log in as another user, this routine still thinks you are the first user, the next time a page is loaded.
-FB_Connect.on_connected = function(fbu) {
-  var status = {'changed': false, 'fbu': fbu};
-  if ((FB_Connect.fbu === 0 || Drupal.settings.fb_connect.fbu != fbu) &&
-      Drupal.settings.fb_connect.in_iframe != 1) {
-    status.changed = true;
-  }
-  FB_Connect.fbu = fbu;
-  $.event.trigger('fb_connect_status', status);
-};
-
-
-FB_Connect.on_not_connected = function() {
-  var status = {'changed': false, 'fbu': 0};
-  if ((FB_Connect.fbu > 0 || Drupal.settings.fb_connect.fbu > 0) &&
-      Drupal.settings.fb_connect.in_iframe != 1){
-    // This code will not be reached if fb_connect_logout_onclick (below) calls logoutAndRedirect.
-    // We've gone from connected to not connected.
-    status.changed = true;
-  }
-  FB_Connect.fbu = 0;
-  $.event.trigger('fb_connect_status', status);
-};
-
-FB_Connect.login_onclick = function() {
-  // This will execute before the user fills out the login form.
-  // More important is FB_Connect.on_connected, above.
-};
-
-FB_Connect.logout_onclick = function() {
-  FB.ensureInit(function() {
-      FB.Connect.logoutAndRedirect(Drupal.settings.fb_connect.front_url);
-    });
-};
-
-
-FB_Connect.execute_javascript = function() {
-  var url = '/fb_connect/js';
-  $.post(url, null, function(eval_me) {
-      if (eval_me) {
-        eval(eval_me);
-      }
-    });
-};
-
-
-
-// This function called after fbConnect is initialized
-FB_Connect.init = function() {
-  $.event.trigger('fb_connect_init', status);
-};
-
-
-/**
- * Facebook leaves bogus cookies.  We must clean up their mess.
- * Thanks to http://techpatterns.com/downloads/javascript_cookies.php for example code.
- * TODO: make this more efficient by learning the apikey some other way.
- */
-FB_Connect.purgeCookies = function() {
-  var cookies = { };
-  
-  if (document.cookie && document.cookie != '') {
-    var split = document.cookie.split(';');
-    for (var i = 0; i < split.length; i++) {
-      var name_value = split[i].split("=");
-      name_value[0] = name_value[0].replace(/^ /, '');
-      var pos = name_value[0].indexOf('_session_key');
-      if (pos != -1) {
-        // Looks like a facebook cookie.
-        var apikey = name_value[0].substring(0, pos);
-        
-        // Try to delete all the crud.
-        FB_Connect.deleteCookie(apikey, '/', '');
-        FB_Connect.deleteCookie(apikey + '_user', '/', '');
-        FB_Connect.deleteCookie(apikey + '_ss', '/', '');
-        FB_Connect.deleteCookie(apikey + '_session_key', '/', '');
-        FB_Connect.deleteCookie(apikey + '_expires', '/', '');
-        FB_Connect.deleteCookie('fb_setting_' + apikey, '/', '');
-      }
-    }
-  }
-};
-  
-// Delete a cookie.
-FB_Connect.deleteCookie = function( name, path, domain ) {
-  document.cookie = name + "=" +
-  ( ( path ) ? ";path=" + path : "") +
-  ( ( domain ) ? ";domain=" + domain : "" ) +
-  ";expires=Thu, 01-Jan-1970 00:00:01 GMT";
-};
-  

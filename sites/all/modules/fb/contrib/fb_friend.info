@@ -1,5 +1,5 @@
-name = Friend Features
-description = Blocks for showing and inviting friends
+name = FB Friend Features
+description = (fb_friend.module) Blocks for showing the current user's friends, sending them requests, etc.
 package = Drupal for Facebook - contrib
 core = 6.x
 dependencies[] = fb
@@ -7,9 +7,9 @@ dependencies[] = fb_form
 dependencies[] = fb_app
 
 
-; Information added by drupal.org packaging script on 2010-10-16
-version = "6.x-2.0-rc3"
+; Information added by drupal.org packaging script on 2011-05-11
+version = "6.x-3.0-rc13"
 core = "6.x"
 project = "fb"
-datestamp = "1287194184"
+datestamp = "1305134515"
 

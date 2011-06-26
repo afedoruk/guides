@@ -1,9 +1,8 @@
 <?php
-// $Id: fb_connect.admin.inc,v 1.5 2010/03/20 19:44:14 yogadex Exp $
 /**
  * @file
  * Admin pages and forms for connect settings.
- * 
+ *
  */
 
 /**
@@ -20,6 +19,19 @@ function fb_connect_fb_admin($op, $data, &$return) {
 }
 
 /**
+ * Convenience method to get an apps connect URL.
+ *
+ */
+function fb_connect_get_connect_url($fb_app) {
+  // absolute URL with no rewriting applied
+  global $base_url;
+
+  return $base_url . '/';
+
+}
+
+
+/**
  * Form builder; Configure settings for this site.
  *
  * @ingroup forms
@@ -33,7 +45,7 @@ function fb_connect_admin_settings() {
     drupal_set_message($message, 'error');
     return array('help' => array('#value' => $message));
   }
-  
+
   $form[FB_CONNECT_VAR_PRIMARY] = array(
     '#type' => 'select',
     '#options' => $options,
@@ -41,15 +53,7 @@ function fb_connect_admin_settings() {
     '#description' => t('Inialize one application on every page.'),
     '#default_value' => variable_get(FB_CONNECT_VAR_PRIMARY, NULL),
   );
-  
-  $form[FB_CONNECT_VAR_LOGIN] = array(
-    '#type' => 'select',
-    '#options' => $options,
-    '#title' => t('Add Button to Login Form'),
-    '#description' => t('Add a Facebook Connect button to Drupal\'s login form.'),
-    '#default_value' => variable_get(FB_CONNECT_VAR_LOGIN, NULL),
-  );
-  
+
   $form['theme_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Theme overrides'),

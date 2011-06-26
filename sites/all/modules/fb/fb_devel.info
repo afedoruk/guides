@@ -1,5 +1,5 @@
-name = Drupal for Facebook Devel
-description = <strong>HIGHLY RECOMMENDED</strong>.  Displays messages and blocks that help when developing and debugging Apps.  Do not even try to get started without this module.  Disable it later, on your production server when your site is live.
+name = FB Development tools
+description = (fb_devel.module) Catch errors and solve problems before they surprise you.  Displays messages and blocks that help when developing and debugging Apps.  Disable on your production server, when your site is live, because this module adds overhead.
 package = Drupal for Facebook
 dependencies[] = fb
 dependencies[] = devel
@@ -8,9 +8,9 @@ core = 6.x
 
 
 
-; Information added by drupal.org packaging script on 2010-10-16
-version = "6.x-2.0-rc3"
+; Information added by drupal.org packaging script on 2011-05-11
+version = "6.x-3.0-rc13"
 core = "6.x"
 project = "fb"
-datestamp = "1287194184"
+datestamp = "1305134515"
 
