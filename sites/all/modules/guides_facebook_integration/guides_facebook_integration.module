@@ -1,0 +1,3 @@
+<?php
+
+include_once('guides_facebook_integration.features.inc');
