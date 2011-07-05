@@ -92,7 +92,7 @@ function geotest_guides_search_form()
 
 	$fullcountries=geotest_country_list();
 	$countries[-1]="";
-	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_type_guide} WHERE field_city_country_id !='' ORDER BY field_city_country_id");
+	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_field_city} WHERE field_city_country_id !='' ORDER BY field_city_country_id");
 	while($row=db_fetch_object($res))
 	{
 		$countries[$row->field_city_country_id]=$fullcountries[$row->field_city_country_id];
@@ -793,15 +793,15 @@ function geotest_guides_search()
 
 	if(isset($_GET["country_id"]) && $_GET["country_id"]!=-1)
 	{
-		$join.=" INNER JOIN {content_type_guide} cg ON n.vid=cg.vid";
+		$join.=" INNER JOIN {content_field_city} cg ON n.vid=cg.vid";
 		$cond[]="cg.field_city_country_id='%s'";
 		$args[]=$_GET["country_id"];
 	}
 
 	if(isset($_GET["city"]) && $_GET["city"]!="")
 	{
-		if(!strstr($join, "{content_type_guide}"))
-			$join.=" INNER JOIN {content_type_guide} cg ON n.vid=cg.vid";
+		if(!strstr($join, "{content_field_city}"))
+			$join.=" INNER JOIN {content_field_city} cg ON n.vid=cg.vid";
 		$cond[]="cg.field_city_city_name LIKE '%s%%'";
 		$args[]=$_GET["city"];
 	}
@@ -1124,7 +1124,7 @@ function geotest_get_in_country($cid)
     've' => 'Venezuela',
     'vg' => 'British Virgin Islands',
     'vi' => 'U.S. Virgin Islands',
-    'vn' => 'Vietnam',
+    'vn' => 'во Вьетнаме',
     'vu' => 'Vanuatu',
     'wf' => 'Wallis and Futuna',
     'ws' => 'Samoa',
@@ -1147,7 +1147,7 @@ function geotest_countries_page()
 		{
 			$guides=array();
 			drupal_set_title("Частные гиды ".geotest_get_in_country(arg(1)));
-			$res=pager_query("SELECT * FROM {node} n INNER JOIN {content_type_guide} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", 10, 0, null, arg(1));
+			$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", 10, 0, null, arg(1));
 			while($row=db_fetch_object($res))
 			{
 				$guides[]=node_load($row->nid);
@@ -1170,7 +1170,7 @@ function geotest_countries_page()
 	}
 	else
 	{		
-		$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {node} n INNER JOIN {content_type_guide} cg ON n.vid=cg.vid WHERE n.status=1");
+		$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1");
 		while($row=db_fetch_object($res))
 		{
 			$excountries[$row->field_city_country_id]=$countries[$row->field_city_country_id];

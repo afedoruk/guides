@@ -107,7 +107,11 @@ function caravan_preprocess_page(&$vars)
 		if($node->type=="guide")
 		{
 			$vars["template_files"][]="page-node-guide";
-			$vars["head_title"]="Гид ".geotest_get_in_country($node->field_city[0]["country_id"]).", ".$node->field_city[0]["city_name"]." ".$node->title;
+			foreach($node->field_city as $city)
+			{
+				$p[]="Гид ".geotest_get_in_country($city["country_id"]).", ".$city["city_name"];
+			}
+			$vars["head_title"]=implode(". ", $p)." ".$node->title;
 		}
 	}
 }

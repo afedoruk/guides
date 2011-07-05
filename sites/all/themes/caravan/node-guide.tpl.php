@@ -5,8 +5,11 @@ if($page)
 	global $user;
 	$testimonials=views_embed_view('testimonials', 'page_1', $node->nid);
 	print "<div class='service'>".$links."</div>";
-	echo "<h4 class='adr' itemprop='address' itemscope itemtype='http://schema.org/PostalAddress'><span class='country-name' itemprop='addressCountry'>".$countries[$node->field_city[0]["country_id"]]."</span>, <span class='locality' itemprop='addressLocality'>".$node->field_city[0]["city_name"]."</span></h4>";
-    
+	foreach($node->field_city as $city)
+	{
+		$p[]="<span class='adr' itemprop='address' itemscope itemtype='http://schema.org/PostalAddress'><span class='country-name' itemprop='addressCountry'>".$countries[$city["country_id"]]."</span>, <span class='locality' itemprop='addressLocality'>".$city["city_name"]."</span></span>";
+	}
+	echo "<h4>".implode(" | ", $p)."</h4>";
 ?>
     <!-- featured box begin -->
             <div id="guide-card">
@@ -140,7 +143,10 @@ else
 	   <div class="extra-wrap">
 		  <p><strong><?=l($node->title, "node/".$node->nid)?></strong></p>	
 		  <?
-		  echo $countries[$node->field_city[0]["country_id"]].", ".$node->field_city[0]["city_name"]."<br>";
+		   foreach($node->field_city as $city)
+			{
+				echo $countries[$city["country_id"]].", ".$city["city_name"]."<br>";
+			}
 			foreach($node->taxonomy as $term)
 			{
 				$s[]=$term->name;
