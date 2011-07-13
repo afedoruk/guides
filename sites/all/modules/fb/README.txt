@@ -20,13 +20,18 @@ To upgrade:
 
 To install:
 
-- Make sure you have an up-to-date PHP client from facebook.
+- Make sure you have a PHP client from facebook (version < 3.0.0).
+  The 3.0.0 or higher versions are not supported by this version of Drupal for Facebook.
   Download from http://github.com/facebook/php-sdk.
   Extract the files, and place them in sites/all/libraries/facebook-php-sdk.
 
-  Or, To find the php-sdk in any other directory, edit your
-  settings.php to include a line similar to this (add to section where
-  $conf variable is defined, or very end of settings.php. And
+  If you have the Libraries API module installed, you may place the files in
+  another recognised location (such as sites/all/libraries), providing that the
+  directory is named 'facebook-php-sdk'.
+  
+  Or, to manually set the location of the php-sdk in any other directory, edit
+  your settings.php to include a line similar to this (add to the section where
+  the $conf variable is defined, or the very end of settings.php. And
   customize the path as needed.):
 
   $conf['fb_api_file'] = 'sites/all/libraries/facebook-php-sdk/src/facebook.php';
@@ -80,7 +85,6 @@ To install:
 To support Facebook Connect, Canvas Pages, and/or Social Plugins that
 require an Application, read on...
 
-
 - You must enable clean URLs.  If you don't, some links that drupal
   creates will not work properly on canvas pages.
 
@@ -96,7 +100,6 @@ require an Application, read on...
   self-explanitory.  When you submit your changes, Drupal for Facebook
   will automatically set the callback URL and some other properties
   which help it work properly.
-
 
 
 Troubleshooting:

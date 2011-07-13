@@ -1772,7 +1772,7 @@ function _privatemsg_validate_message(&$message, $form = FALSE) {
   }
 
   // Don't allow replies without a body.
-  if (!empty($message['thread_id']) && empty($message['body'])) {
+  if (!empty($message['thread_id']) && ($message['body'] === NULL || $message['body'] === '') ) {
     if ($form) {
       form_set_error('body', t('Disallowed to send reply without a message.'));
     }
@@ -1830,7 +1830,8 @@ function _privatemsg_validate_message(&$message, $form = FALSE) {
     }
   }
 
-  $messages += module_invoke_all('privatemsg_message_validate', $message, $form);
+  $messages = array_merge_recursive(module_invoke_all('privatemsg_message_validate', $message, $form), $messages);
+
   // Check if there are errors in $messages or if $form is TRUE, there are form errors.
   $success = empty($messages['error']) || ($form && count((array)form_get_errors()) > 0);
   return array(

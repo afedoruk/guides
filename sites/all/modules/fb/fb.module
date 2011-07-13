@@ -290,9 +290,8 @@ function fb_init() {
       $fb_lang = variable_get('fb_language_' . $user_language->language, 'en_US');
     }
 
-    $default = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
-    $default .= "://connect.facebook.net/$fb_lang/all.js";
-    fb_js_settings('js_sdk_url', variable_get(FB_VAR_JS_SDK, $default));
+    $js_sdk = fb_protocol() . "://connect.facebook.net/$fb_lang/all.js";
+    fb_js_settings('js_sdk_url', variable_get(FB_VAR_JS_SDK, $js_sdk));
   }
 
   // Add our module's javascript.
@@ -346,9 +345,12 @@ function fb_api_init($fb_app) {
     return $cache[$fb_app->apikey];
   }
 
-  $filename = variable_get(FB_VAR_API_FILE, 'sites/all/libraries/facebook-php-sdk/src/facebook.php');
+  // Find Facebook's PHP SDK.  Use libraries API if enabled.
+  $fb_lib_path = function_exists('libraries_get_path') ? libraries_get_path('facebook-php-sdk') : 'sites/all/libraries/facebook-php-sdk';
+  $fb_platform = variable_get(FB_VAR_API_FILE, $fb_lib_path . '/src/facebook.php');
+
   try {
-    if (!class_exists('Facebook') && !include($filename)) {
+    if (!class_exists('Facebook') && !include($fb_platform)) {
       $message = t('Failed to find the Facebook client libraries at %filename.  Read the !readme and follow the instructions carefully.', array(
                      '!drupal_for_facebook' => l(t('Drupal for Facebook'), 'http://drupal.org/project/fb'),
                      // This link should work with clean URLs disabled.
@@ -444,13 +446,13 @@ function fb_get_token($fb = NULL, $fbu = NULL) {
   if (!$fb)
     return;
 
-  $apikey = $fb->getAppId();
-  $cache_key = $apikey;
+  $app_id = $fb->getAppId();
+  $cache_key = $app_id;
 
   if (!$fbu) {
     // Get the application token.
     if (!isset($cache[$cache_key])) {
-      $path = "https://graph.facebook.com/oauth/access_token?client_id=" . $fb->getAppId() . "&client_secret=" . $fb->getApiSecret() . "&type=client_cred";
+      $path = "https://graph.facebook.com/oauth/access_token?client_id=" . $app_id . "&client_secret=" . $fb->getApiSecret() . "&type=client_cred";
       $http = drupal_http_request($path);
       if ($http->code == 200 && isset($http->data)) {
         $data = explode('=', $http->data);
@@ -470,7 +472,7 @@ function fb_get_token($fb = NULL, $fbu = NULL) {
     else {
       $session_data = fb_invoke(FB_OP_GET_USER_SESSION, array(
                                   'fb' => $fb,
-                                  'fb_app' => fb_get_app(array('apikey' => $apikey)),
+                                  'fb_app' => fb_get_app(array('id' => $app_id)),
                                   'fbu' => $fbu,
                                 ), array());
       if (count($session_data)) {
@@ -489,7 +491,6 @@ function fb_get_token($fb = NULL, $fbu = NULL) {
  */
 function fb_call_method($fb, $method, $params = array()) {
   $params['access_token'] = fb_get_token($fb);
-  $params['api_key'] = $fb->getAppId();
   $params['format'] = 'json-strings';
 
   // Here's how to create a url that conforms to standards:
@@ -1272,12 +1273,12 @@ function fb_users_getInfo($oids, $fb = NULL, $refresh_cache = FALSE) {
     $oids = array();
 
   if ($fb) {
-    $apikey = $fb->getAppId();
+    $app_id = $fb->getAppId();
     // First try cache
     if (!$refresh_cache && isset($_SESSION['fb'])) {
       foreach ($oids as $oid) {
-        if (isset($_SESSION['fb'][$apikey]['userinfo'][$oid])) {
-          $info = $_SESSION['fb'][$apikey]['userinfo'][$oid];
+        if (isset($_SESSION['fb'][$app_id]['userinfo'][$oid])) {
+          $info = $_SESSION['fb'][$app_id]['userinfo'][$oid];
           $infos[] = $info;
         }
       }
@@ -1304,7 +1305,7 @@ function fb_users_getInfo($oids, $fb = NULL, $refresh_cache = FALSE) {
         // Update cache with recent results.
         if (is_array($infos)) {
           foreach ($infos as $info) {
-            $_SESSION['fb'][$apikey]['userinfo'][$info['uid']] = $info;
+            $_SESSION['fb'][$app_id]['userinfo'][$info['uid']] = $info;
           }
         }
       } catch (FacebookApiException $e) {
@@ -1463,18 +1464,6 @@ function fb_ajax_event($event_type) {
 }
 
 /**
- * Convenience wrapper around drupal_access_denied().  Call on pages where the
- * access is denied because the user is not logged into facebook.
- */
-function fb_access_denied() {
-  if (!fb_facebook_user()) {
-    drupal_set_message(t('You must <a href="#" onclick="FB.login(function(response) {}, {perms:Drupal.settings.fb.perms}); return false;">log into facebook to view this page</a>.'));
-  }
-  drupal_access_denied();
-  exit();
-}
-
-/**
  * Menu callback for custom channel.
  *
  * @see http://developers.facebook.com/docs/reference/javascript/FB.init
@@ -1492,3 +1481,26 @@ function fb_channel_page() {
   print $output;
   exit();
 }
+
+//// Miscellaneous helpers and convenience functions.
+
+/**
+ * Protocol (http or https) of the current request.
+ */
+function fb_protocol() {
+  return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+}
+
+
+/**
+ * Convenience wrapper around drupal_access_denied().  Call on pages where the
+ * access is denied because the user is not logged into facebook.
+ */
+function fb_access_denied() {
+  if (!fb_facebook_user()) {
+    drupal_set_message(t('You must <a href="#" onclick="FB.login(function(response) {}, {perms:Drupal.settings.fb.perms}); return false;">log into facebook to view this page</a>.'));
+  }
+  drupal_access_denied();
+  exit();
+}
+

@@ -114,7 +114,7 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
   $form['id'] = array(
     '#type' => 'textfield',
     '#title' => t('Facebook App ID'),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#default_value' => $fb_app->id,
     '#description' => t('Facebook will generate this value when you create the application.'),
   );

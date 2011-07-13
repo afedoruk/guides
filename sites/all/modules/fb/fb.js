@@ -3,24 +3,39 @@
 // http://developers.facebook.com/docs/reference/javascript/
 window.fbAsyncInit = function() {
 
-  FB.init(Drupal.settings.fb.fb_init_settings);
+  if (Drupal.settings.fb) {
+    FB.init(Drupal.settings.fb.fb_init_settings);
+  }
 
-  // Always check the login status.  If offline_access granted, this
-  // is the only whay to know if user has logged out of facebook.
-
-  FB.getLoginStatus(function(response) {
-    var status = {'session' : response.session, 'response': response};
-    jQuery.event.trigger('fb_init', status);  // Trigger event for third-party modules.
-
-    FB_JS.sessionChange(response); // This will act only if fbu changed.
-
-    FB_JS.eventSubscribe();
-
-    FB.XFBML.parse();
-  });
+  if (FB._apiKey) {
+    // Check the login status.  If offline_access granted, this
+    // is the only whay to know if user has logged out of facebook.
+    FB.getLoginStatus(function(response) {
+      FB_JS.initFinal(response);
+    });
+  }
+  else {
+    // No application.  Not safe to call FB.getLoginStatus().
+    // We still want to initialize XFBML, third-party modules, etc.
+    FB_JS.initFinal({'session' : null});
+  }
 };
 
 FB_JS = function(){};
+
+/**
+ * Finish initializing, whether there is an application or not.
+ */
+FB_JS.initFinal = function(response) {
+  var status = {'session' : response.session, 'response': response};
+  jQuery.event.trigger('fb_init', status);  // Trigger event for third-party modules.
+
+  FB_JS.sessionChange(response); // This will act only if fbu changed.
+
+  FB_JS.eventSubscribe();
+
+  FB.XFBML.parse();
+}
 
 /**
  * Tell facebook to notify us of events we may need to act on.
@@ -32,11 +47,6 @@ FB_JS.eventSubscribe = function() {
   // Q: what the heck is "edge.create"? A: the like button was clicked.
   FB.Event.subscribe('edge.create', FB_JS.edgeCreate);
 
-  // Other events that may be of interest...
-  //FB.Event.subscribe('auth.login', FB_JS.debugHandler);
-  //FB.Event.subscribe('auth.logout', FB_JS.debugHandler);
-  //FB.Event.subscribe('auth.statusChange', FB_JS.debugHandler);
-  //FB.Event.subscribe('auth.sessionChange', FB_JS.debugHandler);
 }
 
 /**
@@ -131,7 +141,7 @@ FB_JS.sessionChange = function(response) {
       status.changed = true;
     }
   }
-  else if (Drupal.settings.fb.fbu) {
+  else if (Drupal.settings.fb && Drupal.settings.fb.fbu) {
     // A user has logged out.
     status.changed = true;
 
@@ -151,14 +161,10 @@ FB_JS.sessionChange = function(response) {
 
 };
 
+// edgeCreate is handler for Like button.
 FB_JS.edgeCreate = function(href, widget) {
   var status = {'href': href};
   FB_JS.ajaxEvent('edge.create', status);
-};
-
-// Helper function for developers.
-FB_JS.debugHandler = function(response) {
-  debugger;
 };
 
 // JQuery pseudo-event handler.

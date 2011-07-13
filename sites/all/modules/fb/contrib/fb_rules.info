@@ -5,9 +5,9 @@ dependencies[] = fb
 dependencies[] = rules
 core = 6.x
 
-; Information added by drupal.org packaging script on 2011-05-11
-version = "6.x-3.0-rc13"
+; Information added by drupal.org packaging script on 2011-06-21
+version = "6.x-3.0-rc14"
 core = "6.x"
 project = "fb"
-datestamp = "1305134515"
+datestamp = "1308685615"
 

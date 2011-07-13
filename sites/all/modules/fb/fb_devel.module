@@ -41,11 +41,19 @@ function fb_devel_menu() {
   return $items;
 }
 
-
+/**
+ * Implements hook_init().
+ */
 function fb_devel_init() {
+  if (user_access('access devel information')) {
+    // Add our module's javascript.
+    drupal_add_js(drupal_get_path('module', 'fb_devel') . '/fb_devel.js');
+  }
+
   // fb_settings.inc sanity check.
   if (isset($GLOBALS['fb_init_no_settings'])) {
-    if (user_access('access administration pages') && module_exists('fb_canvas')) {
+    if (user_access('access administration pages') && (module_exists('fb_canvas') || module_exists('fb_tab'))) {
+      // fb_settings.php must be included for canvas or tab support.
       drupal_set_message(t('!drupal_for_facebook has been enabled, but fb_settings.inc is not included in settings.php.  Please read the !readme.',
                            array('!drupal_for_facebook' => l(t('Drupal for Facebook'), 'http://drupal.org/project/fb'),
                                  // This link should work with clean URLs
@@ -524,7 +532,7 @@ function fb_devel_info() {
                                ));
     }
     elseif (!fb_settings(FB_SETTINGS_TYPE)) {
-      $info['Page Status'] = t('Facebook SDK initialized. User is not logged into facebook or has not authorized application.');
+      $info['Page Status'] = t('Facebook PHP SDK initialized.'); // Either a facebook connect page, or canvas page where user has not authorized app.
     }
     else {
       $info['Page Status'] = t('Global fb instance is set, but page type unknown (%type).',
@@ -662,8 +670,15 @@ function fb_devel_user($op, &$edit, &$account, $category = NULL) {
             //$info = fb_users_getInfo(array($fbu), $fb, TRUE);
             $account->content['fb_devel'][$fb_app->label]['info'] = array(
               '#type' => 'markup',
-              '#value' => dprint_r($info, 1),
+              '#value' => "facebook graph for /$fbu:" . dprint_r($info, 1),
             );
+
+            if ($token = fb_get_token($fb, $fbu)) {
+              $account->content['fb_devel'][$fb_app->label]['token'] = array(
+                '#type' => 'markup',
+                '#value' => 'access_token: ' . fb_get_token($fb, $fbu),
+              );
+            }
           }
           catch (Exception $e) {
             $account->content['fb_devel'][$fb_app->label]['#description'] = $e->getMessage();

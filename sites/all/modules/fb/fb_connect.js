@@ -51,11 +51,17 @@ FB_Connect.sessionChangeHandler = function(context, status) {
 FB_Connect.logoutHandler = function(event) {
   if (typeof(FB) != 'undefined') {
     FB.logout(function () {
+      // Logged out of facebook.  Need we act on this?
     });
     // Facebook's invalid cookies persist if third-party cookies disabled.
     // Let's try to clean up the mess.
     FB_JS.deleteCookie('fbs_' + FB._apiKey, '/', ''); // app id
     FB_JS.deleteCookie('fbs_' + Drupal.settings.fb.apikey, '/', ''); // apikey
+  }
+  if (FB.getSession()) {
+    // Facebook needs more time to log us out. (http://drupal.org/node/1164048)
+    Drupal.settings.fb.reload_url = Drupal.settings.fb_connect.front_url;
+    return false;
   }
 };
 

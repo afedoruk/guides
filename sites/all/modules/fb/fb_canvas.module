@@ -282,11 +282,12 @@ function fb_canvas_fix_url($url, $fb_app) {
   // Url rewrites still used for iframe canvas pages.
   $patterns[] = "|{$base_url}/" . FB_SETTINGS_CB . "/{$fb_app->apikey}/|";
   // Here we hard-wire apps.facebook.com.  Is there an API to get that?
-  $replacements[] = "http://apps.facebook.com/{$fb_app->canvas}/";
+  // base_root is from Drupal's conf_init().
+  $replacements[] = fb_protocol() . "://apps.facebook.com/{$fb_app->canvas}/";
 
   // Fully qualified paths.
   $patterns[] = "|" . url('', array('absolute' => TRUE)) . "|";
-  $replacements[] = "http://apps.facebook.com/{$fb_app->canvas}/";
+  $replacements[] = fb_protocol() . "://apps.facebook.com/{$fb_app->canvas}/";
 
 
   // Facebook will prepend "appNNN_" all our ids
@@ -343,7 +344,7 @@ function fb_canvas_url_outbound_alter(&$path, &$options, $original_path) {
       $options['external'] = TRUE;
       $options[FB_SETTINGS_CB] = FALSE; // prevent fb_url_rewrite.inc from altering.
       $options['absolute'] = TRUE;
-      $options['base_url'] = 'http://apps.facebook.com/' . $fb_app->canvas;
+      $options['base_url'] = fb_protocol() . "://apps.facebook.com/{$fb_app->canvas}";
     }
     if (fb_canvas_is_iframe()) {
       if (!$options['absolute']) {

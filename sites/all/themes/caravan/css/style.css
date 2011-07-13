@@ -945,3 +945,13 @@ h3.padded
 	width: 200px;
 	list-style: none;
 }
+
+.gallery
+{
+	padding-bottom: 10px;
+}
+
+.gallery a
+{
+	margin: 5px;
+}

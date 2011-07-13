@@ -150,10 +150,11 @@ function fb_user_app_track_user($fb, $fb_app) {
       (variable_get(FB_USER_APP_VAR_TRACK_PAGES, TRUE) && $fb_user_type = "page")) {
 
     $session = $fb->getSession();
-    $session_key = isset($session['session_key']) ? $session['session_key'] : '';
+    // Session key no longer useful, now store access token.
+    $access_token = isset($session['access_token']) ? $session['access_token'] : '';
     $result = db_query("UPDATE {fb_user_app} SET time_access=%d, session_key='%s', session_key_expires=%d, user_type='%s' WHERE apikey='%s' AND fbu=%d",
                        time(),
-                       $session_key, $session['expires'],
+                       $access_token, $session['expires'],
                        $fb_user_type,
                        $fb_app->apikey, fb_facebook_user($fb));
 
@@ -163,8 +164,8 @@ function fb_user_app_track_user($fb, $fb_app) {
       if ($fbu) {
         //First make sure it was not just the same time
         $result = db_query("SELECT * FROM {fb_user_app} WHERE apikey='%s' AND fbu=%d",
-                  $fb_app->apikey,
-                  $fbu);
+                           $fb_app->apikey,
+                           $fbu);
         if (!db_fetch_object($result)) {
           //This row does not exist, even with the same time.  Insert now
           $info = fb_users_getInfo(array($fbu), $fb);
@@ -174,7 +175,7 @@ function fb_user_app_track_user($fb, $fb_app) {
                              $fb_app->apikey, $fbu,
                              $data['is_app_user'],
                              $fb_user_type,
-                             $session['session_key'],
+                             $access_token,
                              $session['expires'],
                              time(),
                              $data['proxied_email'],

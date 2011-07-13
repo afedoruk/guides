@@ -110,7 +110,16 @@ function fb_url_outbound_alter(&$path, &$options, $original_path) {
           $pre .= $prefix . '/'. $value . '/';
       }
     }
-    $path  = $pre . $path;
+
+    // Rewrite path to allow for use of language prefixes.
+    $original_path = $path;
+
+    $path  = $pre;
+    $path .= !empty($options['prefix']) ? $options['prefix'] : '';
+    $path .= $original_path;
+
+    // We have manually set the prefix, so remove the options prefix.
+    $options['prefix'] = '';
   }
 
   return $path;
@@ -123,6 +132,11 @@ function fb_url_outbound_alter(&$path, &$options, $original_path) {
  *
  */
 function fb_url_inbound_alter(&$result, $path, $path_language) {
+  global $language;
+
+  // Check language configuration mode.
+  $mode = variable_get('language_negotiation', LANGUAGE_NEGOTIATION_NONE);
+
   //dpm(func_get_args(), 'fb_settings_url_rewrite_outbound'); // debug
   // See if this is a request for us.
   if (strpos($path, FB_SETTINGS_CB . '/') === 0) {
@@ -135,6 +149,23 @@ function fb_url_inbound_alter(&$result, $path, $path_language) {
         fb_settings($key, $value); // Store for use later.
     }
     if (fb_settings(FB_SETTINGS_CB)) {
+
+      // Check for language prefix.
+      if ( count($args) && ( $mode == LANGUAGE_NEGOTIATION_PATH || $mode == LANGUAGE_NEGOTIATION_PATH_DEFAULT ) ) {
+
+        // Get list of enabled languages.
+        $languages = language_list('enabled');
+        $languages = $languages[1];
+
+        foreach ( $languages as $lang ) {
+          if ( !empty($lang->prefix) && $lang->prefix == $args[0] ) {
+            $prefix = array_shift($args);
+            $path_language = $lang->language;
+            $language = $lang;
+          }
+        }
+      }
+
       if (count($args)) {
         $path = implode('/', $args); // remaining args
         $alias = drupal_lookup_path('source', $path, $path_language); //can't use drupal_get_normal_path, it calls custom_url_rewrite_inbound

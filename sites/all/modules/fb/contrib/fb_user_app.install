@@ -31,7 +31,7 @@ function fb_user_app_uninstall() {
 function fb_user_app_schema() {
   $schema['fb_user_app'] = array(
     'fields' => array(
-      'apikey' => array(
+      'apikey' => array( // @TODO use app id instead of apikey.
         'type' => 'varchar', 'length' => 128, 'not null' => TRUE,
       ),
       'fbu' => array('type' => 'int', 'size' => 'big', 'not null' => TRUE, ),
@@ -52,6 +52,7 @@ function fb_user_app_schema() {
       ),
       'session_key' => array(
         'type' => 'varchar', 'length' => 255, 'not null' => FALSE,
+        'description' => 'Historically this was a session key, now an access token.',
       ),
       'session_key_expires' => array(
         'type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE,
