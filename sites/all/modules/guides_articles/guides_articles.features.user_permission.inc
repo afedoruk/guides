@@ -9,7 +9,9 @@ function guides_articles_user_default_permissions() {
   // Exported permission: create place content
   $permissions['create place content'] = array(
     'name' => 'create place content',
-    'roles' => array(),
+    'roles' => array(
+      '0' => 'admin',
+    ),
   );
 
   // Exported permission: create story content
@@ -23,7 +25,9 @@ function guides_articles_user_default_permissions() {
   // Exported permission: delete any place content
   $permissions['delete any place content'] = array(
     'name' => 'delete any place content',
-    'roles' => array(),
+    'roles' => array(
+      '0' => 'admin',
+    ),
   );
 
   // Exported permission: delete any story content
@@ -37,7 +41,9 @@ function guides_articles_user_default_permissions() {
   // Exported permission: delete own place content
   $permissions['delete own place content'] = array(
     'name' => 'delete own place content',
-    'roles' => array(),
+    'roles' => array(
+      '0' => 'admin',
+    ),
   );
 
   // Exported permission: delete own story content
@@ -51,7 +57,9 @@ function guides_articles_user_default_permissions() {
   // Exported permission: edit any place content
   $permissions['edit any place content'] = array(
     'name' => 'edit any place content',
-    'roles' => array(),
+    'roles' => array(
+      '0' => 'admin',
+    ),
   );
 
   // Exported permission: edit any story content
@@ -65,7 +73,9 @@ function guides_articles_user_default_permissions() {
   // Exported permission: edit own place content
   $permissions['edit own place content'] = array(
     'name' => 'edit own place content',
-    'roles' => array(),
+    'roles' => array(
+      '0' => 'admin',
+    ),
   );
 
   // Exported permission: edit own story content
