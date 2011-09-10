@@ -35,8 +35,8 @@ function fb_app_fb($op, $data, &$return) {
     // We also support these ways to query an app.  Columns in fb_app table.
     foreach (array(
                'fba_id' => '%d',
-               'id' => '%d',
-               'apikey' => "'%s'",
+               'id' => "'%s'", // varchar, not int, in db schema
+               'apikey' => "'%s'", // deprecated
                'label' => "'%s'",
              ) as $key => $type) {
       if (isset($data[$key])) {
@@ -80,7 +80,7 @@ function fb_app_fb($op, $data, &$return) {
     if (!$return && ($id = fb_settings(FB_SETTINGS_ID))) {
       $return = fb_get_app(array('id' => $id));
     }
-    elseif (!$return && ($apikey = fb_settings(FB_SETTINGS_APIKEY))) {
+    elseif (!$return && ($apikey = fb_settings(FB_SETTINGS_APIKEY))) { // deprecated XXX
       $return = fb_get_app(array('apikey' => $apikey));
     }
   }
@@ -186,7 +186,7 @@ function theme_fb_app($fb_app) {
   $props_map = fb_invoke(FB_OP_LIST_PROPERTIES, array('fb_app' => $fb_app), array());
   $data = array(
     t('Label') => $fb_app->label,
-    t('API Key') => $fb_app->apikey,
+    t('App ID') => $fb_app->id,
     //t('Secret') => $fb_app->secret,
   );
   foreach ($props_map as $name => $key) {
@@ -275,8 +275,8 @@ function fb_app_token_list($type = 'all') {
   if ($type == 'all' || $type == 'fb' || $type == 'fb_app') {
     $tokens['fb_app']['fb-app-label'] = t('Facebook application label');
     $tokens['fb_app']['fb-app-url'] = t('Facebook application canvas page URL');
+    return $tokens;
   }
-  return $tokens;
 }
 
 function fb_app_token_values($type = 'all', $object = NULL) {

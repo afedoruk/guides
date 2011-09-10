@@ -16,7 +16,7 @@ else
 <div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix">
 	<div class='gallery'>
 	<?php
-	if(sizeof($node->field_place_images))
+	if(sizeof($node->field_place_images) && $node->field_place_images[0]['filepath'])
 	{
 		foreach($node->field_place_images as $image)
 		{

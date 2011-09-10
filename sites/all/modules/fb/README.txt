@@ -28,7 +28,7 @@ To install:
   If you have the Libraries API module installed, you may place the files in
   another recognised location (such as sites/all/libraries), providing that the
   directory is named 'facebook-php-sdk'.
-  
+
   Or, to manually set the location of the php-sdk in any other directory, edit
   your settings.php to include a line similar to this (add to the section where
   the $conf variable is defined, or the very end of settings.php. And
@@ -115,10 +115,23 @@ Enable the fb_devel.module and add the block it provides (called
 fb_devel.module will catch some errors and write useful information to
 Drupal's log and status page.
 
+Use your browser's view source feature, and search page source for any
+<script> tag which includes facebook's javascript,
+"http://connect.facebook.net/en_US/all.js".  fb.js will include this
+for you.  Including it too soon will break many features.  So remove
+it from any block, node, template or whatever that adds it to the
+page.  Similarly, do not include any <div id="fb-root">.
+
 Disable Global Redirect, if you have that module installed.  Users
 have reported problems with it and Drupal for Facebook.  Any module
 which implements custom url rewrites could interfere with canvas page
 and profile tab support.
+
+On the facebook side, make sure your application is not in "sandbox
+mode".  This is known to have unwanted side effects.  Also, don't use
+a test account. If you've used a test account, ever, even for another
+application, clear all your browser's cookies.  Try to reproduce the
+problem not in sandbox mode, and not using a test account.
 
 Bug reports and feature requests may be submitted.
 Here's an idea: check the issue queue before you submit
@@ -151,7 +164,7 @@ $conf['fb_verbose'] = TRUE; // debug output
 
 // More efficient connect session discovery.
 // Required if supporting one connect app and different canvas apps.
-//$conf['fb_apikey'] = '123.....XYZ'; // Your connect app's apikey goes here.
+//$conf['fb_id'] = '123.....XYZ'; // Your connect app's ID goes here.
 
 // Enable URL rewriting (for canvas page apps).
 include "sites/all/modules/fb/fb_url_rewrite.inc";

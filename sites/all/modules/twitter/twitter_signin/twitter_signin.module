@@ -71,7 +71,7 @@ function twitter_signin_button() {
  * Submit handler for twitter signin
  */
 function twitter_signin_redirect() {
-  module_load_include('lib.php', 'oauth');
+  module_load_include('php', 'oauth_common','lib/OAuth');
   module_load_include('lib.php', 'twitter');
   module_load_include('inc', 'twitter');
 

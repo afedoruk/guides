@@ -314,7 +314,7 @@ function fb_example_fb($op, $data, &$return) {
  *   asking for information.
  *   - FB_USER_OP_PRE_USER - You have a chance to the name or other account
  *     attributes, before a new user account is created.
- *   - FB_OP_POST_USER - A new user account was created for a facebook user
+ *   - FB_USER_OP_POST_USER - A new user account was created for a facebook user
  *     who authorized an app.
  *
  * @param $data

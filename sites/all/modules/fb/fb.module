@@ -24,14 +24,7 @@ define('FB_OP_GET_FBU', 'get_fbu'); // Query the local user's FB account
 define('FB_OP_GET_UID', 'get_uid'); // Query the facebook user's local account
 define('FB_OP_GET_USER_SESSION', 'get_user_sess');
 
-// These have moved to fb_user.module!
-//define('FB_OP_PRE_USER', 'pre_user'); // Before account creation, fb_user.module
-//define('FB_OP_POST_USER', 'post_user'); // After account creation, fb_user.module
-//define('FB_OP_POST_EXTERNAL_LOGIN', 'post_external_login'); // user map has changed global user.
-
 define('FB_OP_APP_IS_AUTHORIZED', 'app_authorized');  // Invoked if user has authorized an app.  Triggers creation of user accounts or fb_user entries
-define('FB_OP_POST_USER_CONNECT', 'post_user_connect'); // Connected local account to FB account, fb_user.module
-define('FB_OP_POST_USER_DISCONNECT', 'post_user_disconnect'); // Disconnected local account from FB account, fb_user.module
 
 define('FB_OP_JS', 'fb_op_js');  // A chance to inject javascript onto the page.
 define('FB_OP_AJAX_EVENT', 'fb_op_ajax'); // Notification of an event via ajax.
@@ -58,6 +51,7 @@ define('FB_VAR_APIKEY', 'fb_apikey'); // Deprecated.  Use FB_VAR_ID
 define('FB_VAR_ID', 'fb_id');
 define('FB_VAR_USE_COOKIE', 'fb_use_cookie');
 define('FB_VAR_USE_SESSION', 'fb_use_session');
+define('FB_VAR_RELOAD_APPEND_HASH', 'fb_reload_append_hash');
 define('FB_VAR_CURL_NOVERIFY', 'fb_curl_noverify');
 
 // node_access realms (belongs here?)
@@ -162,10 +156,10 @@ function fb_init() {
     // An App is configured.
 
     // Javascript settings needed by fb.js.
-    fb_js_settings('apikey', $_fb_app->apikey);
+    //fb_js_settings('apikey', $_fb_app->apikey); // deprecated XXX
     fb_js_settings('label', $_fb_app->label);
     fb_js_settings('page_type', fb_settings(FB_SETTINGS_TYPE)); // canvas or connect.
-    $fb_init_settings['apiKey'] = $_fb_app->apikey;
+    //$fb_init_settings['apiKey'] = $_fb_app->apikey;
     $fb_init_settings['appId'] = $_fb_app->id;
 
     // Initialize the PHP API.
@@ -183,15 +177,15 @@ function fb_init() {
         $_fb->setSession(json_decode($_REQUEST['fb_js_session'], TRUE));
         $session = $_fb->getSession();
       }
-      elseif (isset($_SESSION['fb'][$_fb_app->apikey]['session']) && arg(0) != 'logout') {
+      elseif (isset($_SESSION['fb'][$_fb_app->id]['session']) && arg(0) != 'logout') {
         // Use the session previously stored.
-        $_fb->setSession($_SESSION['fb'][$_fb_app->apikey]['session']);
+        $_fb->setSession($_SESSION['fb'][$_fb_app->id]['session']);
       }
 
       // Store session for future use.  We'll need it if third-party cookies
       // disabled, or we are not using facebook's cookie.
       if (isset($session) && variable_get(FB_VAR_USE_SESSION, TRUE)) {
-        $_SESSION['fb'][$_fb_app->apikey]['session'] = $session;
+        $_SESSION['fb'][$_fb_app->id]['session'] = $session;
       }
 
       // Make javascript work even when third-party cookies disabled.
@@ -206,7 +200,7 @@ function fb_init() {
           _fb_logout();
           $_fb->setSession(NULL);
           unset($session);
-          unset($_SESSION['fb'][$_fb_app->apikey]);
+          unset($_SESSION['fb'][$_fb_app->id]);
           unset($fb_init_settings['session']);
         }
       }
@@ -260,7 +254,7 @@ function fb_init() {
                                        'fb_canvas' => fb_is_canvas(),
                                        'language' => (object) array('prefix' => NULL, 'language' => NULL), // http://drupal.org/node/1000452
                                      )));
-
+    fb_js_settings('reload_url_append_hash', variable_get(FB_VAR_RELOAD_APPEND_HASH, FALSE));
   }
 
   if ($channel = variable_get(FB_VAR_JS_CHANNEL, TRUE)) {
@@ -341,8 +335,8 @@ function fb_api_init($fb_app) {
   // or at least not overwrite previously declared handler.
   set_exception_handler('fb_handle_exception');
 
-  if (isset($cache[$fb_app->apikey])) {
-    return $cache[$fb_app->apikey];
+  if (isset($cache[$fb_app->id])) {
+    return $cache[$fb_app->id];
   }
 
   // Find Facebook's PHP SDK.  Use libraries API if enabled.
@@ -362,6 +356,16 @@ function fb_api_init($fb_app) {
       return NULL;
     }
 
+    if (Facebook::VERSION >= "3") {
+      $message = 'This version of modules/fb is compatible with Facebook PHP SDK version 2.x, but %version was found.  Either upgrade modules/fb or downgrade %fb_platform.';
+      $args = array('%fb_platform' => $fb_platform, '%version' => Facebook::VERSION);
+      if (user_access('access administration pages')) {
+        drupal_set_message(t($message, $args));
+      }
+      watchdog('fb', $message, $args, WATCHDOG_ERROR);
+      return NULL;
+    }
+
     // We don't have a cached resource for this app, so we're going to create one.
     $fb = new Facebook(array(
                          'appId' => $fb_app->id,
@@ -377,7 +381,7 @@ function fb_api_init($fb_app) {
     }
 
     // Cache the result, in case we're called again.
-    $cache[$fb_app->apikey] = $fb;
+    $cache[$fb_app->id] = $fb;
 
     return $fb;
   }
@@ -490,7 +494,9 @@ function fb_get_token($fb = NULL, $fbu = NULL) {
  * eliminating the need for it entirely.
  */
 function fb_call_method($fb, $method, $params = array()) {
-  $params['access_token'] = fb_get_token($fb);
+  if (!isset($params['access_token'])) {
+    $params['access_token'] = fb_get_token($fb);
+  }
   $params['format'] = 'json-strings';
 
   // Here's how to create a url that conforms to standards:
@@ -548,6 +554,39 @@ function fb_fql_query($fb, $query, $params = array()) {
   $result = $fb->api($params);
 
   return $result;
+}
+
+/**
+ * Helper function for facebook's batch graph api.
+ *
+ * This function accepts a simpler interface than facebook's.  The queries are
+ * passed in as a simple array, and the data is parsed into a PHP data
+ * structure.
+ *
+ * @TODO: when $method=='GET', share caching with fb_api().
+ */
+function fb_api_batch($fb, $queries, $params, $method = 'GET') {
+  $data = array();
+
+  // Build facebook's data structure.  Our's supports only GET or POST at a time.
+  $fb_queries = array();
+  foreach ($queries as $query) {
+    $fb_queries[] = array('method' => $method, 'relative_url' => $query);
+  }
+
+  $wrapped_data = $fb->api('/?batch=' . json_encode($fb_queries), 'POST', $params); // Use POST, not $method.
+
+  foreach ($wrapped_data as $w_d) {
+    if ($w_d['code'] == 200 && isset($w_d['body'])) {
+      $data[] = json_decode($w_d['body'], TRUE);
+    }
+    else {
+      // Unexpected code
+      $data[] = $w_d;
+    }
+  }
+
+  return $data;
 }
 
 
@@ -686,7 +725,7 @@ function _fb_logout() {
 
   // Clean up facebook cookies.
   if (isset($GLOBALS['_fb_app'])) {
-    if (isset($_COOKIE['fbs_' . $GLOBALS['_fb_app']->apikey])) {
+    if (isset($_COOKIE['fbs_' . $GLOBALS['_fb_app']->apikey])) { // still needed?
       setcookie('fbs_' . $GLOBALS['_fb_app']->apikey, '', time() - 42000, '/');
     }
     if (isset($_COOKIE['fbs_' . $GLOBALS['_fb_app']->id])) {
@@ -725,7 +764,7 @@ function fb_facebook_user($fb = NULL) {
  * Similar to the old require_login() provided by the old facebook API.
  * Works by redirecting the user as described in http://developers.facebook.com/docs/authentication/.
  *
- * @TODO perms if possible, handle users who skip.
+ * @TODO handle users who skip.
  */
 function fb_require_authorization($fb = NULL, $destination = NULL) {
   if (!$fb)
@@ -740,7 +779,12 @@ function fb_require_authorization($fb = NULL, $destination = NULL) {
     $client_id = $fb->getAppId();
     $redirect_uri = $destination ? $destination : url(fb_scrub_urls($_REQUEST['q']), array('absolute' => TRUE, 'fb_canvas' => fb_is_canvas()));
 
-    $url = "https://graph.facebook.com/oauth/authorize?client_id=$client_id&redirect_uri=$redirect_uri";
+    // Which permissions to prompt for?
+    $perms = array();
+    drupal_alter('fb_required_perms', $perms);
+    $scope = implode(',', $perms);
+
+    $url = "https://graph.facebook.com/oauth/authorize?client_id=$client_id&scope=$scope&redirect_uri=$redirect_uri";
     drupal_goto($url);
   }
   else {
@@ -842,12 +886,12 @@ function fb_get_object_fbu($object) {
 
 
 /**
- * Convenience method to get app info based on apikey or nid.
+ * Convenience method to get app info based on id or nid.
  */
 function fb_get_app($search_data) {
   // $search_data can be an apikey, or an array of other search params.
   if (!is_array($search_data))
-    $search_data = array('apikey' => $search_data);
+    $search_data = array('id' => $search_data);
 
   $fb_app = fb_invoke(FB_OP_GET_APP, $search_data);
   return $fb_app;
@@ -1043,6 +1087,7 @@ function fb_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('fb_admin_set_properties_form', FB_PATH_ADMIN_APPS_ARGS),
     'access arguments' => array(FB_PERM_ADMINISTER),
+    'file' => 'fb.admin.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -1135,7 +1180,7 @@ function fb_invoke($op, $data = NULL, $return = NULL, $hook = FB_HOOK) {
                                  '%function' => $function,
                                  '%op' => $op,
                                  '%label' => $data['fb_app']->label,
-                                 '%apikey' => $data['fb_app']->apikey,
+                                 '%id' => $data['fb_app']->id,
                                  '!app' => l($data['fb_app']->label, FB_PATH_ADMIN_APPS . '/' . $data['fb_app']->label),
                                )));
       }
@@ -1421,8 +1466,8 @@ function fb_ajax_event($event_type) {
   global $_fb, $_fb_app;
   $js_array = array();
 
-  if (isset($_REQUEST['apikey'])) {
-    $_fb_app = fb_get_app(array('apikey' => $_REQUEST['apikey']));
+  if (isset($_REQUEST['appId'])) {
+    $_fb_app = fb_get_app(array('id' => $_REQUEST['appId']));
     if ($_fb_app) {
       $_fb = fb_api_init($_fb_app);
       // Data to pass to hook_fb.
@@ -1437,7 +1482,7 @@ function fb_ajax_event($event_type) {
 
     }
     else {
-      watchdog('fb', 'fb_ajax_event did not find application %id', array('%id' => $_REQUEST['apikey']), WATCHDOG_ERROR);
+      watchdog('fb', 'fb_ajax_event did not find application %id', array('%id' => $_REQUEST['appId']), WATCHDOG_ERROR);
     }
 
     if ($event_type == 'session_change') {
@@ -1451,10 +1496,10 @@ function fb_ajax_event($event_type) {
 
   }
   else {
-    watchdog('fb', 'fb_ajax_event called badly.  Not passed apikey.', array(), WATCHDOG_ERROR);
+    watchdog('fb', 'fb_ajax_event called badly.  Not passed appId.', array(), WATCHDOG_ERROR);
     // Trying to track down what makes this happen.
     if (fb_verbose() == 'extreme') {
-      watchdog('fb', 'fb_ajax_event called badly.  Not passed apikey. trace: !trace', array(
+      watchdog('fb', 'fb_ajax_event called badly.  Not passed appId. trace: !trace', array(
                  '!trace' => '<pre>' . print_r(debug_backtrace(), 1) . '</pre>',
                ), WATCHDOG_ERROR);
     }

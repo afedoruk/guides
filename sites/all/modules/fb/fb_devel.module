@@ -48,6 +48,7 @@ function fb_devel_init() {
   if (user_access('access devel information')) {
     // Add our module's javascript.
     drupal_add_js(drupal_get_path('module', 'fb_devel') . '/fb_devel.js');
+    fb_js_settings('verbose', fb_verbose());
   }
 
   // fb_settings.inc sanity check.
@@ -64,7 +65,7 @@ function fb_devel_init() {
 
 
 
-  // $conf['fb_apikey'] sanity check
+  // $conf['fb_apikey'] sanity check.
   if ($apikey = variable_get(FB_VAR_APIKEY, NULL)) {
     $fb_app = fb_get_app(array('apikey' => $apikey));
     $message = t('Drupal for Facebook no longer uses the \'fb_apikey\' variable.  Change $conf[\'fb_apikey\'] in your settings.php.  Use $conf[\'fb_id\'] instead, and make the value the app id (%app_id) instead of the apikey.', array(
@@ -109,13 +110,14 @@ function fb_devel_init() {
 
   // Old url rewrite sanity check.
   if ($id = fb_settings(FB_SETTINGS_CB)) {
-    if ($GLOBALS['_fb_app']->apikey == $id) {
-      $message = t('Facebook callback URLs have changed.  They now include the app\'s ID, instead of APIKEY.  Your application %label has not been updated.  Either <a target=_top href=!sync_url>sync properties</a> or manually change callbacks on remote settings.', array(
-                     '%label' => $GLOBALS['_fb_app']->title,
-                     '!sync_url' => url(FB_PATH_ADMIN_APPS . '/' . $GLOBALS['_fb_app']->label . '/fb/set_props', array(
-                                          'fb_url_alter' => FALSE,
-                                        )),
-                   ));
+    if ($GLOBALS['_fb_app']->id != $id && $GLOBALS['_fb_app']->apikey == $id) {
+      $message = 'Facebook callback URLs have changed.  They now include the app\'s ID, instead of APIKEY.  Your application %label has not been updated.  Either <a target=_top href=!sync_url>sync properties</a> or manually change callbacks on remote settings.';
+      $args = array(
+        '%label' => $GLOBALS['_fb_app']->title,
+        '!sync_url' => url(FB_PATH_ADMIN_APPS . '/' . $GLOBALS['_fb_app']->label . '/fb/set_props', array(
+                             'fb_url_alter' => FALSE,
+                           )),
+      );
       if (user_access('access administration pages')) {
         drupal_set_message(t($message, $args), 'warning');
       }
@@ -213,15 +215,17 @@ function fb_devel_fb($op, $data, &$return) {
                ));
       $props = json_decode($props, TRUE);
       if (is_array($props)) {
+        // Strip "http(s):" to avoid warnings when the only difference is http vs https
+        $baseurl = str_replace(array('http://','https://'), '', $GLOBALS['base_url']);
         foreach ($props as $prop => $url) {
-          if ($url && (strpos($url, $GLOBALS['base_url']) === FALSE)) {
+          if ($url && (strpos($url, $baseurl) === FALSE)) {
             $message = t('The Facebook Application labeled %label has a suspicious %prop.  The value is %value, while something starting with %url was expected.  Consider editing !applink.', array(
-                         '%label' => $fb_app->label,
-                         '%prop' => $prop,
-                         '%value' => $url,
-                         '%url' => $GLOBALS['base_url'],
-                         '!applink' => l($fb_app->label, FB_PATH_ADMIN_APPS . '/' . $fb_app->label),
-                       ));
+                           '%label' => $fb_app->label,
+                           '%prop' => $prop,
+                           '%value' => $url,
+                           '%url' => $GLOBALS['base_url'],
+                           '!applink' => l($fb_app->label, FB_PATH_ADMIN_APPS . '/' . $fb_app->label),
+                         ));
 
             if (user_access('access administration pages')) {
               drupal_set_message($message, 'warning');
@@ -676,7 +680,13 @@ function fb_devel_user($op, &$edit, &$account, $category = NULL) {
             if ($token = fb_get_token($fb, $fbu)) {
               $account->content['fb_devel'][$fb_app->label]['token'] = array(
                 '#type' => 'markup',
-                '#value' => 'access_token: ' . fb_get_token($fb, $fbu),
+                '#value' => 'access_token: ' . $token,
+                '#prefix' => '<p>', '#suffix' => '</p>',
+              );
+              $account->content['fb_devel'][$fb_app->label]['graph'] = array(
+                '#type' => 'markup',
+                '#value' => l(t('Browse graph as this user'), 'https://graph.facebook.com/' . $fbu . '?metadata=1&access_token=' . $token),
+                '#prefix' => '<p>', '#suffix' => '</p>',
               );
             }
           }

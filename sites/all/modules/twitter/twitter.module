@@ -244,7 +244,7 @@ function twitter_twitter_accounts($account) {
 }
 
 function _twitter_use_oauth() {
-  if (!module_exists('oauth')) {
+  if (!module_exists('oauth_common')) {
     return FALSE;
   }
   

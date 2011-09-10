@@ -11,7 +11,7 @@ function twitter_connect($account) {
   module_load_include('lib.php', 'twitter');
   $auth = $account->get_auth();
   if (_twitter_use_oauth() && $auth['oauth_token'] && $auth['oauth_token_secret']) {
-    module_load_include('lib.php', 'oauth');
+    module_load_include('php', 'oauth_common','lib/OAuth');
     return new TwitterOAuth(variable_get('twitter_consumer_key', ''), variable_get('twitter_consumer_secret', ''), $auth['oauth_token'], $auth['oauth_token_secret']);
   }
   else if ($auth['password']) {

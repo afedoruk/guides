@@ -17,10 +17,10 @@ function fb_rules_fb_user($op, $data, &$return) {
   // Use devel module to figure out when this hook is called and what it is passed.
   // dpm(func_get_args(), "fb_rules_fb($op) called"); // debug
 
-  if ($op == FB_OP_POST_USER_CONNECT) { // User connected local account with FB account
+  if ($op == FB_USER_OP_POST_USER_CONNECT) { // User connected local account with FB account
     rules_invoke_event('fb_user_connected', $user);
   }
-  elseif ($op == FB_OP_POST_USER_DISCONNECT) { // User disconnected local account from FB account
+  elseif ($op == FB_USER_OP_POST_USER_DISCONNECT) { // User disconnected local account from FB account
     rules_invoke_event('fb_user_disconnected', $user);
   }
   elseif ($op == FB_USER_OP_POST_EXTERNAL_LOGIN) {  // User logged in through FB

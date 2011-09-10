@@ -98,6 +98,17 @@ function fe_nodequeue_queue_features_export_render($module_name = '', $data) {
       // Load nodequeue_queue.
       if (!empty($object->qid)) {
         $nodequeue_queue = nodequeue_load($object->qid);
+
+        // sort roles and types arrays into ascending order so that we can 
+        // check for overridden db data without being affected by the 
+        // order in which this array gets stored/loaded.
+        if (!empty($nodequeue_queue->roles)) {
+          sort($nodequeue_queue->roles);
+        }
+        if (!empty($nodequeue_queue->types)) {
+          sort($nodequeue_queue->types);
+        }
+
         $additions = (array) $nodequeue_queue;
         unset($additions['qid']);
         // TODO: sub
@@ -273,6 +284,7 @@ function _fe_nodequeue_save_queue($settings = array()) {
   // Simulate submitting.
   $form_state = array();
   $form_state['values'] = $settings;
+  module_load_include('inc', 'nodequeue', 'includes/nodequeue.admin');
   nodequeue_edit_queue_form_submit(NULL, $form_state);
 
   $settings['qid'] = $form_state['values']['qid'];

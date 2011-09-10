@@ -69,20 +69,23 @@ FB_JS.getUrlVars = function(href) {
 
 /**
  * Reload the current page, whether on canvas page or facebook connect.
+ *
+ * append fbsig, a hash of the session data, to avoid infinite reloads
+ * in some cases.
  */
 FB_JS.reload = function(destination) {
-  // Determine fbu.
+  // Determine url hash.
   var session = FB.getSession();
-  var fbu;
+  var fbhash;
   if (session != null)
-    fbu = session.uid;
+    fbhash = session.sig; // Use sig rather than compute a new hash.
   else
-    fbu = 0;
+    fbhash = 0;
 
-  // Avoid infinite reloads
+  // Avoid infinite reloads.  Still needed? It would be nice to do away with this code if not needed.
   ///@TODO - does not work on iframe because facebook does not pass url args to canvas frame when cookies not accepted.  http://forum.developers.facebook.net/viewtopic.php?id=77236
   var vars = FB_JS.getUrlVars(window.location.href);
-  if (vars.fbu == fbu) {
+  if (vars.fbhash == fbhash) {
     return; // Do not reload (again)
   }
 
@@ -108,11 +111,13 @@ FB_JS.reload = function(destination) {
     path = destination.substr(0, destination.indexOf('?'));
   }
 
-  // Add fbu to params before reload.
-  vars.push('fbu=' + fbu);
+  // Add fbhash to params before reload.
+  if (Drupal.settings.fb.reload_url_append_hash) {
+    vars.push('fbhash=' + fbhash);
+  }
 
   // Use window.top for iframe canvas pages.
-  destination = path + '?' + vars.join('&');
+  destination = vars.length ? (path + '?' + vars.join('&')) : path;
 
   if(Drupal.settings.fb.reload_url_fragment) {
     destination = destination + "#" + Drupal.settings.fb.reload_url_fragment;
@@ -199,7 +204,8 @@ FB_JS.ajaxEvent = function(event_type, request_data) {
     // FB._apikey might be an apikey or might be an appid!
     if (FB._apiKey == Drupal.settings.fb.fb_init_settings.appId ||
         FB._apiKey == Drupal.settings.fb.fb_init_settings.apiKey) {
-      request_data.apikey = Drupal.settings.fb.fb_init_settings.apiKey;
+      request_data.apikey = Drupal.settings.fb.fb_init_settings.apiKey; // deprecated
+      request_data.appId = Drupal.settings.fb.fb_init_settings.appId;
     }
 
     // Other values to pass to ajax handler.
@@ -226,12 +232,10 @@ FB_JS.ajaxEvent = function(event_type, request_data) {
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        var header = jqXHR.getResponseHeader();
-        var headers = jqXHR.getAllResponseHeaders();
+        // Unexpected error (i.e. ajax did not return json-encoded data).
+        var headers = jqXHR.getAllResponseHeaders(); // debug info.
         debugger;
         // @TODO: handle error, but how?
-        FB_JS.reload();
-        //alert('FB_JS.ajaxEvent error handler called.');
       }
     });
   }

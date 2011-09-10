@@ -193,47 +193,6 @@ function fb_tab_form_alter(&$form, &$form_state, $form_id) {
     //require 'fb_canvas.admin.inc';
     fb_tab_admin_form_alter($form, $form_state, $form_id);
   }
-
-  if (fb_is_tab()) {
-    // Most Drupal forms have an action that assumes Drupal's base_path.
-    // But in the case of FBML, we need to make it explicit.
-    $form['#action'] = url($_GET['q'], array('absolute' => TRUE));
-    //dpm(__FUNCTION__ . " changed action to " . $form['#action']);
-  }
-}
-
-function _fb_tab_make_form_action_local($action = NULL) {
-  global $base_path;
-
-  if (!isset($action)) {
-    // Is this ever reached?
-    $action = $_GET['q'];
-  }
-
-  // If action is fully qualified, do not change it
-  if (strpos($action, ':')) {
-    return $action;
-  }
-
-  $relative = url('');
-  $absolute = url('', array('absolute' => TRUE));
-  $base_path = base_path(); // By default, '#action' will be request_uri(), which starts with base_path();
-  global $_fb_app;
-
-  if (strpos($action, $relative) === 0) {
-    // If here, the action was made by call to url() and we prepended
-    // canvas_name.  Now remove the canvas name for a proper absolute url.
-    // (Comment forms reach this clause but node forms do not.)
-    $action = substr($action, strlen($relative));
-  }
-  elseif ($base_path && strpos($action, $base_path) === 0) {
-    $action = substr($action, strlen($base_path));
-  }
-
-  $action = url(ltrim($action, '/'), array('absolute' => TRUE));
-
-  return $action;
-
 }
 
 /**
@@ -248,6 +207,7 @@ function _fb_tab_get_config($fb_app) {
     'custom_theme' => NULL,
     'tab_default_name' => isset($fb_app->title) ? $fb_app->title : NULL,
     'profile_tab_url' => FB_TAB_PATH_VIEW,
+    'edit_url' => FB_TAB_PATH_FORM,
   );
   return $config;
 }

@@ -47,6 +47,8 @@ define('FB_USER_CONTROL_NO_REDIRECT', 'fb_user_no_redirect');
 define('FB_USER_OP_PRE_USER', 'pre_user'); // Before account creation, fb_user.module
 define('FB_USER_OP_POST_USER', 'post_user'); // After account creation, fb_user.module
 define('FB_USER_OP_POST_EXTERNAL_LOGIN', 'post_external_login'); // user map has changed global user.
+define('FB_USER_OP_POST_USER_CONNECT', 'post_user_connect'); // Connected local account to FB account, fb_user.module
+define('FB_USER_OP_POST_USER_DISCONNECT', 'post_user_disconnect'); // Disconnected local account from FB account, fb_user.module
 
 
 /**
@@ -298,7 +300,10 @@ function _fb_user_create_map() {
         !$account &&
         !fb_controls(FB_USER_CONTROL_NO_CREATE_MAP)) {
       _fb_user_set_map($GLOBALS['user'], $fbu);
-      fb_invoke(FB_OP_POST_USER_CONNECT, array('account' => $GLOBALS['user']), NULL, 'fb_user');
+      fb_invoke(FB_USER_OP_POST_USER_CONNECT, array(
+                  'account' => $GLOBALS['user'],
+                  'fbu' => $fbu,
+                ), NULL, 'fb_user');
       return TRUE;
     }
   }
@@ -313,7 +318,10 @@ function _fb_user_create_map_by_email() {
       ($email_account = fb_user_get_local_user_by_email($fbu)) &&
       !fb_controls(FB_USER_CONTROL_NO_CREATE_MAP)) {
     _fb_user_set_map($email_account, $fbu);
-    fb_invoke(FB_OP_POST_USER_CONNECT, array('account' => $GLOBALS['user']), NULL, 'fb_user');
+    fb_invoke(FB_USER_OP_POST_USER_CONNECT, array(
+                'account' => $GLOBALS['user'],
+                'fbu' => $fbu,
+              ), NULL, 'fb_user');
     return TRUE;
   }
   return FALSE;
@@ -542,7 +550,7 @@ function fb_user_form_alter(&$form, &$form_state, $form_id) {
           '#value' => $fb_button,
           '#type' => 'markup',
           '#weight' => -1,  // Ideally, we'd put ourself next to openid login, but doesn't look right when next to form buttons.
-          '#prefix' => '<div class="fb-login-button">',
+          '#prefix' => '<div class="fb_user-login-button-wrapper">',
           '#suffix' => '</div>',
         );
       }
@@ -592,7 +600,7 @@ function fb_user_user($op, &$edit, &$account, $category = NULL) {
     // A facebook user has logged in.  We can map the two accounts together.
     $fb_user_data = _fb_user_get_config($_fb_app);
     if (($fbu = fb_facebook_user()) &&
-        $fb_user_data['map_account'] == FB_USER_OPTION_MAP_ALWAYS &&
+        $fb_user_data['map_account'][FB_USER_OPTION_MAP_ALWAYS] &&
         !fb_controls(FB_USER_CONTROL_NO_CREATE_MAP)) {
 
       // Create fb_user record if it doesn't exist or update existing one
@@ -727,7 +735,7 @@ function fb_user_user($op, &$edit, &$account, $category = NULL) {
     else {
       // Delete account mapping, because administrator has unchecked the connect option.
       db_query('DELETE FROM {fb_user} WHERE uid=%d', $account->uid);
-      fb_invoke(FB_OP_POST_USER_DISCONNECT, array('account' => $account), NULL, 'fb_user');
+      fb_invoke(FB_USER_OP_POST_USER_DISCONNECT, array('account' => $account), NULL, 'fb_user');
     }
   }
   elseif ($op == 'delete') {
@@ -848,8 +856,9 @@ function fb_user_create_local_user($fb, $fb_app, $fbu,
         'init' => db_escape_string($fbu . '@facebook'), // Supposed to be email, but we may not know it.
         'status' => 1,
       );
-      // Mail available only if user has granted extended permission.
-      if (isset($info['email']) && ($info['email'] != $info['proxied_email'])) {
+
+      // Mail available only if user has granted email extended permission.
+      if (isset($info['email'])) {
         $defaults['mail'] = $info['email'];
       }
 
@@ -992,8 +1001,8 @@ function fb_user_token_list($type = 'all') {
     $tokens['fb_app']['fb-app-user-name'] = t('Current user\'s name on Facebook (TODO)');
     $tokens['fb_app']['fb-app-user-name-fbml'] = t('Current user\'s name for display on Facebook profile and canvas pages.');
     $tokens['fb_app']['fb-app-profile-url'] = t('Current user\'s Facebook profile URL');
+    return $tokens;
   }
-  return $tokens;
 }
 
 function fb_user_token_values($type = 'all', $object = NULL) {
@@ -1014,9 +1023,11 @@ function fb_user_token_values($type = 'all', $object = NULL) {
 }
 
 /**
- * Learn the user's proxied email address.
- * If fb_user_app.module is enabled, it will defer to that module, which queries a local database.
- * If not, ask facebook for the data.
+ * Learn the user's proxied email address.  If fb_user_app.module is enabled,
+ * it will defer to that module, which queries a local database.  If not, ask
+ * facebook for the data.
+ *
+ * @TODO: Facebook may no longer provide proxied_email. Does this work?
  */
 function fb_user_get_proxied_email($fbu, $fb_app) {
   $mail = "";
@@ -1031,7 +1042,12 @@ function fb_user_get_proxied_email($fbu, $fb_app) {
     $fb = fb_api_init($fb_app);
     $info = fb_users_getInfo(array($fbu), $fb);
     $data = $info[0];
-    $mail = $data['proxied_email'];
+    if (isset($data['email'])) {
+      $mail = $data['email'];
+    }
+    elseif (isset($data['proxied_email'])) {
+      $mail = $data['proxied_email'];
+    }
   }
 
   return $mail;

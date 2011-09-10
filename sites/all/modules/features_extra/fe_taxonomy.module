@@ -272,7 +272,7 @@ function fe_taxonomy_machine_name_validate($form, &$form_state) {
  */
 function fe_taxonomy_vocabulary_load($machine_name) {
   $table = 'fe_taxonomy_vocabulary';
-  $vid = db_result(db_query("SELECT vid FROM {$table} WHERE machine_name = '%s'", $machine_name));
+  $vid = db_result(db_query("SELECT vid FROM {{$table}} WHERE machine_name = '%s'", $machine_name));
   if (!empty($vid)) {
     $vocab = taxonomy_vocabulary_load($vid);
     $vocab->machine_name = $machine_name;

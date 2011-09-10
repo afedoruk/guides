@@ -62,9 +62,15 @@ function fb_requirements($phase) {
   $fb_platform = variable_get(FB_VAR_API_FILE, $fb_lib_path . '/src/facebook.php');
 
   if (class_exists('Facebook')) {
-    $status['description'] = $t('Facebook PHP SDK loaded.');
-    $status['severity'] = REQUIREMENT_OK;
-    $status['value'] = $t('Loaded');
+    $status['value'] = Facebook::VERSION;
+    if (Facebook::VERSION >= "3") {
+      $status['description'] = $t('Expected version 2.x.y of Facebook PHP SDK.');
+      $status['severity'] = REQUIREMENT_ERROR;
+    }
+    else {
+      $status['description'] = $t('Facebook PHP SDK loaded.');
+      $status['severity'] = REQUIREMENT_OK;
+    }
   }
   elseif (include($fb_platform)) { // include() better than file_exists().
     $status['description'] = $t('Facebook SDK found at %path',

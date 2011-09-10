@@ -63,7 +63,6 @@ function fb_test_create_form($form_state, $fb_app) {
 }
 
 function fb_test_create_form_submit($form, &$form_state) {
-  dpm(func_get_args(), __FUNCTION__);
   $values = $form_state['values'];
   $fb_app = $form['#fb_app'];
   try {
@@ -149,7 +148,6 @@ function fb_test_accounts_form_submit($form, &$form_state) {
 
   try {
     if ($values['operation'] == 'friends') {
-      dpm($values, __FUNCTION__);
       foreach ($values['checkboxes'] as $fbu => $selected) {
         if ($selected && isset($form['#fb_test_accounts'][$fbu]['access_token'])) {
           foreach ($values['checkboxes'] as $fbu2 => $selected2) {
@@ -190,7 +188,9 @@ function fb_test_accounts_form_submit($form, &$form_state) {
       }
     }
     else {
-      dpm("Operation $values[operation] not implemented.", __FUNCTION__);
+      if (function_exists('dpm')) {
+        dpm("Operation $values[operation] not implemented.", __FUNCTION__);
+      }
     }
   }
   catch (Exception $e) {

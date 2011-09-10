@@ -114,16 +114,21 @@ function fb_admin_app_page($fb_app = NULL) {
   $props_map = array(
     t('Name') => 'name',
     t('Label') => 'label',
-    t('API Key') => 'apikey',
     t('ID') => 'id',
   );
   $output = "<dl>\n";
+
+  // Render props learned from facebook and stored in $fb_app object.
   $props_map = fb_invoke(FB_ADMIN_OP_LIST_PROPERTIES, array('fb_app' => $fb_app), $props_map, FB_ADMIN_HOOK);
   foreach ($props_map as $name => $key) {
     if (isset($fb_app->$key)) {
       $output .= "<dt>$name</dt><dd>{$fb_app->$key}</dd>\n";
     }
   }
+
+  // Render additional properties
+  $output .= '<dt>' . t('Access Token') . '</dt><dd>' . fb_get_token($fb) . "</dd>\n";
+
   $output .= "</dl>\n";
   //$output .=  '<pre>' . print_r($fb_app, 1) . '</pre>'; // debug
 
@@ -152,20 +157,20 @@ function fb_admin_get_app_properties(&$fb_app) {
     $props_map = fb_invoke(FB_ADMIN_OP_LIST_PROPERTIES, array('fb_app' => $fb_app), $props_map, FB_ADMIN_HOOK);
   }
 
-  if (!isset($cache[$fb_app->apikey])) {
+  if (!isset($cache[$fb_app->id])) {
     if ($fb = fb_api_init($fb_app)) {
       try {
         $props = fb_call_method($fb, 'admin.getAppProperties', array(
                                   'properties' => implode(',', array_values($props_map)),
                                 ));
-        $cache[$fb_app->apikey] = $props;
+        $cache[$fb_app->id] = $props;
       } catch (Exception $e) {
         fb_log_exception($e, t('Failed to get application properties (%label) from Facebook', array('%label' => $fb_app->label)));
       }
     }
   }
   else {
-    $props = $cache[$fb_app->apikey];
+    $props = $cache[$fb_app->id];
   }
 
   // Update $fb_app with the values we got from facebook api.
@@ -188,8 +193,8 @@ function fb_admin_get_app_options($include_current = FALSE, $key = 'label') {
   if ($include_current)
     $options[FB_APP_CURRENT] = t('<current>');
   foreach ($apps as $app) {
-    if ($key == 'apikey') {
-      $options[$app->apikey] = $app->label;
+    if ($key == 'id') { // Still needed?
+      $options[$app->id] = $app->label;
     }
     else {
       $options[$app->label] = $app->label;
@@ -302,7 +307,7 @@ function fb_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Set FB Cookie'),
     '#default_value' => variable_get(FB_VAR_USE_COOKIE, TRUE),
-    '#description' => t('Tell Facebook\'s libraries to set a cookie, named fbs_<em>APIKEY</em>, when user connects.  Makes facebook applications run smoother, but fails when third-party cookies are denied by user\'s browser.'),
+    '#description' => t('Tell Facebook\'s libraries to set a cookie, named fbs_<em>ID</em>, when user connects.  Makes facebook applications run smoother, but fails when third-party cookies are denied by user\'s browser.'),
   );
 
   $form['fb_admin_session'][FB_VAR_USE_SESSION] = array(
@@ -310,6 +315,13 @@ function fb_admin_settings() {
     '#title' => t('Store tokens in session'),
     '#default_value' => variable_get(FB_VAR_USE_SESSION, TRUE),
     '#description' => t('Store tokens and data needed by facebook\'s libraries in Drupal\'s session.  Helps applications work even when third-party cookies are denied.'),
+  );
+
+  $form['fb_admin_session'][FB_VAR_RELOAD_APPEND_HASH] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Append hash on javascript page reload'),
+    '#default_value' => variable_get(FB_VAR_RELOAD_APPEND_HASH, FALSE),
+    '#description' => t('When fb.js reloads (on session change), append a query parameter which serves two purposes.  First, it will break through a cache which may be desireable when facebook session changes.  Second, it prevents infinite reloads when third-party cookies are not enabled.  Enable this if you encounter either of those problems.'),
   );
 
   $form['fb_admin_languages'] = array(

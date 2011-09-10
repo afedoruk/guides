@@ -91,7 +91,11 @@ function fb_connect_fb($op, $data, &$return) {
   //dpm(func_get_args(), "fb_connect_fb($op)");
   if ($op == FB_OP_CURRENT_APP && !$return && !fb_is_canvas()) {
     // This will cause fb.module to set the global $_fb when user is logged in via fbConnect.
-    if ($apikey = variable_get(FB_VAR_APIKEY, NULL)) {
+    if ($id = variable_get(FB_VAR_ID, NULL)) {
+      // Use $conf['fb_id'] if set in settings.php.
+      $return = fb_get_app(array('id' => $id));
+    }
+    elseif ($apikey = variable_get(FB_VAR_APIKEY, NULL)) { // Deprecated.  Use fb_id instead.
       // Use $conf['fb_apikey'] if set in settings.php.
       $return = fb_get_app(array('apikey' => $apikey));
     }
@@ -139,13 +143,13 @@ function _fb_connect_add_js($fb_app, $fb) {
   // If we are not the global $_fb_app
   if ($fb_app) {
     $settings = fb_js_settings();
-    if (!isset($settings['fb_init_settings']['apiKey']) ||
-        $settings['fb_init_settings']['apiKey'] != $fb_app->apikey) {
+    if (!isset($settings['fb_init_settings']['appId']) ||
+        $settings['fb_init_settings']['appId'] != $fb_app->id) {
       // Ensure JS initializes with the proper apikey.  We may reach this if
       // there is no "primary" app.
       // @TODO fb.module should have a helper to make this cleaner.
 
-      $settings['fb_init_settings']['apiKey'] = $fb_app->apikey;
+      $settings['fb_init_settings']['appId'] = $fb_app->id;
       $settings['fb_init_settings']['session'] = $fb->getSession();
       fb_js_settings('apikey', $fb_app->apikey);
       fb_js_settings('fbu', fb_facebook_user($fb));

@@ -54,7 +54,7 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
     // Defaults for new app.
     $fb_app = (object) array(
       'label' => NULL,
-      'apikey' => NULL,
+      'apikey' => NULL, // deprecated.
       'canvas' => NULL,
       'fba_id' => NULL,
       'id' => NULL,
@@ -81,7 +81,7 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
 <li>If building a Canvas Page App, specify a Canvas Path.</li>
 <li>Upload icon and logo images. The icon appears in News Feed stories and the logo appears in the Connect dialog when the user connects with your site.</li>
 <li>Click Submit.</li>
-<li>Copy the displayed API Key, Application Secret and App ID into this form.</li>
+<li>Copy the displayed App ID and Application Secret into this form.</li>
 </ol>';
 
     $form['helptext'] = array(
@@ -116,13 +116,6 @@ function fb_app_edit_form($form_state, $fb_app = NULL) {
     '#title' => t('Facebook App ID'),
     '#required' => TRUE,
     '#default_value' => $fb_app->id,
-    '#description' => t('Facebook will generate this value when you create the application.'),
-  );
-  $form['apikey'] = array(
-    '#type' => 'textfield',
-    '#title' => t('API Key'),
-    '#required' => TRUE,
-    '#default_value' => $fb_app->apikey,
     '#description' => t('Facebook will generate this value when you create the application.'),
   );
   $form['secret'] = array(
@@ -193,7 +186,7 @@ function fb_app_edit_form_validate($form, &$form_state) {
     fb_admin_get_app_properties($fb_app);
     if (!$fb_app->application_name) {
       // Don't use form_set_error(), as that will prevent the user from saving any data.
-      drupal_set_message(t("Unable to get application properties.  Possibly, you've given the wrong apikey or secret.  Possibly, this server is unable to reach facebook's servers.  Your application will not work properly!"), 'error');
+      drupal_set_message(t("Unable to get application properties.  Possibly, you've given the wrong id or secret.  Possibly, this server is unable to reach facebook's servers.  Your application will not work properly!"), 'error');
       $fb_app->application_name = 'UNKOWN';
     }
   }
@@ -213,7 +206,7 @@ function fb_app_admin_form_submit($form, &$form_state) {
     db_query("UPDATE {fb_app} SET label='%s', status = %d, apikey='%s', secret='%s', id='%s', canvas='%s', title='%s',data='%s' WHERE fba_id = %d",
              $fb_app->label,
              $fb_app->status,
-             $fb_app->apikey,
+             $fb_app->id, // $fb_app->apikey, deprecated! XXX
              $fb_app->secret,
              $fb_app->id,
              $fb_app->canvas_name, // From facebook, not form.
@@ -236,7 +229,7 @@ function fb_app_admin_form_submit($form, &$form_state) {
     db_query("INSERT INTO {fb_app} (label, status, apikey, secret, id, canvas, title, data) VALUES ('%s', %d, '%s', '%s', '%s', '%s', '%s', '%s')",
              $fb_app->label,
              $fb_app->status,
-             $fb_app->apikey,
+             $fb_app->id, // $fb_app->apikey, deprecated XXX
              $fb_app->secret,
              $fb_app->id,
              $fb_app->canvas_name, // From facebook, not form.

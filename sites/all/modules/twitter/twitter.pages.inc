@@ -10,7 +10,7 @@ function twitter_admin_form() {
     '#type' => 'fieldset',
     '#title' => t('OAuth Settings'),
     '#description' => t(''),
-    '#access' => module_exists('oauth'),
+    '#access' => module_exists('oauth_common'),
     '#description' => t('To enable OAuth based access for twitter, you must <a href="@url">register your application</a> with twitter and add the provided keys here.', array('@url' => 'https://dev.twitter.com/apps/new')),
   );
 
@@ -331,7 +331,7 @@ function twitter_account_form_submit($form, &$form_state) {
 }
 
 function twitter_account_oauth_validate($form, &$form_state) {
-  module_load_include('lib.php', 'oauth');
+  module_load_include('php', 'oauth_common', 'lib/OAuth');
   module_load_include('lib.php', 'twitter');
 
   $key = variable_get('twitter_consumer_key', '');
@@ -372,7 +372,7 @@ function twitter_oauth_callback_validate($form, &$form_state) {
     form_set_error('oauth_token', t('Invalid OAuth token.'));
   }
 
-  module_load_include('lib.php', 'oauth');
+  module_load_include('php', 'oauth_common','lib/OAuth');
   module_load_include('lib.php', 'twitter');
   module_load_include('inc', 'twitter');
 

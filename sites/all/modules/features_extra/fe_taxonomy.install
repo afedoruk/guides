@@ -5,6 +5,17 @@
  */
 function fe_taxonomy_install() {
   drupal_install_schema('fe_taxonomy');
+  $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'taxonomy'"));
+  db_query("UPDATE {system} SET weight = %d WHERE name = 'fe_taxonomy'", $weight + 1);
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Adjust module weight.
+ */
+function fe_taxonomy_update_6011() {
+  $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'taxonomy'"));
+  db_query("UPDATE {system} SET weight = %d WHERE name = 'fe_taxonomy'", $weight + 1);
 }
 
 /**

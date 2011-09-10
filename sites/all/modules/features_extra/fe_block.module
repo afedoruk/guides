@@ -167,6 +167,8 @@ function fe_block_settings_features_revert($module_name = NULL) {
       }
 
       drupal_write_record('blocks', $block, array('module', 'delta', 'theme'));
+      // these fields are not theme specific
+      db_query("UPDATE {blocks} SET visibility = %d, pages = '%s', custom = %d, title = '%s' WHERE module = '%s' AND delta = '%s'", $block['visibility'], trim($block['pages']), $block['custom'], $block['title'], $block['module'], $block['delta']);
     }
   }
 
@@ -259,7 +261,7 @@ function fe_block_boxes_features_export_render($module_name = '', $data) {
  */
 function fe_block_boxes_features_rebuild($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($table,$module_name );
+  $defaults = features_get_default($table, $module_name);
   if (empty($defaults)) {
     return;
   }
@@ -288,7 +290,7 @@ function fe_block_boxes_features_rebuild($module_name = NULL) {
  */
 function fe_block_boxes_features_revert($module_name = NULL) {
   $table = 'fe_block_boxes';
-  $defaults = features_get_default($table,$module_name);
+  $defaults = features_get_default($table, $module_name);
   if (empty($defaults)) {
     return;
   }

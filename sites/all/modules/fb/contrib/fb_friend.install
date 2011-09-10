@@ -45,7 +45,7 @@ function fb_friend_schema() {
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0),
-      'label' => array( /* Would it be better to store apikey? */
+      'label' => array( /* Would it be better to store id? */
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
