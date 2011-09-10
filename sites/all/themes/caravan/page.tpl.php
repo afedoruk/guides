@@ -5,7 +5,7 @@
     <title><?php print $head_title ?></title>
     <?php print $styles ?>
     <?php print $scripts ?>
-
+ <script src="http://maps.googleapis.com/maps/api/js?sensor=false&language=ru&key=<?php echo variable_get("google_maps_key", "")?>" type="text/javascript"></script>
 <!--[if lt IE 7]>
 	<link href="/<?=path_to_theme()?>/css/ie_style.css" rel="stylesheet" type="text/css" />
 <![endif]-->

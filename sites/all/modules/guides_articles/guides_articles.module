@@ -1,3 +1,29 @@
 <?php
 
 include_once('guides_articles.features.inc');
+
+function guides_articles_geocode_address($address)
+{
+	$ch = curl_init("http://maps.google.com/maps/geo?q=".rawurlencode($address)."&output=json&oe=utf8&sensor=false&key=".variable_get("google_maps_key", ""));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	$json=curl_exec($ch);
+	curl_close($ch);
+	$res=json_decode($json);
+	if($res->Placemark[0]->Point->coordinates)
+	{
+		$ll=$res->Placemark[0]->Point->coordinates;
+		return $ll;
+	}
+	return false;
+}
+
+function guides_articles_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
+{
+	if($op=="view" && $a4 && $node->type=="place")
+	{
+		if($node->field_place_address[0]["value"])
+		{
+			$node->point=guides_articles_geocode_address($node->field_place_address[0]["value"]);
+		}
+	}
+}
