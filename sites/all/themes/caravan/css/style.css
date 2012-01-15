@@ -955,3 +955,10 @@ h3.padded
 {
 	margin: 5px;
 }
+
+.story h2
+{
+	display: block;
+	font-size: 18px;
+	padding: 0 0 10px 0;
+}

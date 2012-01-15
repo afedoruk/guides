@@ -2,12 +2,10 @@
 if(!$page)
 {
 	?>
-	<dt>
-	   <a href="<?php print $node_url; ?>"><?php print $title; ?></a><br />
-	</dt>
-	<dd>
-		<?=$content?>
-	</dd>
+	<div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix story">
+	<h2><a href="<?php print $node_url; ?>"><?php print $node->title; ?></a></h2>
+	<?=$content?>
+	</div>
 <?
 }
 else
@@ -16,7 +14,7 @@ else
 <div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix">
 	<div class='gallery'>
 	<?php
-	if(sizeof($node->field_story_images))
+	if(sizeof($node->field_story_images) && $node->field_story_images[0]['filepath'])
 	{
 		foreach($node->field_story_images as $image)
 		{

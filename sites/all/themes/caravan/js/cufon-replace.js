@@ -1,1 +1,1 @@
-Cufon.replace('h2');;
+Cufon.replace('h2.cufon');
