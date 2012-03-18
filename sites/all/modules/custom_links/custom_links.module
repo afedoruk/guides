@@ -114,7 +114,11 @@ function _custom_links_build_links($node, $teaser = FALSE, $block = FALSE) {
     }
 
     if (module_exists('token')) {
-      $links[$link->link_key] = token_replace($links[$link->link_key], 'node', $node);
+      foreach($links[$link->link_key] as $key => $value) {
+        if (is_string($value)) {
+          $links[$link->link_key][$key] = token_replace_multiple($value, array('node' => $node));
+        }
+      }
     }
 
     $links[$link->link_key]['html'] = $link->check_html;
