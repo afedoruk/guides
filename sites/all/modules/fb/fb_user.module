@@ -175,7 +175,7 @@ function fb_user_fb($op, $data, &$return) {
   }
   elseif ($op == FB_OP_GET_UID) {
     // This is a request to learn the facebook user's local id.
-    $return = fb_user_get_local_user($data['fbu'], $data['fb_app']);
+    $return = _fb_user_get_uid($data['fbu'], $data['fb_app']);
   }
   elseif ($op == FB_OP_AJAX_EVENT) {
     // fb.js has notified us of an event via AJAX.  Not the same as facebook event callback above.

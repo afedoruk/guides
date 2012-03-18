@@ -1,17 +1,66 @@
 <?php
-
 /**
  * @file
  * Classes to implement the full Twitter API
  */
 
+/**
+ * Class TwitterConfig
+ *
+ * Singleton which stores common configuration
+ * @see http://php.net/manual/en/language.oop5.patterns.php
+ */
+class TwitterConf {
+  private static $instance;
+  private $attributes = array(
+    'host'     => 'twitter.com',
+    'api'      => 'api.twitter.com',
+    'search'   => 'search.twitter.com',
+    'tiny_url' => 'tinyurl.com',
+  );
+
+  private function __construct() {}
+
+  public static function instance() {
+    if (!isset(self::$instance)) {
+      $className = __CLASS__;
+      self::$instance = new $className;
+    }
+    return self::$instance;
+  }
+
+  /**
+   * Generic getter
+   *
+   * @param $attribute
+   *   string attribute name to return
+   * @return
+   *   mixed value or NULL
+   */
+  public function get($attribute) {
+    if (array_key_exists($attribute, $this->attributes)) {
+      return $this->attributes[$attribute];
+    }
+  }
+
+  /**
+   * Generic setter
+   * @param $attribute
+   *   string attribute name to be set
+   * @param $value
+   *   mixed value
+   */
+  public function set($attribute, $value) {
+    if (array_key_exists($attribute, $this->attributes)) {
+      $this->attributes[$attribute] = $value;
+    }
+  }
+}
 
 /**
  * Exception handling class.
  */
-class TwitterException extends Exception {
-
-}
+class TwitterException extends Exception {}
 
 /**
  * Primary Twitter API implementation class
@@ -23,11 +72,6 @@ class Twitter {
    * @var $format API format to use: can be json or xml
    */
   protected $format = 'json';
-
-  /**
-   * @var $host The host to query against
-   */
-  protected $host = 'api.twitter.com';
 
   /**
    * @var $source the twitter api 'source'
@@ -57,16 +101,6 @@ class Twitter {
   public function set_auth($username, $password) {
     $this->username = $username;
     $this->password = $password;
-  }
-
-  /**
-   * Set the current host. This is good for using laconi.ca instances
-   * and anything else that utilizes the Twitter API
-   *
-   * @param $host the hostname to set.
-   */
-  public function set_host($host) {
-    $this->host = $host;
   }
 
   /**
@@ -182,7 +216,7 @@ class Twitter {
    */
   public function call($path, $params = array(), $method = 'GET', $use_auth = FALSE) {
     $url = $this->create_url($path);
-    
+
     try {
       if ($use_auth) {
         $response = $this->auth_request($url, $params, $method);
@@ -192,6 +226,8 @@ class Twitter {
       }
     }
     catch (TwitterException $e) {
+      watchdog('twitter', '!message', array('!message' => $e->__toString()), WATCHDOG_ERROR);
+      drupal_set_message('Twitter returned an error: ' . $e->getMessage(), 'error');
       return FALSE;
     }
 
@@ -235,7 +271,7 @@ class Twitter {
     }
 
     $response = drupal_http_request($url, $headers, $method, $data);
-    if (!$response->error) {
+    if (!property_exists($response, 'error')) {
       return $response->data;
     }
     else {
@@ -256,7 +292,7 @@ class Twitter {
     switch ($format) {
       case 'json':
         $response_decoded = json_decode($response, TRUE);
-        if ($response_decoded['id_str']) {
+        if (isset($response_decoded['id_str'])) {
           // if we're getting a single object back as JSON
           $response_decoded['id'] = $response_decoded['id_str'];
         } else {
@@ -273,8 +309,8 @@ class Twitter {
     if (is_null($format)) {
       $format = $this->format;
     }
-
-    $url =  'http://'. $this->host .'/'. $path;
+    $conf = TwitterConf::instance();
+    $url =  'http://'. $conf->get('api') .'/'. $path;
     if (!empty($format)) {
       $url .= '.'. $this->format;
     }
@@ -352,13 +388,11 @@ class TwitterOAuth extends Twitter {
 
 }
 
+/**
+ * Twitter search is not used in this module yet
+ */
 class TwitterSearch extends Twitter {
-
-  protected $host = 'search.twitter.com';
-
-  public function search($params = array()) {
-
-  }
+  public function search($params = array()) {}
 }
 
 /**
@@ -458,8 +492,6 @@ class TwitterUser {
 
   public $status;
 
-  protected $password;
-
   protected $oauth_token;
 
   protected $oauth_token_secret;
@@ -489,20 +521,19 @@ class TwitterUser {
     if ($values['created_at'] && $created_time = strtotime($values['created_at'])) {
       $this->created_time = $created_time;
     }
-    $this->utc_offset = $values['utc_offset'];
+    $this->utc_offset = $values['utc_offset']?$values['utc_offset']:0;
 
-    if ($values['status']) {
+    if (isset($values['status'])) {
       $this->status = new TwitterStatus($values['status']);
     }
   }
 
   public function get_auth() {
-    return array('password' => $this->password, 'oauth_token' => $this->oauth_token, 'oauth_token_secret' => $this->oauth_token_secret);
+    return array('oauth_token' => $this->oauth_token, 'oauth_token_secret' => $this->oauth_token_secret);
   }
 
   public function set_auth($values) {
-    $this->password = $values['password'];
-    $this->oauth_token = $values['oauth_token'];
-    $this->oauth_token_secret = $values['oauth_token_secret'];
+    $this->oauth_token = isset($values['oauth_token'])?$values['oauth_token']:NULL;
+    $this->oauth_token_secret = isset($values['oauth_token_secret'])?$values['oauth_token_secret']:NULL;
   }
 }
