@@ -1,5 +1,4 @@
 <?php
-// $Id: faq.views.inc,v 1.1.2.3 2010/10/29 08:07:16 snpower Exp $
 
 /**
  * @file
@@ -58,6 +57,59 @@ function faq_views_data() {
     'term_data' => array(
       'left_field' => 'tid',
       'field' => 'tid',
+    ),
+  );
+  $data['faq_weights']['tid'] = array(
+    'title' => t('FAQ category tid'),
+    'help' => t('The tid of the FAQ node.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+      'zero is null' => FALSE,
+    ),
+    'filter' => array(
+      'title' => t('Tid'),
+      'handler' => 'views_handler_filter_numeric',
+      'hierarchy table' => 'term_hierarchy',
+      'numeric' => TRUE,
+      'skip base' => 'term_data',
+      'allow empty' => TRUE,
+      'zero is null' => FALSE,
+    ),
+    'relationship' => array(
+      'handler' => 'views_handler_relationship',
+      'label' => t('category'),
+      'base' => 'term_node',
+      'base field' => 'tid',
+      'skip base' => 'term_data',
+    ),
+  );
+  $data['faq_weights']['category'] = array(
+    'title' => t('FAQ category'),
+    'help' => t('The term of the FAQ node.'),
+    'real field' => 'tid',
+    'field' => array(
+      'handler' => 'views_handler_field_term_node_tid',
+      'click sortable' => TRUE,
+      'zero is null' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_term_node_tid',
+      'name table' => 'term_data',
+      'name field' => 'name',
+      'empty field name' => t('Uncategorized'),
+      'numeric' => TRUE,
+      'skip base' => 'term_data',
+      'zero is null' => TRUE,
+    ),
+    'filter' => array(
+      'title' => t('Term'),
+      'handler' => 'views_handler_filter_term_node_tid',
+      'hierarchy table' => 'term_hierarchy',
+      'numeric' => TRUE,
+      'skip base' => 'term_data',
+      'allow empty' => TRUE,
+      'zero is null' => FALSE,
     ),
   );
   $data['faq_weights']['weight'] = array(

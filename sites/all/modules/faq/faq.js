@@ -1,4 +1,3 @@
-/* $Id: faq.js,v 1.1.2.6.2.27 2010/10/29 09:25:52 snpower Exp $ */
 
 function teaser_handler(event) {
   if ($("input[name=faq_display]:checked").val() != "new_page") {
@@ -138,10 +137,12 @@ Drupal.behaviors.initFaqModule = function (context) {
   // Hide/show answer for a question.
   var faq_hide_qa_accordion = Drupal.settings.faq.faq_hide_qa_accordion;
   $('div.faq-dd-hide-answer', context).addClass("collapsible collapsed");
+
   if (!faq_hide_qa_accordion) {
-    $('div.faq-dd-hide-answer', context).hide();
+    $('div.faq-dd-hide-answer:not(.faq-processed)', context).addClass('faq-processed').hide();
   }
-  $('div.faq-dt-hide-answer', context).click(function() {
+
+  $('div.faq-dt-hide-answer:not(.faq-processed)', context).addClass('faq-processed').click(function() {
     if (faq_hide_qa_accordion) {
       $('div.faq-dt-hide-answer').not($(this)).removeClass('faq-qa-visible');
     }
@@ -154,6 +155,35 @@ Drupal.behaviors.initFaqModule = function (context) {
       });
     }
     $(this).next('div.faq-dd-hide-answer').toggleClass("collapsed");
+
+    // Change the fragment, too, for permalink/bookmark.
+    // To keep the current page from scrolling, refs
+    // http://stackoverflow.com/questions/1489624/modifying-document-location-hash-without-page-scrolling/1489802#1489802
+    var hash = $(this).find('a').attr('id');
+    var fx, node = $('#' + hash);
+    if (node.length) {
+      fx = $('<div></div>')
+        .css({position: 'absolute', visibility: 'hidden', top: $(window).scrollTop() + 'px'})
+        .attr('id', hash)
+        .appendTo(document.body);
+      node.attr('id', '');
+    }
+    document.location.hash = hash;
+    if (node.length) {
+      fx.remove();
+      node.attr('id', hash);
+    }
+
+    // Scroll the page if the collapsed FAQ is not visible.
+    // If we have the toolbar so the title may be hidden by the bar.
+    var mainScrollTop = Math.max($('html', context).scrollTop(), $('body', context).scrollTop());
+    // We compute mainScrollTop because the behaviour is different on FF, IE and CR
+    if (mainScrollTop > $(this).offset().top) {
+      $('html, body', context).animate({
+        scrollTop: $(this).offset().top
+      }, 1);
+    }
+
     return false;
   });
 
@@ -168,7 +198,7 @@ Drupal.behaviors.initFaqModule = function (context) {
   if (!faq_category_hide_qa_accordion) {
     $('div.faq-qa-hide', context).hide();
   }
-  $('div.faq-qa-header .faq-header', context).click(function() {
+  $('div.faq-qa-header .faq-header:not(.faq-processed)', context).addClass('faq-processed').click(function() {
     if (faq_category_hide_qa_accordion) {
       $('div.faq-qa-header .faq-header').not($(this)).removeClass('faq-category-qa-visible');
     }
@@ -180,6 +210,17 @@ Drupal.behaviors.initFaqModule = function (context) {
       });
     }
     $(this).parent().next('div.faq-qa-hide').toggleClass("collapsed");
+
+    // Scroll the page if the collapsed FAQ is not visible.
+    // If we have the toolbar so the title may be hidden by the bar.
+    var mainScrollTop = Math.max($('html', context).scrollTop(), $('body', context).scrollTop());
+    // We compute mainScrollTop because the behaviour is different on FF, IE and CR
+    if (mainScrollTop > $(this).offset().top) {
+      $('html, body', context).animate({
+        scrollTop: $(this).offset().top
+      }, 1);
+    }
+
     return false;
   });
 
@@ -190,7 +231,7 @@ Drupal.behaviors.initFaqModule = function (context) {
     $('#faq-expand-all a.faq-expand-all-link', context).show();
 
     // Add collapse link click event.
-    $('#faq-expand-all a.faq-collapse-all-link', context).click(function () {
+    $('#faq-expand-all a.faq-collapse-all-link:not(.faq-processed)', context).addClass('faq-processed').click(function () {
       $(this).hide();
       $('#faq-expand-all a.faq-expand-all-link').show();
       $('div.faq-qa-hide').slideUp('slow', function() {
@@ -202,7 +243,7 @@ Drupal.behaviors.initFaqModule = function (context) {
     });
 
     // Add expand link click event.
-    $('#faq-expand-all a.faq-expand-all-link', context).click(function () {
+    $('#faq-expand-all a.faq-expand-all-link:not(.faq-processed)', context).addClass('faq-processed').click(function () {
       $(this).hide();
       $('#faq-expand-all a.faq-collapse-all-link').show();
       $('div.faq-qa-hide').slideDown('slow', function() {
@@ -221,12 +262,11 @@ Drupal.behaviors.initFaqModule = function (context) {
   questions_top_handler();
   categories_handler();
   teaser_handler();
-  $("input[name=faq_display]", context).bind("click", faq_display_handler);
-  $("input[name=faq_qa_mark]", context).bind("click", qa_mark_handler);
-  $("input[name=faq_use_teaser]", context).bind("click", teaser_handler);
-  $("input[name=faq_category_display]", context).bind("click", categories_handler);
-  $("input[name=faq_hide_child_terms]", context).bind("click", child_term_handler);
-
+  $("input[name=faq_display]:not(.faq-processed)", context).addClass('faq-processed').bind("click", faq_display_handler);
+  $("input[name=faq_qa_mark]:not(.faq-processed)", context).addClass('faq-processed').bind("click", qa_mark_handler);
+  $("input[name=faq_use_teaser]:not(.faq-processed)", context).addClass('faq-processed').bind("click", teaser_handler);
+  $("input[name=faq_category_display]:not(.faq-processed)", context).addClass('faq-processed').bind("click", categories_handler);
+  $("input[name=faq_hide_child_terms]:not(.faq-processed)", context).addClass('faq-processed').bind("click", child_term_handler);
 }
 
 

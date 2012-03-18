@@ -1,5 +1,4 @@
 <?php
-// $Id: faq.admin.inc,v 1.1.2.26 2010/09/15 12:06:37 snpower Exp $
 
 /**
  * @file
@@ -205,7 +204,7 @@ function faq_categories_settings_form() {
   $form['faq_use_categories'] = array(
     '#type' => 'checkbox',
     '#title' => t('Categorize questions'),
-    '#description' => t('This allows the user to display the questions according to the categories configured on the add/edit FAQ page.  Use of sub-categories is only recommended for large lists of questions.  The Taxonomy module must be enabled.'),
+    '#description' => t('This allows the user to display the questions according to the categories configured on the add/edit FAQ page.  Use of sub-categories is only recommended for large lists of questions.  The Taxonomy module must be enabled and you must configure a FAQ vocabulary at <a href="@url">Content Management > Taxonomy</a>.', array('@url' => url('admin/content/taxonomy'))),
     '#default_value' => variable_get('faq_use_categories', FALSE),
   );
 
@@ -392,28 +391,28 @@ function faq_order_settings_form($form_state, $category = NULL) {
       $category = 0;
       // Descending.
       if ($default_sorting == 'DESC') {
-        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, if((w.weight IS NULL), %d, w.weight) as weight, n.sticky, n.created FROM {node} n LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 ORDER BY weight ASC, n.sticky DESC, n.created DESC", "n", "nid"), $default_weight, $category);
+        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, COALESCE(w.weight, %d) as effective_weight, n.sticky, n.created FROM {node} n LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 ORDER BY effective_weight ASC, n.sticky DESC, n.created DESC", "n", "nid"), $default_weight, $category);
       }
       // Ascending.
       else {
-        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, if((w.weight IS NULL), %d, w.weight) as weight, n.sticky, n.created FROM {node} n LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 ORDER BY weight ASC, n.sticky DESC, n.created ASC", "n", "nid"), $default_weight, $category);
+        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, COALESCE(w.weight, %d) as effective_weight, n.sticky, n.created FROM {node} n LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 ORDER BY effective_weight ASC, n.sticky DESC, n.created ASC", "n", "nid"), $default_weight, $category);
       }
     }
     // Categorized ordering.
     else {
       // Descending.
       if ($default_sorting == 'DESC') {
-        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, if((w.weight IS NULL), %d, w.weight) as weight, n.sticky, n.created FROM {node} n INNER JOIN {term_node} tn ON (n.nid = tn.nid AND n.vid = tn.vid) LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 AND tn.tid = '%d' ORDER BY weight ASC, n.sticky DESC, n.created DESC", "n", "nid"), $default_weight, $category, $category);
+        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, COALESCE(w.weight, %d) as effective_weight, n.sticky, n.created FROM {node} n INNER JOIN {term_node} tn ON (n.nid = tn.nid AND n.vid = tn.vid) LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 AND tn.tid = '%d' ORDER BY effective_weight ASC, n.sticky DESC, n.created DESC", "n", "nid"), $default_weight, $category, $category);
       }
       // Ascending.
       else {
-        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, if((w.weight IS NULL), %d, w.weight) as weight, n.sticky, n.created FROM {node} n INNER JOIN {term_node} tn ON (n.nid = tn.nid AND n.vid = tn.vid) LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 AND tn.tid = '%d' ORDER BY weight ASC, n.sticky DESC, n.created ASC", "n", "nid"), $default_weight, $category, $category);
+        $result = db_query(db_rewrite_sql("SELECT n.nid, n.title, COALESCE(w.weight, %d) as effective_weight, n.sticky, n.created FROM {node} n INNER JOIN {term_node} tn ON (n.nid = tn.nid AND n.vid = tn.vid) LEFT JOIN {faq_weights} w ON n.nid = w.nid AND w.tid = '%d' WHERE n.type='faq' AND n.status = 1 AND tn.tid = '%d' ORDER BY effective_weight ASC, n.sticky DESC, n.created ASC", "n", "nid"), $default_weight, $category, $category);
       }
     }
 
 
     while ($node = db_fetch_object($result)) {
-      $options[$node->nid] = $node->title;
+      $options[$node->nid] = check_plain($node->title);
     }
 
     $form['weight']['faq_category'] = array(
@@ -437,7 +436,6 @@ function faq_order_settings_form($form_state, $category = NULL) {
       '#type' => 'submit',
       '#value' => t('Save order'),
       '#weight' => 3,
-      '#attributes' => array('onclick' => 'faq_update_order();'),
       '#submit' => array('faq_order_settings_reorder_form_submit'),
     );
   }
