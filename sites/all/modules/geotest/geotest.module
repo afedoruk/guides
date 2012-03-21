@@ -83,13 +83,6 @@ function geotest_guides_search_form()
 		$services[$term->tid]=$term->name;
 	}
 
-	$form['services'] = array(
-    '#title' => t( 'Services' ),
-    '#type' => 'checkboxes',
-	'#options'=>$services,
-	"#default_value"=>isset($_GET["services"])?$_GET["services"]:array(),
-	);
-
 	$fullcountries=geotest_country_list();
 	$countries[-1]="";
 	$res=db_query("SELECT DISTINCT(field_city_country_id) FROM {content_field_city} WHERE field_city_country_id !='' ORDER BY field_city_country_id");
@@ -115,6 +108,20 @@ function geotest_guides_search_form()
 	'#default_value' =>  isset($_GET["city"])?$_GET["city"]:"",
 //	'#autocomplete_path' => 'geotest/autocomplete/city'
   );
+
+	$form["sc"]=array(
+		"#type"=>"fieldset",
+		"#title"=>"Услуги",
+		"#collapsible"=>true,
+		"#collapsed"=>isset($_GET["services"])?false:true,
+	);
+
+	$form["sc"]['services'] = array(
+//    '#title' => t('Services'),
+    '#type' => 'checkboxes',
+	'#options'=>$services,
+	"#default_value"=>isset($_GET["services"])?$_GET["services"]:array(),
+	);
 
 	$form["#method"]="get";
 	$form["#action"]="/guides/search";
@@ -1019,7 +1026,7 @@ function geotest_get_in_country($cid)
     'lr' => 'Liberia',
     'ls' => 'Lesotho',
     'lt' => 'в Литве',
-    'lu' => 'Luxembourg',
+    'lu' => 'в Люксембурге',
     'lv' => 'в Латвии',
     'ly' => 'Libya',
     'ma' => 'в Марокко',
@@ -1082,13 +1089,13 @@ function geotest_get_in_country($cid)
     'sc' => 'Seychelles',
     'sd' => 'Sudan',
     'se' => 'Sweden',
-    'sg' => 'Singapore',
+    'sg' => 'в Сингапуре',
     'sh' => 'Saint Helena',
     'si' => 'Slovenia',
     'sj' => 'Svalbard and Jan Mayen',
     'sk' => 'Slovakia',
     'sl' => 'Sierra Leone',
-    'sm' => 'San Marino',
+    'sm' => 'в Сан-Марино',
     'sn' => 'Senegal',
     'so' => 'Somalia',
     'sr' => 'Suriname',
@@ -1117,7 +1124,7 @@ function geotest_get_in_country($cid)
     'uk' => 'в Великобритании',
     'um' => 'United States Minor Outlying Islands',
     'us' => 'в США',
-    'uy' => 'Uruguay',
+    'uy' => 'в Уругвае',
     'uz' => 'Uzbekistan',
     'va' => 'Vatican',
     'vc' => 'Saint Vincent and the Grenadines',
@@ -1147,7 +1154,7 @@ function geotest_countries_page()
 		{
 			$guides=array();
 			drupal_set_title("Частные гиды ".geotest_get_in_country(arg(1)));
-			$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", 10, 0, null, arg(1));
+			$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", 10, 0, "SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", arg(1));
 			while($row=db_fetch_object($res))
 			{
 				$guides[]=node_load($row->nid);
