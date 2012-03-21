@@ -238,4 +238,4 @@ ini_set('url_rewriter.tags',        '');
 #   '@count min' => '@count minutes',
 # );
 
-$conf['google_maps_key']='ABQIAAAA1X11hvI7YorXTI4-AUcvGBR9mkhJA-Nc4mMNgMaWxx-Vf6LOGxSrDwhkBne-r45uqXXgoQqnaBmRFw';
+$conf['google_maps_key']='AIzaSyDHNrZPSKmhA5yLXXAIpXrcJCmMfUFndwQ';

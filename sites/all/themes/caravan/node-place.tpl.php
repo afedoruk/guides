@@ -41,11 +41,16 @@ else
 		echo "<h4>Часы работы:</h4>";
 		echo $node->field_place_hours[0]["view"];
 	}
+	if($node->field_region[0]["value"])
+	{
+		echo "<h4>Район:</h4>";
+		echo $node->field_region[0]["view"];
+	}
 	if($node->field_place_address[0]["value"])
 	{
 		echo "<h4>Адрес:</h4>";
 		echo $node->field_place_address[0]["view"];
-		if($node->point)
+		if($node->point && !$node->field_map[0]["view"])
 		{
 			echo "<div id='gmap' style='height: 500px; width: 610px;'></div>";
 			$script='$(document).ready(function() {
@@ -73,6 +78,10 @@ else
 			});';
 			drupal_add_js($script, "inline");
 		}
+	}
+	if($node->field_map[0]["view"])
+	{
+		echo "<p>".$node->field_map[0]["value"]."</p>";
 	}
 	?>
   </div>
