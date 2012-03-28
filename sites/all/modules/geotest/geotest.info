@@ -1,6 +1,9 @@
-; $Id$
-name = Geotest
-description = TODO: Description of module
-dependencies[] = geonames 
-dependencies[] = content
-core = 6.x
+name = "Geotest"
+description = "TODO: Description of module"
+core = "6.x"
+dependencies[] = "content"
+dependencies[] = "context"
+dependencies[] = "features"
+dependencies[] = "geonames"
+features[context][] = "quides_country_layout"
+features[ctools][] = "context:context:3"

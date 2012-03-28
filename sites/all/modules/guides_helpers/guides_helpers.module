@@ -1,5 +1,7 @@
 <?php
 
+include_once('guides_helpers.features.inc');
+
 function guides_helpers_init()
 {
 	ctools_include('ajax');

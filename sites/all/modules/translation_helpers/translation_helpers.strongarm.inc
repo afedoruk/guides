@@ -5,13 +5,14 @@
  */
 function translation_helpers_strongarm() {
   $export = array();
+
   $strongarm = new stdClass;
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'language_count';
   $strongarm->value = 1;
-
   $export['language_count'] = $strongarm;
+
   $strongarm = new stdClass;
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
@@ -27,9 +28,9 @@ function translation_helpers_strongarm() {
   'domain' => '',
   'prefix' => 'ru',
   'weight' => '0',
-  'javascript' => 'c18e9b3481ab2614ae1f319e1591fb78',
+  'javascript' => '38dea62b6148553d5dc8b891978311a7',
 );
-
   $export['language_default'] = $strongarm;
+
   return $export;
 }

@@ -18,11 +18,11 @@ function guide_card_menu_default_menu_links() {
       ),
     ),
     'module' => 'menu',
-    'hidden' => '0',
+    'hidden' => '1',
     'external' => '0',
     'has_children' => '0',
     'expanded' => '0',
-    'weight' => '-48',
+    'weight' => '-46',
   );
   // Translatables
   // Included for use with string extractors like potx.

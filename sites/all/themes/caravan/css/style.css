@@ -962,3 +962,15 @@ h3.padded
 	font-size: 18px;
 	padding: 0 0 10px 0;
 }
+
+.place-detail
+{
+	background: #ddd;
+	padding: 10px;
+}
+
+.place-detail h4
+{
+	padding: 0;
+	margin: 10px 0 0;
+}

@@ -27,3 +27,103 @@ function guides_articles_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
 		}
 	}
 }
+
+function guides_articles_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op == 'list') {
+    $blocks[0] = array(
+      'info' => 'Информация о месте'
+    );
+	$blocks[1] = array(
+      'info' => 'Гиды в этой стране'
+    );
+	$blocks[2] = array(
+      'info' => 'Места в этой стране'
+    );
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    switch ($delta) {
+      case 0:
+        $block = array(
+          'content' => guides_articles_place_details_block(),
+        );
+        break;
+	  case 1:
+        $block = array(
+          'content' => guides_articles_place_guides_block(),
+        );
+        break;
+	  case 2:
+        $block = array(
+          'content' => guides_articles_country_places_block(),
+        );
+        break;
+    }
+    return $block;
+  }
+}
+
+function guides_articles_place_details_block()
+{
+	$node=menu_get_object();
+	if($node->type=="place")
+	{
+		return theme("guides_articles_place_details_block", $node);
+	}
+}
+
+function guides_articles_place_guides_block()
+{
+	$guides=array();
+	$node=menu_get_object();
+	if($node->type=="place")
+	{
+		$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s' ORDER BY RAND() LIMIT 3", $node->field_place_city[0]["country_id"]);
+		$country['id']=$node->field_place_city[0]["country_id"];
+		$country['in']=geotest_get_in_country($node->field_place_city[0]["country_id"]);
+		while($row=db_fetch_object($res))
+		{
+			$guides[]=node_load($row->nid);
+		}
+		if(sizeof($guides))
+		{
+			return theme("guides_articles_place_guides_block", $guides, $country);
+		}
+	}
+}
+
+function guides_articles_theme($existing, $type, $theme, $path) {
+  return array(
+    'guides_articles_place_details_block' => array(
+      'arguments' => array('node' => array()), 
+      'template' => 'guides_articles_place_details_block',
+    ), 
+	 'guides_articles_place_guides_block' => array(
+      'arguments' => array('guides' => array(), 'country'=>array()), 
+      'template' => 'guides_articles_place_guides_block',
+    ), 
+	 'guides_articles_country_places_block' => array(
+      'arguments' => array('places' => array(), 'country'=>array()), 
+      'template' => 'guides_articles_country_places_block',
+    ), 
+  );
+}
+
+function guides_articles_country_places_block()
+{
+	$places=array();
+	$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_type_place} cg ON n.vid=cg.vid WHERE n.status=1 AND field_place_city_country_id='%s' ORDER BY RAND() LIMIT 3", arg(1));
+	
+	$country['id']=arg(1);
+	$country['in']=geotest_get_in_country(arg(1));
+
+	while($row=db_fetch_object($res))
+	{
+		$places[]=node_load($row->nid);
+	}
+	if(sizeof($places))
+	{
+		//print_R($places);
+		return theme("guides_articles_country_places_block", $places, $country);
+	}
+}

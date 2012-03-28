@@ -11,7 +11,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_map',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '-1',
+      'weight' => 0,
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -63,7 +63,7 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Код карты',
-      'weight' => '-1',
+      'weight' => 0,
       'description' => 'Если Google Maps неправильно отображает карту, вставьте сюда код карты вручную',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -75,7 +75,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_address',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '-2',
+      'weight' => '-1',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -126,6 +126,69 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Адрес',
+      'weight' => '-1',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_place_block
+  $fields['place-field_place_block'] = array(
+    'field_name' => 'field_place_block',
+    'type_name' => 'place',
+    'display_settings' => array(
+      'weight' => '-2',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_place_block][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Район города',
       'weight' => '-2',
       'description' => '',
       'type' => 'text_textarea',
@@ -138,7 +201,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_city',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '-3',
+      'weight' => '-4',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -183,7 +246,7 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Страна/город',
-      'weight' => '-3',
+      'weight' => '-4',
       'description' => '',
       'type' => 'country_city_entry',
       'module' => 'geotest',
@@ -195,7 +258,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_contacts',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '3',
+      'weight' => '4',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -246,7 +309,7 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Контакты',
-      'weight' => '3',
+      'weight' => '4',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -258,7 +321,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_hours',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '2',
+      'weight' => '3',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -309,7 +372,7 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Часы работы',
-      'weight' => '2',
+      'weight' => '3',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -321,7 +384,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_images',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '4',
+      'weight' => '5',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -376,7 +439,7 @@ function guides_articles_content_default_fields() {
       'default_image' => NULL,
       'use_default_image' => 0,
       'label' => 'Картинки',
-      'weight' => '4',
+      'weight' => '5',
       'description' => '',
       'type' => 'imagefield_widget',
       'module' => 'imagefield',
@@ -388,7 +451,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_place_link',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '1',
+      'weight' => '2',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -439,7 +502,7 @@ function guides_articles_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Ссылка',
-      'weight' => '1',
+      'weight' => '2',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -451,7 +514,7 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_region',
     'type_name' => 'place',
     'display_settings' => array(
-      'weight' => '-4',
+      'weight' => '-3',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -501,8 +564,8 @@ function guides_articles_content_default_fields() {
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Район',
-      'weight' => '-4',
+      'label' => 'Район страны',
+      'weight' => '-3',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -900,7 +963,8 @@ function guides_articles_content_default_fields() {
   t('Картинки');
   t('Код карты');
   t('Контакты');
-  t('Район');
+  t('Район города');
+  t('Район страны');
   t('Связать с местом');
   t('Ссылка');
   t('Страна/город');

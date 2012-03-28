@@ -1,3 +1,49 @@
 <?php
 
 include_once('guide_card.features.inc');
+
+function guide_card_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op == 'list') {
+    $blocks[0] = array(
+      'info' => 'Карточка текущего пользователя'
+    );
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    switch ($delta) {
+      case 0:
+        $block = array(
+          'content' => guide_card_card_block(),
+        );
+        break;
+    }
+    return $block;
+  }
+}
+
+function guide_card_card_block()
+{
+	if(function_exists("guides_helpers_get_card"))
+	{
+		if($nid=guides_helpers_get_card())
+		{
+			$node=node_load($nid);
+			$output=theme("guide_card_card_block", $node);			
+		}
+		else
+		{
+			$output=theme("guide_card_card_block");
+		}
+		return $output;
+	}
+}
+
+function guide_card_theme($existing, $type, $theme, $path) {
+  return array(
+    'guide_card_card_block' => array(
+      'arguments' => array('node' => null), 
+      'template' => 'guide_card_card_block',
+    ), 
+  );
+}
+?>

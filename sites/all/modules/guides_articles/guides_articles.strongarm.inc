@@ -138,15 +138,15 @@ function guides_articles_strongarm() {
   $strongarm->name = 'content_extra_weights_place';
   $strongarm->value = array(
     'title' => '-5',
-    'body_field' => '6',
-    'revision_information' => '7',
-    'author' => '8',
-    'options' => '9',
-    'comment_settings' => '12',
-    'menu' => '5',
-    'taxonomy' => '0',
-    'path' => '11',
-    'xmlsitemap' => '10',
+    'body_field' => '7',
+    'revision_information' => '8',
+    'author' => '9',
+    'options' => '10',
+    'comment_settings' => '13',
+    'menu' => '6',
+    'taxonomy' => '1',
+    'path' => '12',
+    'xmlsitemap' => '11',
   );
   $export['content_extra_weights_place'] = $strongarm;
 

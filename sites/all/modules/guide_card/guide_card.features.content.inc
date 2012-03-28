@@ -94,14 +94,14 @@ function guide_card_content_default_fields() {
     'widget_active' => '1',
     'type' => 'geotest_city_field',
     'required' => '1',
-    'multiple' => '0',
+    'multiple' => '1',
     'module' => 'geotest',
     'active' => '1',
     'widget' => array(
       'default_value' => array(
         '0' => array(
           'country_id' => 'af',
-          'city_id' => '',
+          'city_name' => '',
         ),
       ),
       'default_value_php' => NULL,

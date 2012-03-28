@@ -147,11 +147,11 @@ else
 			{
 				echo $countries[$city["country_id"]].", ".$city["city_name"]."<br>";
 			}
-			foreach($node->taxonomy as $term)
+			/*foreach($node->taxonomy as $term)
 			{
 				$s[]=$term->name;
 			}
-			echo theme("item_list", $s);
+			echo theme("item_list", $s);*/
 			?>
 	   </div>
 	</li>

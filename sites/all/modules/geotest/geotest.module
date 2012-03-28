@@ -5,6 +5,8 @@
  * TODO: Enter file description here.
  */
 
+include_once('geotest.features.inc');
+
 /**
  * Implementation of hook_menu().
  */
