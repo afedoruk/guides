@@ -55,6 +55,12 @@ function guides_helpers_context_default_contexts() {
         '<front>' => '<front>',
         'news' => 'news',
         'contact' => 'contact',
+        'faq' => 'faq',
+        'bookmarks' => 'bookmarks',
+        'users/*' => 'users/*',
+        'messages' => 'messages',
+        'messages/*' => 'messages/*',
+        'node/add/guides' => 'node/add/guides',
       ),
     ),
   );

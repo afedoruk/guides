@@ -1,13 +1,25 @@
 <?
+$countries=geotest_country_list();
 if(!$page)
 {
 	?>
-	<dt>
-	   <a href="<?php print $node_url; ?>"><?php print $title; ?></a><br />
-	</dt>
-	<dd>
-		<?=$content?>
-	</dd>
+	<li>
+	   <?=$node->field_place_images[0]["filepath"]?theme("imagecache", "userpic", $node->field_place_images[0]["filepath"]):""?>
+	   <div class="extra-wrap">
+		  <p><strong><?=l($node->title, "node/".$node->nid)?></strong></p>	
+		  <?
+		   foreach($node->field_place_city as $city)
+			{
+				echo $countries[$city["country_id"]].", ".$city["city_name"]."<br>";
+			}
+			if($node->field_place_address[0]['value'])
+			{
+				echo $node->field_place_address[0]['value'];
+			}
+			echo theme("item_list", $s);
+			?>
+	   </div>
+	</li>
 <?
 }
 else

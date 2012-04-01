@@ -29,14 +29,13 @@ if($node->field_place_address[0]["view"])
 	$output.="<h4>Адрес:</h4>";
 	$output.=$node->field_place_address[0]["view"];
 }
-if($output)
-{
 ?>
 <div class='place-detail'>
 <?
 	echo $output;
 ?>
+<div class='share-links'>
+<script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+<div class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="button" data-yashareQuickServices="yaru,vkontakte,facebook,twitter,odnoklassniki,moimir,lj,friendfeed,moikrug"></div> 
 </div>
-<?
-}
-?>
+</div>

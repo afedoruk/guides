@@ -14,9 +14,9 @@ foreach($places as $place)
 			{
 				echo $countries[$city["country_id"]].", ".$city["city_name"]."<br>";
 			}
-			foreach($place->taxonomy as $term)
+			if($place->field_place_address[0]['value'])
 			{
-				$s[]=$term->name;
+				echo $place->field_place_address[0]['value'];
 			}
 			echo theme("item_list", $s);
 			?>
