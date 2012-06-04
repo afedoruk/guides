@@ -975,7 +975,7 @@ h3.padded
 	margin: 10px 0 0;
 }
 
-h2.pane-title
+h2.pane-title, #comments h2
 {
 	clear: both;
 	color: #544C3E;
@@ -983,4 +983,9 @@ h2.pane-title
     font-weight: normal;
     line-height: 1.2em;
     padding: 0 0 12px;
+}
+
+#page-guides .col-1 ul, #page-guides .col-2 ul, #page-guides .col-3 ul, #block-guides_articles-3 .content ul
+{
+	margin: 0;
 }

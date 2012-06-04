@@ -52,7 +52,7 @@ function guides_articles_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_default_order_place';
-  $strongarm->value = '1';
+  $strongarm->value = '2';
   $export['comment_default_order_place'] = $strongarm;
 
   $strongarm = new stdClass;
@@ -80,7 +80,7 @@ function guides_articles_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_form_location_place';
-  $strongarm->value = '0';
+  $strongarm->value = '1';
   $export['comment_form_location_place'] = $strongarm;
 
   $strongarm = new stdClass;
@@ -101,7 +101,7 @@ function guides_articles_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_preview_place';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['comment_preview_place'] = $strongarm;
 
   $strongarm = new stdClass;
@@ -122,7 +122,7 @@ function guides_articles_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_subject_field_place';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['comment_subject_field_place'] = $strongarm;
 
   $strongarm = new stdClass;
@@ -138,15 +138,15 @@ function guides_articles_strongarm() {
   $strongarm->name = 'content_extra_weights_place';
   $strongarm->value = array(
     'title' => '-5',
-    'body_field' => '7',
-    'revision_information' => '8',
-    'author' => '9',
-    'options' => '10',
-    'comment_settings' => '13',
-    'menu' => '6',
+    'body_field' => '9',
+    'revision_information' => '10',
+    'author' => '11',
+    'options' => '12',
+    'comment_settings' => '15',
+    'menu' => '8',
     'taxonomy' => '1',
-    'path' => '12',
-    'xmlsitemap' => '11',
+    'path' => '14',
+    'xmlsitemap' => '13',
   );
   $export['content_extra_weights_place'] = $strongarm;
 
@@ -164,7 +164,6 @@ function guides_articles_strongarm() {
     'menu' => '-2',
     'taxonomy' => '-3',
     'path' => '10',
-    'detailed_question' => '5',
     'xmlsitemap' => '9',
   );
   $export['content_extra_weights_story'] = $strongarm;

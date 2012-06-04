@@ -29,7 +29,7 @@ _bacct = "UA-130670-11";
 <script type="text/javascript" src="http://u.begun.ru/begun.js"></script>
 </head>
 
-<body id="page2">
+<body id="page-guides">
    <div class="tail-bottom">
       <div id="main">
 	    <?

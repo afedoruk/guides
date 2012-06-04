@@ -25,4 +25,4 @@ foreach($places as $place)
 	</ul></div>
 	<?php
 }
-//echo l("Другие гиды ".$country['in'], "countries/".$country['id']);
+echo l("Все места ".$country['in'], "countries/".$country['id']."/places");

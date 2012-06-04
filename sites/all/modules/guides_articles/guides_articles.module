@@ -39,6 +39,9 @@ function guides_articles_block($op = 'list', $delta = 0, $edit = array()) {
 	$blocks[2] = array(
       'info' => 'Места в этой стране'
     );
+	$blocks[3] = array(
+      'info' => 'Статьи по теме'
+    );
     return $blocks;
   }
   else if ($op == 'view') {
@@ -56,6 +59,11 @@ function guides_articles_block($op = 'list', $delta = 0, $edit = array()) {
 	  case 2:
         $block = array(
           'content' => guides_articles_country_places_block(),
+        );
+        break;
+ 	  case 3:
+        $block = array(
+          'content' => guides_articles_related_topics_block(),
         );
         break;
     }
@@ -78,9 +86,17 @@ function guides_articles_place_guides_block()
 	$node=menu_get_object();
 	if($node->type=="place")
 	{
-		$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s' ORDER BY RAND() LIMIT 3", $node->field_place_city[0]["country_id"]);
-		$country['id']=$node->field_place_city[0]["country_id"];
-		$country['in']=geotest_get_in_country($node->field_place_city[0]["country_id"]);
+		$ci=$node->field_place_city[0]["country_id"];
+	}
+	elseif(arg(0)=="countries" && arg(2)=="places")
+	{
+		$ci=arg(1);
+	}
+	if($ci)
+	{
+		$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s' ORDER BY RAND() LIMIT 3", $ci);
+		$country['id']=$ci;
+		$country['in']=geotest_get_in_country($ci);
 		while($row=db_fetch_object($res))
 		{
 			$guides[]=node_load($row->nid);
@@ -97,6 +113,10 @@ function guides_articles_theme($existing, $type, $theme, $path) {
     'guides_articles_place_details_block' => array(
       'arguments' => array('node' => array()), 
       'template' => 'guides_articles_place_details_block',
+    ), 
+	 'guides_articles_related_topics_block' => array(
+      'arguments' => array('node' => array()), 
+      'template' => 'guides_articles_related_topics_block',
     ), 
 	 'guides_articles_place_guides_block' => array(
       'arguments' => array('guides' => array(), 'country'=>array()), 
@@ -125,5 +145,15 @@ function guides_articles_country_places_block()
 	{
 		//print_R($places);
 		return theme("guides_articles_country_places_block", $places, $country);
+	}
+}
+
+function guides_articles_related_topics_block()
+{
+	$node=menu_get_object();
+	if($node->type=="place" || $node->type=="story")
+	{
+		if($node->field_related_topics[0]['view'])
+			return theme("guides_articles_related_topics_block", $node);
 	}
 }

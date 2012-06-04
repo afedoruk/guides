@@ -509,6 +509,69 @@ function guides_articles_content_default_fields() {
     ),
   );
 
+  // Exported field: field_place_wikipedia
+  $fields['place-field_place_wikipedia'] = array(
+    'field_name' => 'field_place_wikipedia',
+    'type_name' => 'place',
+    'display_settings' => array(
+      'weight' => '6',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_place_wikipedia][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Ссылка на википедию',
+      'weight' => '6',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_region
   $fields['place-field_region'] = array(
     'field_name' => 'field_region',
@@ -569,6 +632,152 @@ function guides_articles_content_default_fields() {
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_related_topics
+  $fields['place-field_related_topics'] = array(
+    'field_name' => 'field_related_topics',
+    'type_name' => 'place',
+    'display_settings' => array(
+      'weight' => '7',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'place' => 'place',
+      'story' => 'story',
+      'faq' => 0,
+      'page' => 0,
+      'panel' => 0,
+      'profile' => 0,
+      'guide' => 0,
+      'news' => 0,
+      'testimonial' => 0,
+      'country' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_related_topics][0][nid][nid',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Статьи по теме',
+      'weight' => '7',
+      'description' => '',
+      'type' => 'nodereference_autocomplete',
+      'module' => 'nodereference',
+    ),
+  );
+
+  // Exported field: field_related_topics
+  $fields['story-field_related_topics'] = array(
+    'field_name' => 'field_related_topics',
+    'type_name' => 'story',
+    'display_settings' => array(
+      'weight' => '5',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'place' => 'place',
+      'story' => 'story',
+      'faq' => 0,
+      'page' => 0,
+      'panel' => 0,
+      'profile' => 0,
+      'guide' => 0,
+      'news' => 0,
+      'testimonial' => 0,
+      'country' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_related_topics][0][nid][nid',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Статьи по теме',
+      'weight' => '5',
+      'description' => '',
+      'type' => 'nodereference_autocomplete',
+      'module' => 'nodereference',
     ),
   );
 
@@ -890,17 +1099,18 @@ function guides_articles_content_default_fields() {
     'field_name' => 'field_story_place',
     'type_name' => 'story',
     'display_settings' => array(
+      'weight' => '4',
+      'parent' => '',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'default',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -967,6 +1177,8 @@ function guides_articles_content_default_fields() {
   t('Район страны');
   t('Связать с местом');
   t('Ссылка');
+  t('Ссылка на википедию');
+  t('Статьи по теме');
   t('Страна/город');
   t('Часы работы');
 

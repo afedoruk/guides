@@ -49,6 +49,13 @@ function geotest_menu() {
 		  'access callback' => TRUE,		  
 		);
 
+	$items['countries/%/places']= array(
+ 		  'title'=>"Интересные места в странах мира",
+		  'page callback' => 'geotest_places_page',
+		  'page arguments'=>array(1),
+		  'access callback' => TRUE,		  
+		);
+
   return $items;
 }
 
@@ -1116,7 +1123,7 @@ function geotest_get_in_country($cid)
     'tm' => 'Turkmenistan',
     'tn' => 'Tunisia',
     'to' => 'Tonga',
-    'tr' => 'Turkey',
+    'tr' => 'в Турции',
     'tt' => 'Trinidad and Tobago',
     'tv' => 'Tuvalu',
     'tw' => 'Taiwan',
@@ -1156,7 +1163,7 @@ function geotest_countries_page()
 		{
 			$guides=array();
 			drupal_set_title("Частные гиды ".geotest_get_in_country(arg(1)));
-			$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", 10, 0, "SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", arg(1));
+			$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid INNER JOIN {users} u ON n.uid=u.uid WHERE n.status=1 AND field_city_country_id='%s' ORDER BY u.access DESC", 10, 0, "SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s'", arg(1));
 			while($row=db_fetch_object($res))
 			{
 				$guides[]=node_load($row->nid);
@@ -1189,8 +1196,38 @@ function geotest_countries_page()
 		{
 			$items[]=l(theme("countryicons_icon", $code), "countries/".$code, array("html"=>true))." ".l($title, "countries/".$code);
 		}
-		$output="<p>Если какой-либо страны нет в списке, значит нет зарегистрированных гидов из нее. Как только первый гид из этой страны зарегистрируется на сайте и оформит карточку гида, страна появится в этом списке.</p>";
+		$output="<p>Мы - создатели сайта theguides.ru - точно знаем: <strong>выбор есть всегда</strong>! Долой готовые тур.пакеты из тур.агентств, пришло время для нового формата путешествий. Выберите гида в нужной стране и спланируйте свою поездку с его помощью. Сделайте свое путешествие ярче и интереснее! Впустите в свою жизнь приключение!</p>";
 		$output.=theme("item_list", $items, null, "ul", array("id"=>"country-list"));
 		return $output;
+	}
+}
+
+function geotest_places_page($ci)
+{
+	$countries=geotest_country_list();
+	$output='';
+	if(isset($countries[$ci]))
+	{
+		$guides=array();
+		drupal_set_title("Интересные места ".geotest_get_in_country(arg(1)));
+		$res=pager_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_type_place} cp ON n.vid=cp.vid WHERE n.status=1 AND field_place_city_country_id='%s'", 50, 0, "SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {content_type_place} cp ON n.vid=cp.vid WHERE n.status=1 AND field_place_city_country_id='%s'", $ci);
+		while($row=db_fetch_object($res))
+		{
+			$guides[]=node_load($row->nid);
+		}
+		if(sizeof($guides))
+		{
+			$output.=theme("geotest_guides_list", $guides);
+			$output.=theme('pager');
+		}
+		else
+		{
+			$output.=theme("В этой стране у нас пока нет мест");
+		}
+		return $output;
+	}
+	else
+	{
+		drupal_not_found();
 	}
 }

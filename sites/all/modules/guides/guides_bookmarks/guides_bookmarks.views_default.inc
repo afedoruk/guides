@@ -99,7 +99,7 @@ function guides_bookmarks_views_default_views() {
     'type' => 'none',
   ));
   $handler->override_option('title', 'Избранные гиды');
-  $handler->override_option('empty', 'You have not yet bookmarked any content. Click the "Запомнить" link when viewing a piece of content to add it to this list.');
+  $handler->override_option('empty', 'В вашей записной книжке еще нет ни одного гида. Нажмите ссылку "Запомнить" в карточке гида, чтобы добавить его в записную книжку.');
   $handler->override_option('items_per_page', '25');
   $handler->override_option('use_pager', TRUE);
   $handler->override_option('row_plugin', 'node');
@@ -220,8 +220,9 @@ function guides_bookmarks_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('title', 'My bookmarks');
-  $handler->override_option('empty', 'You have not yet bookmarked any content. Click the "Запомнить" link when viewing a piece of content to add it to this list.');
+  $handler->override_option('title', 'Записная книжка');
+  $handler->override_option('empty', 'В вашей записной книжке еще нет ни одного места. Нажмите ссылку "Запомнить" на странице места, чтобы добавить его в записную книжку.');
+  $handler->override_option('empty_format', '1');
   $handler->override_option('items_per_page', '25');
   $handler->override_option('use_pager', TRUE);
   $handler->override_option('row_plugin', 'node');

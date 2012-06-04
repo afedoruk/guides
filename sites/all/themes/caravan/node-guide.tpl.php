@@ -7,7 +7,7 @@ if($page)
 	print "<div class='service'>".$links."</div>";
 	foreach($node->field_city as $city)
 	{
-		$p[]="<span class='adr' itemprop='address' itemscope itemtype='http://schema.org/PostalAddress'><span class='country-name' itemprop='addressCountry'>".$countries[$city["country_id"]]."</span>, <span class='locality' itemprop='addressLocality'>".$city["city_name"]."</span></span>";
+		$p[]="<span class='adr' itemprop='address' itemscope itemtype='http://schema.org/PostalAddress'><span class='country-name' itemprop='addressCountry'>".l($countries[$city["country_id"]], "countries/".$city["country_id"])."</span>, <span class='locality' itemprop='addressLocality'>".$city["city_name"]."</span></span>";
 	}
 	echo "<h4>".implode(" | ", $p)."</h4>";
 ?>

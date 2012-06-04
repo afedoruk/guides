@@ -44,13 +44,11 @@ function guides_bookmarks_flag_default_flags() {
     'show_on_form' => 1,
     'access_author' => '',
     'i18n' => 0,
-    'flag_confirmation' => '',
-    'unflag_confirmation' => '',
-    'api_version' => 2,
     'module' => 'guides_bookmarks',
     'locked' => array(
       '0' => 'name',
     ),
+    'api_version' => 2,
   );
   // Exported flag: "Избранные места".
   $flags['bookmarks_places'] = array(
@@ -81,13 +79,11 @@ function guides_bookmarks_flag_default_flags() {
     'show_on_form' => 0,
     'access_author' => '',
     'i18n' => '0',
-    'flag_confirmation' => '',
-    'unflag_confirmation' => '',
-    'api_version' => 2,
     'module' => 'guides_bookmarks',
     'locked' => array(
       '0' => 'name',
     ),
+    'api_version' => 2,
   );
   return $flags;
 }

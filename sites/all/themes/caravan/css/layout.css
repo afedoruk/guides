@@ -56,3 +56,7 @@
 /*=========================*/
 
 
+#page-guides .col-1, #page-guides .col-2, #page-guides .col-3
+{
+	width: 315px;
+}

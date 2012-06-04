@@ -7,6 +7,9 @@ function guide_card_block($op = 'list', $delta = 0, $edit = array()) {
     $blocks[0] = array(
       'info' => 'Карточка текущего пользователя'
     );
+	$blocks[1] = array(
+      'info' => 'Другие гиды в этой стране'
+    );
     return $blocks;
   }
   else if ($op == 'view') {
@@ -14,6 +17,11 @@ function guide_card_block($op = 'list', $delta = 0, $edit = array()) {
       case 0:
         $block = array(
           'content' => guide_card_card_block(),
+        );
+        break;
+ 	  case 1:
+        $block = array(
+          'content' => guide_card_other_guides_block(),
         );
         break;
     }
@@ -44,6 +52,39 @@ function guide_card_theme($existing, $type, $theme, $path) {
       'arguments' => array('node' => null), 
       'template' => 'guide_card_card_block',
     ), 
+	'guide_card_other_guides_block' => array(
+      'arguments' => array('guides' => array()), 
+      'template' => 'guide_card_other_guides_block',
+    ), 
   );
+}
+
+function guide_card_other_guides_block()
+{
+	$node=menu_get_object();
+	if($node->type=='guide')
+	{
+		foreach($node->field_city as $city)
+		{
+			$countries[]=$city['country_id'];
+		}
+		$countries=array_unique($countries);
+	}
+	if(sizeof($countries))
+	{
+		$guides=array();
+		foreach($countries as $ci)
+		{
+			$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_field_city} cg ON n.vid=cg.vid WHERE n.status=1 AND field_city_country_id='%s' AND n.nid!=%d ORDER BY RAND() LIMIT 3", $ci, $node->nid);
+			while($row=db_fetch_object($res))
+			{
+				$guides[$ci][]=node_load($row->nid);
+			}
+			if(sizeof($guides))
+			{
+				return theme("guide_card_other_guides_block", $guides);
+			}
+		}
+	}
 }
 ?>

@@ -18,7 +18,7 @@ else
 	{
 		foreach($node->field_story_images as $image)
 		{
-			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."]'>".theme("imagecache", "gallery_preview", $image["filepath"])."</a>";
+			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."][".$image['data']['description']."]'>".theme("imagecache", "gallery_preview", $image["filepath"])."</a>";
 		}
 	}
 	?>
