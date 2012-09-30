@@ -989,3 +989,14 @@ h2.pane-title, #comments h2
 {
 	margin: 0;
 }
+
+.sources
+{
+	font-size: 90%;
+}
+
+.sources h4
+{
+	padding: 0;
+	margin: 0;
+}

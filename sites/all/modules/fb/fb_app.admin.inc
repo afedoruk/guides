@@ -16,10 +16,14 @@ function fb_app_fb_admin($op, $data, &$return) {
 
   if ($op == FB_ADMIN_OP_SET_PROPERTIES) {
     // URLs for Facebook events we support.
-    $return['uninstall_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_REMOVE . '/',
-                                   array('absolute' => TRUE));
-    $return['authorize_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_AUTHORIZE . '/',
-                                   array('absolute' => TRUE));
+    $return['uninstall_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_REMOVE . '/', array(
+                                     'absolute' => TRUE,
+                                     'language' => FALSE,
+                                   ));
+    $return['authorize_url'] = url(FB_APP_PATH_EVENT . '/' . $fb_app->label . "/" . FB_APP_EVENT_POST_AUTHORIZE . '/', array(
+                                     'absolute' => TRUE,
+                                     'language' => FALSE,
+                                   ));
   }
   elseif ($op == FB_ADMIN_OP_LIST_PROPERTIES) {
     $return[t('Application Name')] = 'application_name';
@@ -220,9 +224,14 @@ function fb_app_admin_form_submit($form, &$form_state) {
              WATCHDOG_NOTICE,
              l(t('view apps'), FB_PATH_ADMIN_APPS));
 
-    drupal_set_message(t('Saved changes to facebook application %title (%label).',
+    drupal_set_message(t('Saved changes to Facebook application %title (%label).',
                          array('%title' => $fb_app->application_name,
                                '%label' => $fb_app->label)));
+
+    // Should we just go ahead and flush the cache here automatically?
+    drupal_set_message(t('Recommended: <a href=!cache_url>clear cached data</a> after changing Facebook app settings.', array(
+                           '!cache_url'=> url('admin/settings/performance'),
+                         )), 'warning');
   }
   else {
     // Inserting.
@@ -252,6 +261,7 @@ function fb_app_admin_form_submit($form, &$form_state) {
   }
 
   $form_state['redirect'] = FB_PATH_ADMIN;
+
 }
 
 /**
@@ -329,7 +339,7 @@ function fb_app_set_app_properties($fb_app) {
           }
         } catch (Exception $e) {
           drupal_set_message(t('Failed to set the following properties for %label application.  You may need to manually editing remote settings!<br/><pre>!props</pre>', array('%label' => $fb_app->label, '!props' => print_r($props, 1))), 'error');
-          fb_log_exception($e, t('Failed to set application properties on Facebook'));
+          fb_log_exception($e, t('Failed to set application properties on Facebook. %props', array('%props' => json_encode($props))));
         }
       }
     }

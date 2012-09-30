@@ -255,7 +255,7 @@ function geotest_field_settings($op, $field) {
     case 'database columns':
       $columns = array(
         'country_id' => array('type' => 'varchar', 'length' => 4, 'not null' => TRUE, 'default' => ''),
-        'city_name' => array('type' => 'varchar', 'length' => 50, 'not null' => TRUE, 'default' => ''),
+        'city_name' => array('type' => 'text', 'not null' => TRUE, 'default' => ''),
       );
       return $columns;
 /*    case 'views data':
@@ -425,9 +425,10 @@ function geotest_widget(&$form, &$form_state, $field, $items, $delta = 0) {
 
    $element['city_name'] = array(
 	'#title' => t( 'City' ),
-	'#type' => 'textfield',
+	'#type' => 'textarea',
 	'#default_value' =>  $items[$delta]['city_name'],
 	'#weight' => 3,
+	'#rows'=>3
 //	'#autocomplete_path' => 'geotest/autocomplete/city'
   );
 

@@ -32,13 +32,17 @@ else
 	{
 		foreach($node->field_place_images as $image)
 		{
-			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."][".$image['data']['description']."]'>".theme("imagecache", "gallery_preview", $image["filepath"])."</a>";
+			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."][".$image['data']['title']."]'>".theme("imagecache", "gallery_preview", $image["filepath"], $image['data']["alt"], $image['data']["title"])."</a>";
 		}
 	}
 	?>
 	</div>
   <div class="content">
     <?php print $content; 	
+	if($node->field_place_sources[0]["value"])
+	{
+		echo "<div class='sources'><h4>Источники и ссылки</h4>".$node->field_place_sources[0]["view"]."</div>";
+	}
 	if($node->field_place_wikipedia[0]["value"])
 	{
 		echo "<p>Хотите узнать больше? Читайте <a href='".$node->field_place_wikipedia[0]["value"]."'>википедию</a>.</p>";

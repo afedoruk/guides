@@ -47,6 +47,11 @@ To install:
   themes used for Facebook Connect, iframe Canvas Pages, and Social
   Plugins (i.e. like buttons).  Without this attribute, IE will fail.
 
+  Note that some documention on facebook.com suggests
+  xmlns:fb="http://ogp.me/ns/fb#" instead of the URL above.  Try that
+  if the above is not working for you.
+
+
 - To support canvas pages and/or page tabs, url rewriting and other
   settings must be initialized before modules are loaded, so you must
   add this code to your settings.php.  This is done by adding these
@@ -58,8 +63,13 @@ To install:
 
   (Change include paths if modules/fb is not in sites/all.)
 
-- Also for canvas pages, see http://drupal.org/node/933994 and search
-  for "P3P" to avoid a common problem on IE.
+- For canvas pages, add something like this to your settings.php:
+
+  if (!headers_sent()) {
+    header('P3P: CP="We do not have a P3P policy."');
+  }
+
+  See http://drupal.org/node/933994 and search for "P3P" for details.
 
 - Go to Administer >> Site Building >> Modules and enable the Facebook
   modules that you need.
@@ -169,5 +179,10 @@ $conf['fb_verbose'] = TRUE; // debug output
 // Enable URL rewriting (for canvas page apps).
 include "sites/all/modules/fb/fb_url_rewrite.inc";
 include "sites/all/modules/fb/fb_settings.inc";
+
+// Header so that IE will accept cookies on canvas pages.
+if (!headers_sent()) {
+  header('P3P: CP="We do not have a P3P policy."');
+}
 
 // end of settings.php

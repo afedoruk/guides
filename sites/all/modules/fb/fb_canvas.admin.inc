@@ -16,16 +16,27 @@ function fb_canvas_fb_admin($op, $data, &$return) {
   if ($op == FB_ADMIN_OP_SET_PROPERTIES) {
     // Compute properties which we can set automatically.
     if (function_exists('fb_url_inbound_alter')) {
-      $callback_url = url('', array('absolute' => TRUE)) . FB_SETTINGS_CB . '/' . $fb_app->id . '/';
+      $callback_url = url('', array(
+                            'absolute' => TRUE,
+                            'language' => FALSE,
+                          )) . FB_SETTINGS_CB . '/' . $fb_app->id . '/';
     }
     else {
       // Paving the way to make URL alters optional.
       $callback_url = url('', array('absolute' => TRUE));
     }
     $return['callback_url'] = $callback_url;
+    if (variable_get(FB_VAR_SECURE_URLS, FB_SECURE_URLS_SOMETIMES) >= FB_SECURE_URLS_SOMETIMES) {
+      $return['secure_callback_url'] = str_replace('http://', 'https://', $callback_url);
+    }
+    if (variable_get(FB_VAR_SECURE_URLS, FB_SECURE_URLS_SOMETIMES) <= FB_SECURE_URLS_SOMETIMES) {
+      // Make callback_url HTTP, even if we administer drupal via HTTPS.
+      $return['callback_url'] = str_replace('https://', 'http:', $return['callback_url']);
+    }
   }
   elseif ($op == FB_ADMIN_OP_LIST_PROPERTIES) {
     $return[t('Callback URL')] = 'callback_url';
+    $return[t('Secure Callback URL')] = 'secure_callback_url';
   }
 }
 

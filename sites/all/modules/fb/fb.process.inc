@@ -52,10 +52,11 @@ function fb_process($output, $options = array()) {
       $base = $base_path;
     }
 
+    $protocol = fb_protocol(); // http or https
     if (isset($options['to_canvas']) && ($canvas = $options['to_canvas'])) {
       // Make relative links point to canvas pages.
       $patterns[] = "|<a([^>]*)href=\"{$base}|";
-      $replacements[] = "<a $1 href=\"http://apps.facebook.com/{$canvas}/";
+      $replacements[] = "<a $1 href=\"$protocol://apps.facebook.com/{$canvas}/";
     }
     else {
       // Make relative links point to website.
@@ -89,7 +90,7 @@ function fb_process($output, $options = array()) {
       // Make absolute links point to canvas pages.
       $absolute_base = url('<front>', array('absolute' => TRUE));
       $patterns[] = "|<a([^>]*)href=\"{$absolute_base}|";
-      $replacements[] = "<a $1 href=\"http://apps.facebook.com/{$_fb_app->canvas}/";
+      $replacements[] = "<a $1 href=\"$protocol://apps.facebook.com/{$_fb_app->canvas}/";
     }
   }
   if (count($patterns)) {

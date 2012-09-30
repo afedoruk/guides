@@ -29,50 +29,6 @@ function fb_example_link($type, $object, $teaser = FALSE) {
   }
 }
 
-
-/**
- * Implements hook_fb_friend_invite_page_wrap_alter().
- *
- * @see modules/fb/contrib/fb_friend.module
- *
- * Here we customize the block which invites facebook friends to visit
- * the current page.
- *
- * By default the invite form is wrapped in serverfbml and embedded
- * within a page.  Here we alter the data before it is rendered.  We
- * change the wrapper type to fb_connect_fbml_popup.  The result is a
- * link which pops up the invite form.
- */
-function fb_example_fb_friend_invite_page_wrap_alter(&$elem) {
-  // Replace serverfbml with popup
-  if ($elem['#type'] == 'fb_form_serverfbml') {
-    $elem['#type'] = 'fb_fbml_popup';
-    $elem['#title'] = t('Invite Friends to View This Page');
-    $elem['#link_text'] = t('Invite friends to view this page');
-    $elem['#attributes'] = array('width' => 760);
-  }
-}
-
-/**
- * Implements hook_fb_friend_invite_app_alter().
- *
- * Customizes aspects of the invitation form.
- */
-function fb_example_fb_friend_invite_app_alter(&$fbml) {
-  $fbml['selector']['#attributes']['cols'] = 3;
-  $fbml['selector']['#attributes']['email_invite'] = FALSE;
-  $fbml['selector']['#attributes']['import_external_friends'] = FALSE;
-}
-function fb_example_fb_friend_invite_app_wrap_alter(&$elem) {
-  // Replace serverfbml with popup
-  if ($elem['#type'] == 'fb_form_serverfbml') {
-    $elem['#type'] = 'fb_fbml_popup';
-    $elem['#title'] = t('Invite Friends to install this application');
-    $elem['#link_text'] = t('Invite friends to install this application');
-    $elem['#attributes'] = array('width' => 760);
-  }
-}
-
 /**
  * Implements hook_form_alter().
  *
@@ -82,21 +38,21 @@ function fb_example_fb_friend_invite_app_wrap_alter(&$elem) {
  */
 function fb_example_form_alter(&$form, $form_state, $form_id) {
   // Add stream publish option.
-  if (isset($GLOBALS['_fb']) && fb_facebook_user()) {
+  if (isset($GLOBALS['_fb']) && fb_facebook_user() && variable_get('fb_example_stream_form_alter', TRUE)) {
     if ($form['#id'] == 'node-form') {
       // Add checkbox to control feed publish.
       $form['fb_example']['stream_publish'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Share on Facebook'),
-        '#default_value' => TRUE,
+        '#title' => t('Share on Facebook Wall'),
+        '#default_value' => variable_get('fb_example_stream_publish_default', FALSE),
       );
     }
     elseif ($form['form_id']['#value'] == 'comment_form') {
       // Add checkbox to control feed publish.
       $form['fb_example']['stream_publish'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Share on Facebook'),
-        '#default_value' => TRUE,
+        '#title' => t('Share on Facebook Wall'),
+        '#default_value' => variable_get('fb_example_stream_publish_default', FALSE),
       );
     }
   }
@@ -139,17 +95,18 @@ function fb_example_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         );
       }
 
-
+      /* Facebook has disabled the message.  Deprecated.
       $user_message = t('Check out my latest post on !site...',
                         array('!site' => variable_get('site_name', t('my Drupal for Facebook powered site'))));
+      */
       $actions = array();
       $actions[] = array(
         'text' => t('Read More'),
         'href' => url('node/' . $node->nid, array('absolute' => TRUE)),
       );
-      fb_stream_publish_dialog(array('message' => $user_message,
-                                     'attachment' => $attachment,
-                                     'action_links' => $actions,
+      fb_stream_publish_dialog(array(
+                                 'attachment' => $attachment,
+                                 'action_links' => $actions,
                                ));
     }
   }
@@ -164,6 +121,8 @@ function fb_example_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       '#suffix' => '</div>',
     );
   }
+
+
 }
 
 /**
@@ -173,6 +132,8 @@ function fb_example_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
  */
 function fb_example_comment(&$a1, $op) {
   if ($op == 'insert' || $op == 'update') {
+    $comment_url = url('node/' . $a1['nid'], array('absolute' => TRUE, 'fragment' => 'comment-' . $a1['cid']));
+
     if ($a1['stream_publish']) {
       //dpm($a1, "fb_example_comment, publishing to stream");
       $node = node_load($a1['nid']);
@@ -180,13 +141,13 @@ function fb_example_comment(&$a1, $op) {
       // http://wiki.developers.facebook.com/index.php/Attachment_(Streams)
       $attachment = array(
         'name' => $a1['subject'],
-        'href' => url('node/' . $a1['nid'], array('absolute' => TRUE, 'fragment' => 'comment-' . $a1['cid'])),
+        'href' => $comment_url,
         'description' => $a1['comment'],
         //'properties' => array(t('In reply to') => array('text' => $node->title, 'href' => url("node/" . $node->nid, array('absolute' => TRUE)))),
       );
 
       if ($logo_path = theme_get_setting('logo_path')) {
-        $url = url($logo_path, array('absolute' => TRUE));
+        $url = url($logo_path, array('absolute' => TRUE, 'fb_canvas' => FALSE));
         //dpm($logo_path, "logo_path is $logo_path and url is $url");
         $attachment['media'][] = array(
           'type' => 'image',
@@ -213,7 +174,9 @@ function fb_example_comment(&$a1, $op) {
 /**
  * Implements hook_fb_required_perms_alter().
  *
- * Builds a list of extended permissions required when authorizing the current facebook app.
+ * Builds a list of extended permissions required when authorizing the current
+ * facebook app.
+ *
  * @see http://developers.facebook.com/docs/authentication/permissions
  */
 function fb_example_fb_required_perms_alter(&$perms) {
@@ -258,8 +221,22 @@ function fb_example_fb($op, $data, &$return) {
   $fb_app = isset($data['fb_app']) ? $data['fb_app'] : NULL;
   $fb = isset($data['fb']) ? $data['fb'] : NULL;
 
-  // Use devel module to figure out when this hook is called and what it is passed.
+  // Uncomment next line to figure out when this hook is called and what it is passed.
   //dpm(func_get_args(), "fb_example_fb($op) called"); // debug
+
+  if ($op == FB_OP_INITIALIZE) {
+    // This $op is invoked after fb.module initializes Facebook's PHP SDK.
+
+    // When third-party cookies are disabled on Firefox, Facebook's Javascript will not remember the user is connected.  We can work around this by storing credentials in our session and passing it javascript on every page.  It's sort of a hack, so let's do it only on Firefox browsers.
+    // See http://developers.facebook.com/bugs/173032012783482
+    if (arg(0) != 'admin') { // Don't muck vars on admin pages.
+      if (strpos($_SERVER['HTTP_USER_AGENT'], 'Firefox') !== FALSE) {
+        $GLOBALS['conf'][FB_VAR_JS_USE_SESSION] = TRUE;
+        $GLOBALS['conf'][FB_VAR_JS_GET_LOGIN_STATUS] = FALSE;
+        $GLOBALS['conf'][FB_VAR_JS_TEST_LOGIN_STATUS] = TRUE;
+      }
+    }
+  }
 
   if ($op == FB_OP_AJAX_EVENT) {
     // We get FB_OP_AJAX_EVENT when fb.js calls us in reponse to a javascript event.
@@ -397,6 +374,15 @@ function fb_example_init() {
       else {
         drupal_goto('user');
       }
+    }
+  }
+  elseif (arg(0) == 'logout') {
+    // Avoid Drupal's awkward access denied.
+    if (function_exists('fb_canvas_goto')) {
+      fb_canvas_goto('<front>');
+    }
+    else {
+      drupal_goto('<front>');
     }
   }
 }

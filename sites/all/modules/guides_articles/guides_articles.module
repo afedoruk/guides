@@ -42,6 +42,9 @@ function guides_articles_block($op = 'list', $delta = 0, $edit = array()) {
 	$blocks[3] = array(
       'info' => 'Статьи по теме'
     );
+	$blocks[4] = array(
+      'info' => 'Случайные места (для главной)'
+    );
     return $blocks;
   }
   else if ($op == 'view') {
@@ -64,6 +67,11 @@ function guides_articles_block($op = 'list', $delta = 0, $edit = array()) {
  	  case 3:
         $block = array(
           'content' => guides_articles_related_topics_block(),
+        );
+        break;
+	  case 4:
+        $block = array(
+          'content' => guides_articles_places_random_block(),
         );
         break;
     }
@@ -126,6 +134,10 @@ function guides_articles_theme($existing, $type, $theme, $path) {
       'arguments' => array('places' => array(), 'country'=>array()), 
       'template' => 'guides_articles_country_places_block',
     ), 
+	  'guides_articles_places_random_block' => array(
+      'arguments' => array('places' => array(), 'countries' => array()), 
+      'template' => 'guides_articles_places_random_block',
+    ), 
   );
 }
 
@@ -156,4 +168,25 @@ function guides_articles_related_topics_block()
 		if($node->field_related_topics[0]['view'])
 			return theme("guides_articles_related_topics_block", $node);
 	}
+}
+
+function guides_articles_places_random_block()
+{
+	$places=array();
+//	$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {content_type_place} cg ON n.vid=cg.vid WHERE n.status=1 AND field_place_city_country_id='%s' ORDER BY RAND() LIMIT 3", arg(1));
+	$res=db_query("SELECT DISTINCT(n.nid) FROM {node} n WHERE n.status=1 AND n.type='place' ORDER BY RAND() LIMIT 4");
+	
+//	$country['in']=geotest_get_in_country(arg(1));
+
+	while($row=db_fetch_object($res))
+	{
+		$places[]=node_load($row->nid);
+	}
+	if(sizeof($places))
+	{
+		$countries=geotest_country_list();
+		//print_R($places);
+		return theme("guides_articles_places_random_block", $places, $countries);
+	}
+
 }

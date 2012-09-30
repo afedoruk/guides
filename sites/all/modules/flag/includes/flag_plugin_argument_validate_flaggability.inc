@@ -86,7 +86,7 @@ class flag_plugin_argument_validate_flaggability extends views_plugin_argument_v
       '#process' => array('expand_radios', 'views_process_dependency'),
     );
 
-    foreach(array('flag_name', 'flag_test', 'flag_id_type') as $option) {
+    foreach (array('flag_name', 'flag_test', 'flag_id_type') as $option) {
       $form[$this->_option_name($option)] += array(
         '#dependency' => array('edit-options-validate-type' => array($this->id)),
         '#process' => array('views_process_dependency'),
@@ -274,7 +274,7 @@ class flag_plugin_argument_validate_flaggability extends views_plugin_argument_v
     global $user;
     if (!$user->uid) {
       // Anonymous user
-      return FALSE;
+      return array();
     }
     $flattened_ids = implode(',', $ids);
     return $this->_test_by_sql("SELECT content_id FROM {flag_content} WHERE fid = %d AND content_id IN ($flattened_ids) AND uid = %d", array($flag->fid, $user->uid));

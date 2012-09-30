@@ -9,6 +9,7 @@
  * Implementation of hook_install().
  */
 function fb_user_install() {
+  _fb_user_install_set_weight();
   // Create tables.
   drupal_install_schema('fb_user');
 }
@@ -31,6 +32,14 @@ function fb_user_uninstall() {
            ) as $var) {
     variable_del($var);
   }
+}
+
+/**
+ * Usually it is best if fb_user_form_alter acts before third party modules.
+ * So, we lower the module weight here.
+ */
+function _fb_user_install_set_weight() {
+  db_query("UPDATE {system} SET weight=-1 WHERE name='fb_user'");
 }
 
 
@@ -176,3 +185,15 @@ function fb_user_update_6008() {
   $ret[] = array('success' => FALSE, 'query' => $message, array());
   return $ret;
 }
+
+function fb_user_update_6009() {
+  $ret = array();
+  _fb_user_install_set_weight();
+  $message = 'Lowered weight of fb_user.module, so that its hooks will be invoked before third-party modules.';
+  $args = array();
+  drupal_set_message(t($message, $args), 'warning', FALSE);
+  watchdog('fb_user', $message, $args, WATCHDOG_WARNING);
+  $ret[] = array('success' => TRUE, 'query' => $message, array());
+  return $ret;
+}
+

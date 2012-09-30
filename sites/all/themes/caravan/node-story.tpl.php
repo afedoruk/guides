@@ -18,13 +18,17 @@ else
 	{
 		foreach($node->field_story_images as $image)
 		{
-			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."][".$image['data']['description']."]'>".theme("imagecache", "gallery_preview", $image["filepath"])."</a>";
+			echo "<a href='/".$image['filepath']."' rel='lightbox[node-".$node->nid."][".$image['data']['description']."]'>".theme("imagecache", "gallery_preview", $image["filepath"], $image['data']["alt"], $image['data']["title"])."</a>";
 		}
 	}
 	?>
 	</div>
   <div class="content">
     <?php print $content; 
+	if($node->field_story_sources[0]["value"])
+	{
+		echo "<div class='sources'><h4>Источники и ссылки</h4>".$node->field_story_sources[0]["view"]."</div>";
+	}
 	if($node->field_story_link[0]["value"])
 	{
 		echo "<p><a href='".$node->field_story_link[0]["value"]."'>".$node->field_story_link[0]["value"]."</a></p>";

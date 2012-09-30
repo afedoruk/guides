@@ -45,15 +45,6 @@ function guides_testimonials_content_default_fields() {
     'advanced_view' => '--',
     'advanced_view_args' => '',
     'widget' => array(
-      'node_link' => array(
-        'teaser' => 0,
-        'full' => 1,
-        'title' => 'Написать отзыв',
-        'hover_title' => 'Вы пользовались услугами этого гида? Расскажите о впечатлениях!',
-        'destination' => 'default',
-      ),
-      'fallback' => 'page_not_found',
-      'edit_fallback' => 0,
       'autocomplete_match' => 'starts_with',
       'size' => '60',
       'default_value' => array(
@@ -63,6 +54,15 @@ function guides_testimonials_content_default_fields() {
         ),
       ),
       'default_value_php' => NULL,
+      'node_link' => array(
+        'teaser' => 0,
+        'full' => 1,
+        'title' => 'Написать отзыв',
+        'hover_title' => 'Вы пользовались услугами этого гида? Расскажите о впечатлениях!',
+        'destination' => 'default',
+      ),
+      'fallback' => 'page_not_found',
+      'edit_fallback' => 0,
       'label' => 'Гид',
       'weight' => '31',
       'description' => '',

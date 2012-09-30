@@ -12,6 +12,9 @@
  *
  */
 
+define('FB_DEVEL_URL_LINTER', 'http://developers.facebook.com/tools/lint');
+
+
 function fb_devel_menu() {
   $items['fb/devel'] = array(
     'page callback' => 'fb_devel_page',
@@ -38,7 +41,28 @@ function fb_devel_menu() {
     'access callback' => TRUE,
   );
 
+  $items['fb/devel/linter'] = array(
+    'title' => 'Facebook linter',
+    'page callback' => 'drupal_not_found', // Because we alter link, below.
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('access devel information'),
+    'menu_name' => 'devel',
+    'options' => array('alter' => TRUE),
+  );
+
   return $items;
+}
+
+// Trick learned from devel.module, to make link to linter for the current page.
+function fb_devel_translated_menu_link_alter(&$item) {
+  if ($item['link_path'] == 'fb/devel/linter' ||
+      $item['link_path'] == FB_DEVEL_URL_LINTER) {
+    //dpm($item, __FUNCTION__);
+    $item['href'] = FB_DEVEL_URL_LINTER; // href matters. link_path and router path do not.
+    $item['localized_options']['query'] = array(
+      'url' => url($_GET['q'], array('absolute' => TRUE)),
+    );
+  }
 }
 
 /**
@@ -294,6 +318,7 @@ function fb_devel_fb($op, $data, &$return) {
                   ), 'setting');
   }
   elseif ($op == FB_OP_AJAX_EVENT) {
+    extract($data);
     if (fb_verbose() == 'extreme' && FALSE) { // disabled to prevent console not defined error.
       $session_id = session_id();
       $session_name = session_name();
@@ -303,23 +328,12 @@ function fb_devel_fb($op, $data, &$return) {
       $return[] = "console.log('_COOKIE[fbu_{$fb_app->apikey}] is " . $_COOKIE['fbu_' . $fb_app->apikey] . "');";
       $return[] = "FB_JS.reload();";
     }
+    if (fb_verbose() == 'extreme') {
+      watchdog('fb_devel', "modules/fb ajax callback $event_type: <pre>" . dprint_r($event_data, 1) . "</pre>");
+    }
   }
 }
 
-
-/**
- * Implements hook_footer().
- */
-function fb_devel_footerXXX($is_front) {
-  $output = "<!-- fb_devel_footer() -->\n";
-  $output .= "<script type=\"text/javascript\">\n";
-  $output .= "<!--//--><![CDATA[//><!--\n";
-  $output .= "  jQuery(document).bind('fb_init', FB_Devel.initHandler);\n";
-  //$output .= "  FB_Devel.sanityCheck()\n";
-  $output .= "\n//--><!]]>\n";
-  $output .= "\n</script>\n";
-  return $output;
-}
 
 
 
@@ -523,11 +537,12 @@ function fb_devel_js() {
   exit();
 }
 
+/**
+ * Implements hook_block().
+ */
 function fb_devel_block($op = 'list', $delta = 0, $edit = array()) {
   if ($op == 'list') {
-    // Provide two copies of same block, for iframe scenarios.
     $items[0]['info'] = t('Facebook Devel Page Info');
-    $items[1]['info'] = t('Facebook Devel Page Info 2');
     return $items;
   }
   elseif ($op == 'view') {
@@ -574,7 +589,7 @@ function fb_devel_info() {
 
     if (!$fbu) {
       $info['login button'] = theme('fb_login_button', 'Connect');
-      $info['login link'] = "<a href=# onclick='FB.login(function(response) {alert(\"FB.login() success.\");}, {perms:Drupal.settings.fb.perms}); return false;'>fb login</a>";
+      $info['login link'] = "<a href=# onclick='FB.login(function(response) {alert(\"FB.login() success.\");}, {scope:Drupal.settings.fb.perms}); return false;'>fb login</a>";
     }
 
     // Tests for link on canvas pages (iframe cookie test)
@@ -777,15 +792,28 @@ function fb_devel_cron() {
 
 function fb_devel_fb_tab($op, $data, &$return) {
   // debug.
+  $data2 = $data;
+  $data2['fb_app']->secret = t('Secret not shown.'); // hide secret in debug output.
   if (fb_verbose() === 'extreme') {
     $return['fb_devel'] = array(
       '#type' => 'markup',
-      '#value' => __FUNCTION__ . ':' . print_r($data, 1),
+      '#value' => __FUNCTION__ . ':' . print_r($data2, 1),
       '#prefix' => '<pre>',
       '#suffix' => '</pre>',
       '#weight' => 99,
     );
+
     if ($data['profile_id'] && isset($data['fb'])) {
+
+      $return['fb_devel']['signed_request'] = array(
+        '#type' => 'markup',
+        '#value' => __FUNCTION__ . ' signed request:' . print_r($data['fb']->getSignedRequest(), 1),
+        '#prefix' => '<pre>',
+        '#suffix' => '</pre>',
+        '#weight' => 99,
+      );
+
+
       $return['fb_devel']['profile_id'] = array(
         '#type' => 'markup',
         '#value' => __FUNCTION__ . ':' . print_r($data['fb']->api($data['profile_id']), 1),

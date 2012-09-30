@@ -73,9 +73,9 @@ function guides_helpers_context_default_contexts() {
           'region' => 'right',
           'weight' => 0,
         ),
-        'views-guides-block_2' => array(
+        'views-testimonials-block_1' => array(
           'module' => 'views',
-          'delta' => 'guides-block_2',
+          'delta' => 'testimonials-block_1',
           'region' => 'right',
           'weight' => 1,
         ),
@@ -85,17 +85,39 @@ function guides_helpers_context_default_contexts() {
           'region' => 'right',
           'weight' => 2,
         ),
-        'views-testimonials-block_1' => array(
-          'module' => 'views',
-          'delta' => 'testimonials-block_1',
-          'region' => 'right',
-          'weight' => 3,
-        ),
       ),
     ),
   );
   $context->condition_mode = 0;
   $export['guides_main_layout'] = $context;
+
+  $context = new stdClass;
+  $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
+  $context->api_version = 3;
+  $context->name = 'guides_only_main_layout';
+  $context->description = '';
+  $context->tag = '';
+  $context->conditions = array(
+    'path' => array(
+      'values' => array(
+        '<front>' => '<front>',
+      ),
+    ),
+  );
+  $context->reactions = array(
+    'block' => array(
+      'blocks' => array(
+        'guides_articles-4' => array(
+          'module' => 'guides_articles',
+          'delta' => 4,
+          'region' => 'content',
+          'weight' => 0,
+        ),
+      ),
+    ),
+  );
+  $context->condition_mode = 0;
+  $export['guides_only_main_layout'] = $context;
 
   return $export;
 }

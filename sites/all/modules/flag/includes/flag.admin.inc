@@ -11,16 +11,61 @@
 function flag_admin_page() {
   $flags = flag_get_flags();
   $default_flags = flag_get_default_flags(TRUE);
-  return theme('flag_admin_page', $flags, $default_flags);
+  $flag_admin_listing = drupal_get_form('flag_admin_listing', $flags);
+  return theme('flag_admin_page', $flags, $default_flags, $flag_admin_listing);
 }
 
 /**
- * Theme the output for the main flag administration page.
+ * A form for ordering the weights of all the active flags in the system.
  */
-function theme_flag_admin_page($flags, $default_flags) {
+function flag_admin_listing(&$form_state, $flags) {
+  $form['#flags'] = $flags;
+  $form['#tree'] = TRUE;
+
+  foreach ($flags as $flag) {
+    $form['flags'][$flag->name]['weight'] = array(
+      '#type' => 'weight',
+      '#delta' => count($flags) + 5,
+      '#default_value' => $flag->weight,
+      '#attributes' => array('class' => 'flag-weight'),
+    );
+  }
+
+  if (count($flags) == 1) {
+    // Don't show weights with only one flag.
+    unset($form['flags'][$flag->name]['weight']);
+  }
+  else if (count($flags) > 1){
+    // Only show the form button if there are several flags.
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save flag order'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Submit handler for the flag_admin_listing form. Save flag weight ordering.
+ */
+function flag_admin_listing_submit($form, &$form_state) {
+  foreach ($form['#flags'] as $flag) {
+    if ($flag->weight != $form_state['values']['flags'][$flag->name]['weight']) {
+      $flag->weight = $form_state['values']['flags'][$flag->name]['weight'];
+      $flag->save();
+    }
+  }
+}
+
+/**
+ * Theme the output of the normal, database flags into a table.
+ */
+function theme_flag_admin_listing($form) {
+  $flags = $form['#flags'];
+
   $output = '';
 
-  // Build out the list of normal, database flags.
   foreach ($flags as $flag) {
     $ops = array(
       'flags_edit' =>  array('title' => t('edit'), 'href' => $flag->admin_path('edit')),
@@ -29,23 +74,47 @@ function theme_flag_admin_page($flags, $default_flags) {
     );
 
     $roles = array_flip(array_intersect(array_flip(user_roles()), $flag->roles['flag']));
+    $row = array();
+    $row[] = $flag->name;
+    if (count($flags) > 1) {
+      $row[] = drupal_render($form['flags'][$flag->name]['weight']);
+    }
+    $row[] = $flag->content_type;
+    $row[] = empty($flag->roles['flag']) ? '<em>' . t('No roles') . '</em>' : implode(', ', $roles);
+    $row[] = $flag->types ? implode(', ', $flag->types) : '-';
+    $row[] = $flag->global ? t('Yes') : t('No');
+    $row[] = theme('links', $ops);
+
     $rows[] = array(
-      $flag->name,
-      $flag->content_type,
-      empty($flag->roles['flag']) ? '<em>' . t('No roles') . '</em>' : implode(', ', $roles),
-      $flag->types ? implode(', ', $flag->types) : '-',
-      $flag->global ? t('Yes') : t('No'),
-      theme('links', $ops),
+      'data' => $row,
+      'class' => 'draggable',
     );
   }
   if (!$flags) {
     $rows[] = array(
-      array('data' => t('No flags are currently defined.'), 'colspan' => 6),
+      array('data' => t('No flags are currently defined.'), 'colspan' => 7),
     );
   }
+  else if (count($flags) > 1) {
+    drupal_add_tabledrag('flag-admin-listing-table', 'order', 'sibling', 'flag-weight');
+  }
 
-  $header = array(t('Flag'), t('Flag type'), t('Roles'), t('Node types'), t('Global?'), t('Operations'));
-  $output .= theme('table', $header, $rows);
+  $header = array(t('Flag'));
+  if (count($flags) > 1) {
+    $header[] = t('Weight');
+  }
+  $header = array_merge($header, array(t('Flag type'), t('Roles'), t('Entity bundles'), t('Global?'), t('Operations')));
+  $output .= theme('table', $header, $rows, array('id' => 'flag-admin-listing-table'));
+  $output .= drupal_render($form);
+
+  return $output;
+}
+
+/**
+ * Theme the list of disabled flags into a table.
+ */
+function theme_flag_admin_listing_disabled($flags, $default_flags) {
+  $output = '';
 
   // Build a list of disabled, module-based flags.
   $rows = array();
@@ -78,6 +147,18 @@ function theme_flag_admin_page($flags, $default_flags) {
     $header = array(t('Disabled Flags'), t('Module'), t('Flag type'), t('Operations'));
     $output .= theme('table', $header, $rows);
   }
+
+  return $output;
+}
+
+/**
+ * Theme the output for the main flag administration page.
+ */
+function theme_flag_admin_page($flags, $default_flags, $flag_admin_listing) {
+  $output = '';
+
+  $output .= $flag_admin_listing;
+  $output .= theme('flag_admin_listing_disabled', $flags, $default_flags);
 
   if (!module_exists('views')) {
     $output .= '<p>' . t('The <a href="@views-url">Views</a> module is not installed, or not enabled. It is recommended that you install the Views module to be able to easily produce lists of flagged content.', array('@views-url' => url('http://drupal.org/project/views'))) . '</p>';
@@ -156,7 +237,7 @@ function flag_add_form(&$form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Add flag'),
   );
 
   return $form;
@@ -195,7 +276,7 @@ function flag_form(&$form_state, $flag) {
   );
 
   if (!empty($flag->fid)) {
-    $form['name']['#description'] .= ' <strong>'. t('Change this value only with great care.') .'</strong>';
+    $form['name']['#description'] .= ' <strong>' . t('Change this value only with great care.') . '</strong>';
   }
 
   $form['title'] = array(
@@ -415,7 +496,7 @@ function flag_form(&$form_state, $flag) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit'),
+    '#value' => t('Save flag'),
     // We put this button on the form before calling $flag->options_form()
     // to give the flag handler a chance to remove it (e.g. flag_broken).
     '#weight' => 999,

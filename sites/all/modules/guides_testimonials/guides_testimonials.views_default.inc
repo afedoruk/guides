@@ -11,10 +11,9 @@ function guides_testimonials_views_default_views() {
   $view->name = 'testimonials';
   $view->description = '';
   $view->tag = '';
-  $view->view_php = '';
   $view->base_table = 'node';
-  $view->is_cacheable = FALSE;
-  $view->api_version = 2;
+  $view->core = 0;
+  $view->api_version = '2';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('fields', array(
@@ -111,15 +110,17 @@ function guides_testimonials_views_default_views() {
   $handler->override_option('title', 'Новые отзывы');
   $handler = $view->new_display('block', 'Block', 'block_1');
   $handler->override_option('fields', array(
-    'title' => array(
+    'nid' => array(
       'label' => '',
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
         'make_link' => 0,
         'path' => '',
+        'absolute' => 0,
         'link_class' => '',
         'alt' => '',
+        'rel' => '',
         'prefix' => '',
         'suffix' => '',
         'target' => '',
@@ -134,26 +135,29 @@ function guides_testimonials_views_default_views() {
       'empty' => '',
       'hide_empty' => 0,
       'empty_zero' => 0,
+      'hide_alter_empty' => 1,
       'link_to_node' => 1,
-      'exclude' => 0,
-      'id' => 'title',
+      'exclude' => 1,
+      'id' => 'nid',
       'table' => 'node',
-      'field' => 'title',
+      'field' => 'nid',
       'override' => array(
         'button' => 'Use default',
       ),
       'relationship' => 'none',
     ),
-    'field_guide_nid' => array(
+    'name' => array(
       'label' => '',
       'alter' => array(
         'alter_text' => 0,
-        'text' => '[title]',
-        'make_link' => 1,
-        'path' => 'node/[field_guide_nid]',
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'absolute' => 0,
         'link_class' => '',
         'alt' => '',
-        'prefix' => 'о гиде ',
+        'rel' => '',
+        'prefix' => '',
         'suffix' => '',
         'target' => '',
         'help' => '',
@@ -167,6 +171,45 @@ function guides_testimonials_views_default_views() {
       'empty' => '',
       'hide_empty' => 0,
       'empty_zero' => 0,
+      'hide_alter_empty' => 1,
+      'link_to_user' => 1,
+      'overwrite_anonymous' => 0,
+      'anonymous_text' => '',
+      'exclude' => 0,
+      'id' => 'name',
+      'table' => 'users',
+      'field' => 'name',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
+    'field_guide_nid' => array(
+      'label' => '',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '[title]',
+        'make_link' => 1,
+        'path' => 'node/[field_guide_nid]',
+        'absolute' => 0,
+        'link_class' => '',
+        'alt' => '',
+        'rel' => '',
+        'prefix' => 'о гиде ',
+        'suffix' => ':',
+        'target' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'html' => 0,
+        'strip_tags' => 0,
+      ),
+      'empty' => '',
+      'hide_empty' => 0,
+      'empty_zero' => 0,
+      'hide_alter_empty' => 1,
       'link_to_node' => 1,
       'label_type' => 'none',
       'format' => 'default',
@@ -185,8 +228,52 @@ function guides_testimonials_views_default_views() {
       ),
       'relationship' => 'none',
     ),
+    'teaser' => array(
+      'label' => '',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 1,
+        'path' => 'node/[nid]',
+        'absolute' => 0,
+        'link_class' => '',
+        'alt' => '',
+        'rel' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'target' => '',
+        'help' => '',
+        'trim' => 1,
+        'max_length' => '200',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'html' => 1,
+        'strip_tags' => 0,
+      ),
+      'empty' => '',
+      'hide_empty' => 0,
+      'empty_zero' => 0,
+      'hide_alter_empty' => 1,
+      'exclude' => 0,
+      'id' => 'teaser',
+      'table' => 'node_revisions',
+      'field' => 'teaser',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
   ));
-  $handler->override_option('items_per_page', 5);
+  $handler->override_option('title', 'Отзывы о гидах');
+  $handler->override_option('items_per_page', 3);
+  $handler->override_option('row_options', array(
+    'inline' => array(
+      'name' => 'name',
+      'field_guide_nid' => 'field_guide_nid',
+    ),
+    'separator' => '',
+    'hide_empty' => 0,
+  ));
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('page', 'per_guide', 'page_1');
@@ -210,7 +297,7 @@ function guides_testimonials_views_default_views() {
       'field' => 'field_guide_nid',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
-        '2' => 0,
+        2 => 0,
       ),
       'override' => array(
         'button' => 'Use default',
@@ -231,7 +318,7 @@ function guides_testimonials_views_default_views() {
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
-        '1' => 0,
+        1 => 0,
       ),
       'validate_argument_type' => 'tid',
       'validate_argument_transform' => 0,

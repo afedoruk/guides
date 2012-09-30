@@ -152,7 +152,6 @@ function fb_url_inbound_alter(&$result, $path, $path_language) {
 
       // Check for language prefix.
       if ( count($args) && ( $mode == LANGUAGE_NEGOTIATION_PATH || $mode == LANGUAGE_NEGOTIATION_PATH_DEFAULT ) ) {
-
         // Get list of enabled languages.
         $languages = language_list('enabled');
         $languages = $languages[1];
@@ -162,6 +161,7 @@ function fb_url_inbound_alter(&$result, $path, $path_language) {
             $prefix = array_shift($args);
             $path_language = $lang->language;
             $language = $lang;
+            break;
           }
         }
       }

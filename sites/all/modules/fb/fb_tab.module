@@ -18,6 +18,8 @@ define('FB_TAB_OP_FORM', 'fb_tab_form');
 define('FB_TAB_PATH_VIEW', 'fb_tab/view');
 define('FB_TAB_PATH_FORM', 'fb_tab/config');
 define('FB_TAB_PATH_FORM_ARGS', 2);
+define('FB_TAB_PATH_ADDED', 'fb_tab/added'); // user redirected here after adding page tab.
+define('FB_TAB_PATH_ADDED_ARGS', 2);
 
 define('FB_TAB_VAR_PROCESS_FBML', 'fb_tab_process_fbml');
 define('FB_TAB_VAR_PROCESS_IFRAME', 'fb_tab_process_iframe');
@@ -46,6 +48,14 @@ function fb_tab_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
+
+  $items[FB_TAB_PATH_ADDED . '/%fb'] = array(
+    'page callback' => 'fb_tab_added',
+    'access arguments' => array('access content'),
+    'page arguments' => array(FB_TAB_PATH_ADDED_ARGS),
+    'type' => MENU_CALLBACK,
+  );
+
 
   // Admin pages
   $items[FB_PATH_ADMIN .'/fb_tab'] = array(
@@ -117,7 +127,7 @@ function fb_tab_fb($op, $data, &$return) {
   }
   elseif ($op == FB_OP_INITIALIZE) {
     if (fb_is_tab()) {
-      $config = _fb_tab_get_config($fb_app);
+      $config = _fb_tab_get_app_config($fb_app);
       if (!isset($GLOBALS['custom_theme'])) {
         $GLOBALS['custom_theme'] = $config['custom_theme'];
       }
@@ -127,7 +137,7 @@ function fb_tab_fb($op, $data, &$return) {
         $use_ob = TRUE;
       }
       elseif (fb_settings(FB_SETTINGS_TYPE) == FB_SETTINGS_TYPE_PROFILE &&
-          variable_get(FB_TAB_VAR_PROCESS_FBML, TRUE)) {
+              variable_get(FB_TAB_VAR_PROCESS_FBML, TRUE)) {
         // Process FBML
         $use_ob = TRUE;
       }
@@ -144,6 +154,21 @@ function fb_tab_fb($op, $data, &$return) {
       if ($use_ob) {
         ob_start();
         $GLOBALS['fb_tab_post_process'] = TRUE;
+      }
+
+      // Override what Drupal renders.
+      if (arg(0) == 'fb_tab' && arg(1) == 'view') { // Do not override fb_tab/config.
+        $sr = $fb->getSignedRequest();
+        if ($sr['page'] && $sr['page']['liked'] && $config['profile_tab_url_liked']) {
+          $path = $config['profile_tab_url_liked'];
+        }
+        else {
+          $path = $config['profile_tab_url'];
+        }
+        if ($path && $path != FB_TAB_PATH_VIEW) {
+          // Tell Drupal what to really render.
+          menu_set_active_item(drupal_get_normal_path($path));
+        }
       }
 
     }
@@ -198,7 +223,7 @@ function fb_tab_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Helper returns configuration for this module, on a per-app basis.
  */
-function _fb_tab_get_config($fb_app) {
+function _fb_tab_get_app_config($fb_app) {
   $fb_app_data = fb_get_app_data($fb_app);
   $config = isset($fb_app_data['fb_tab']) ? $fb_app_data['fb_tab'] : array();
 
@@ -206,7 +231,8 @@ function _fb_tab_get_config($fb_app) {
   $config += array(
     'custom_theme' => NULL,
     'tab_default_name' => isset($fb_app->title) ? $fb_app->title : NULL,
-    'profile_tab_url' => FB_TAB_PATH_VIEW,
+    'profile_tab_url' => NULL,
+    'profile_tab_url_liked' => NULL,
     'edit_url' => FB_TAB_PATH_FORM,
   );
   return $config;
@@ -222,13 +248,16 @@ function fb_tab_view() {
 
   $profile_id = fb_settings(FB_SETTINGS_CB_PAGE);
 
-  $config = fb_tab_fetch_config($fb_app, $profile_id);
+  $config = fb_tab_get_page_config($fb_app, $profile_id);
+
+  $sr = $fb->getSignedRequest();
 
   $data = array(
     'fb_app' => $fb_app,
     'fb' => $fb,
     'profile_id' => $profile_id,
     'config' => isset($config['data']) ? $config['data'] : NULL,
+    'page' => $sr['page'],
   );
 
   $content = fb_invoke(FB_TAB_OP_VIEW, $data, array(), FB_TAB_HOOK);
@@ -243,13 +272,15 @@ function fb_tab_config_form($form_state, $profile_id) {
   $fb_app = $GLOBALS['_fb_app'];
   $fb = $GLOBALS['_fb'];
 
-  $config = fb_tab_fetch_config($fb_app, $profile_id);
+  $config = fb_tab_get_page_config($fb_app, $profile_id);
+  $sr = $fb->getSignedRequest();
 
   $data = array(
     'fb_app' => $fb_app,
     'fb' => $fb,
     'profile_id' => $profile_id,
     'config' => isset($config['data']) ? $config['data'] : NULL,
+    'page' => $sr['page'],
   );
 
   try {
@@ -348,7 +379,7 @@ function fb_tab_write_config(&$row) {
  * Return configuration of a tab by application (access via 'label') and page ID.
  * Page ID exists because an app can present different views on different pages.
  */
-function fb_tab_fetch_config($fb_app, $profile_id) {
+function fb_tab_get_page_config($fb_app, $profile_id) {
   $result = db_query("SELECT * FROM {fb_tab} WHERE label = '%s' AND profile_id = %d" , $fb_app->label, $profile_id);
 
   $row = db_fetch_array($result);
@@ -362,12 +393,44 @@ function fb_tab_fetch_config($fb_app, $profile_id) {
 }
 
 /**
- * This page callback will show the user a list of pages they have authority to configure.
+ * Drupal menu callback.  User has added a tab to one of their pages.
+ */
+function fb_tab_added($fb_app) {
+  //dpm($_REQUEST, __FUNCTION__); // debug what facebook has passed to us
+
+  foreach($_REQUEST['tabs_added'] as $page_id => $added) {
+    // TODO use batch graph api.
+    $graph = fb_graph($page_id);
+
+    watchdog('fb_tab', "Facebook application %label (%app_id) added to page %name (%page_id)", array(
+               '%label' => $fb_app->label,
+               '%app_id' => $fb_app->id,
+               '%name' => $graph['name'],
+               '%page_id' => $graph['id'],
+             ));
+  }
+
+  // Redirect user to the page tab they've added.
+  if ($graph['link']) {
+    // This undocumented format seems to be the right URL for a page tab.
+    $url = $graph['link'] . '?sk=app_' . $fb_app->id;
+    drupal_goto($url);
+  }
+
+  // If drupal_goto succeeds, user will not see this.
+  return t('Added application to Facebook page.');
+}
+
+/**
+ * This page callback will show the user a list of pages they have authority
+ * to configure.
  */
 function fb_tab_pages() {
   if ($fbu = fb_facebook_user()) {
+
+    // @TODO: broken on facebook's end??? this query used to work.
     $result = fb_fql_query($GLOBALS['_fb'], "SELECT page_id, name, pic_small, page_url, type FROM page WHERE has_added_app=1 AND page_id IN (SELECT page_id FROM page_admin WHERE uid=$fbu)"); // FQL, no {curly_brackets}
-    //dpm($result, __FUNCTION__);
+
     if (count($result)) {
       $output['pages'] = array(
         '#prefix' => '<ul>',

@@ -15,10 +15,10 @@ Drupal.behaviors.fb_canvas = function(context) {
   });
 
   // Logout of facebook when logging out of drupal.
-  jQuery("a[href^='http://apps.facebook.com/" + Drupal.settings.fb_canvas.canvas + "/logout']", context).click(FB_Canvas.logout);
+  jQuery("a[href^='https://apps.facebook.com/" + Drupal.settings.fb_canvas.canvas + "/logout']", context).click(FB_Canvas.logout);
 
   // Change 'user/login' links to popup fb connect dialog.
-  jQuery("a[href^='http://apps.facebook.com/" + Drupal.settings.fb_canvas.canvas + "/user/']", context).click(FB_Canvas.login);
+  jQuery("a[href^='https://apps.facebook.com/" + Drupal.settings.fb_canvas.canvas + "/user/']", context).click(FB_Canvas.login);
 };
 
 FB_Canvas = function(){};

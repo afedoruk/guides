@@ -121,6 +121,14 @@ function fb_user_fb($op, $data, &$return) {
   }
 
   if ($op == FB_OP_POST_INIT && $fb) {
+    // Drupal gives access denied on /user/login page, so we want to avoid redirecting there.
+    if (arg(0) == 'user' && !isset($_REQUEST['destination'])) {
+      fb_js_settings('reload_url', url('user', array(
+                                         'absolute' => TRUE,
+                                         'fb_canvas' => fb_is_canvas(),
+                                       )));
+    }
+
     $fbu = fb_facebook_user();
     if (isset($_SESSION['fb_user_fbu']) &&
         $_SESSION['fb_user_fbu'] != $fbu &&
@@ -168,6 +176,9 @@ function fb_user_fb($op, $data, &$return) {
         }
       }
     }
+
+    // During ajax, we need to check for a change in user.
+
   }
   elseif ($op == FB_OP_GET_FBU) {
     // This is a request to learn the user's FB id.
@@ -179,10 +190,13 @@ function fb_user_fb($op, $data, &$return) {
   }
   elseif ($op == FB_OP_AJAX_EVENT) {
     // fb.js has notified us of an event via AJAX.  Not the same as facebook event callback above.
-    if ($data['event_type'] == 'session_change' && isset($data['event_data']['fbu'])) {
+    extract($data); // $event_type, $event_data.
+    if ($event_type == 'session_change' && isset($event_data['fbu'])) {
       // A user has logged in.
+
       // Don't trust fbu from $data['event_data'], too easy to spoof.
-      // Don't set fb_user if SESSION[fb_user_fbu], could be an old session not properly cleaned up.
+      // Instead call fb_facebook_user().  It will only work if the facebook php sdk is properly initialized.  Since this is an ajax event, probably the signed_request was passed to us.
+
       if (($fbu = fb_facebook_user($data['fb'])) &&
           $fbu != fb_get_fbu($GLOBALS['user'])) {
 
@@ -194,15 +208,27 @@ function fb_user_fb($op, $data, &$return) {
         _fb_user_process_authorized_user();
       }
     }
+
+    // fb.js no longer reloads after all session changes.  We need to explicitly reload when we know the user changed.
+    if ($event_type == 'session_change') {
+      if (isset($event_data['fbu']) && $event_data['fbu']) {
+        $uid = _fb_user_get_uid($event_data['fbu'], $data['fb_app']);
+      }
+      else {
+        $uid = 0;
+      }
+      if ($uid || $event_data['is_anonymous'] != 'true') {
+        // The Drupal user has changed, we should reload after ajax returns to fb.js.
+        $return['fb_user'] = 'FB_JS.reload()';
+      }
+    }
   }
 }
 
 function fb_user_footer() {
   if (($fbu = fb_facebook_user()) &&
       !fb_is_tab() && // $fbu is page id, not visitor id, on tabs.
-      $fbu != fb_get_fbu($GLOBALS['user']) &&
-      $_GET['q'] !== variable_get('site_403', FALSE) &&
-      $_GET['q'] !== variable_get('site_404', FALSE)) {
+      $fbu != fb_get_fbu($GLOBALS['user'])) {
     $uid = $GLOBALS['user']->uid; // Remember original uid.
     _fb_user_process_authorized_user();
     if ($uid != $GLOBALS['user']->uid) {
@@ -436,7 +462,7 @@ function _fb_user_process_authorized_user() {
   }
 }
 
-
+// TODO make a public function that caches this data.
 function _fb_user_facebook_data($fb) {
   if ($fbu = fb_facebook_user($fb)) {
     try {
@@ -498,31 +524,46 @@ function fb_user_form_alter(&$form, &$form_state, $form_id) {
         (($form_id == 'user_register' && variable_get(FB_USER_VAR_ALTER_REGISTER, TRUE)) ||
          ($form_id == 'user_login' && variable_get(FB_USER_VAR_ALTER_LOGIN, TRUE)) ||
          ($form_id == 'user_login_block' && variable_get(FB_USER_VAR_ALTER_LOGIN_BLOCK, TRUE)))) {
-      if ($fbu = fb_facebook_user()) {
-        // Facebook user has authorized app.
 
-        // Show user name and picture.
-        $form['fb_user'] = array(
-          'name' => array(
-            '#value' => '<fb:name uid="' . $fbu . '" useyou="false" linked="false"></fb:name>',
-            '#type' => 'markup',
-            '#prefix' => '<div class="fb_user_name">',
-            '#suffix' => '</div>',
-          ),
+      // Add a facebook connect button or profile pic to the form.
+      $fb_button = theme('fb_login_button', t(_fb_user_button_text($form_id)), array('form_id' => $form_id));
+      $form['fb_user'] = array(
+        '#fb_user' => NULL,
+        'connected' => array(
+          '#prefix' => '<div class=fb_connected>', '#suffix' => '</div>',
           'picture' => array(
-            '#value' => '<fb:profile-pic uid="' . $fbu .'" linked="false"></fb:profile-pic>',
+            '#value' => '<fb:profile-pic uid="loggedinuser" linked="false" facebook-logo="true"></fb:profile-pic>',
             '#type' => 'markup',
             '#prefix' => '<div class="fb_user_picture">',
             '#suffix' => '</div>',
           ),
-          '#weight' => -1,
-        );
+          'text' => array(
+            '#type' => 'markup',
+            '#value' => t('!name, after <a href="!login_url">login</a> or <a href="!register_url">registration</a> your account will be connected.', array(
+                            '!name' => '<fb:name uid=loggedinuser useyou=false linked=false></fb:name>',
+                            '!login_url' => url('user/login'),
+                            '!register_url' => url('user/register'),
+                          )),
+          ),
+        ),
+        'loginbutton' => array(
+          '#value' => $fb_button,
+          '#type' => 'markup',
+          '#prefix' => '<div class="fb_user-login-button-wrapper fb_not_connected">',
+          '#suffix' => '</div>',
+        ),
+        '#weight' => -1,
+      );
 
+      // @TODO confirm fb session before sharing sensitive data!
+
+      if ($fbu = fb_facebook_user($fb)) {
+        // Include $fb_user in form, so other modules can custom form_alter.
+        $data = _fb_user_facebook_data($fb);
+        $form['fb_user']['#fb_user'] = $data;
         if ($form_id == 'user_register') {
-          // Provide defaults for name and email.
-          if ($data = _fb_user_facebook_data($fb)) {
-            $form['fb_user']['#fb_user'] = $data;
-
+          if ($data) {
+            // Provide defaults for name and email.
             if (isset($form['name']) && !$form['name']['#default_value']) {
               // @TODO - ensure name is unique to Drupal.
               $form['name']['#default_value'] = $data['name'];
@@ -543,17 +584,6 @@ function fb_user_form_alter(&$form, &$form_state, $form_id) {
         }
       }
 
-      else {
-        // facebook user has not authorized app.
-        $fb_button = theme('fb_login_button', t(_fb_user_button_text($form_id)), array('form_id' => $form_id));
-        $form['fb_user'] = array(
-          '#value' => $fb_button,
-          '#type' => 'markup',
-          '#weight' => -1,  // Ideally, we'd put ourself next to openid login, but doesn't look right when next to form buttons.
-          '#prefix' => '<div class="fb_user-login-button-wrapper">',
-          '#suffix' => '</div>',
-        );
-      }
     }
     elseif ($form_id == 'contact_mail_page' && variable_get(FB_USER_VAR_ALTER_CONTACT, TRUE)) {
       if ($data = _fb_user_facebook_data($fb)) {
@@ -566,7 +596,6 @@ function fb_user_form_alter(&$form, &$form_state, $form_id) {
       }
     }
   }
-
 }
 
 /**

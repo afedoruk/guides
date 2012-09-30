@@ -140,7 +140,7 @@ function fb_user_app_track_user($fb, $fb_app) {
   }
 
   $sr = $fb->getSignedRequest();
-  watchdog('fb_user_app', __FUNCTION__ . " signed request is <pre>" . print_r($sr,1) . "</pre>"); // debug
+  //watchdog('fb_user_app', __FUNCTION__ . " signed request is <pre>" . print_r($sr,1) . "</pre>"); // debug
 
   if (isset($sr['oauth_token'])) {
     $access_token = $sr['oauth_token'];

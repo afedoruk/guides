@@ -165,16 +165,15 @@ function _fb_connect_add_js($fb_app, $fb) {
 function _fb_connect_block_login_defaults() {
   return array('anon_not_connected' => array(
                  'title' => t('Facebook Connect'),
-                 'body' => '<fb:login-button scope="!perms" v="2">Connect</fb:login-button>',
+                 'body' => '<div class="fb-login-button" scope="!perms" data-show-faces="false"></div>',
                ),
                'user_not_connected' => array(
                  'title' => t('Facebook Connect'),
-                 'body' => '<fb:login-button scope="!perms" v="2">Connect</fb:login-button>',
+                 'body' => '<div class="fb-login-button" scope="!perms" data-show-faces="false"></div>',
                ),
                'connected' => array(
                  'title' => t('Facebook Connect'),
-                 // Logout commented out, because drupal has logout link.
-                 'body' => "<fb:profile-pic uid=!fbu></fb:profile-pic><!--<fb:login-button autologoutlink=true></fb:login-button>-->",
+                 'body' => '<fb:profile-pic uid="loggedinuser" linked="false" facebook-logo="true"></fb:profile-pic>', // fb:profile-pic is deprecated! https://developers.facebook.com/docs/reference/fbml/profile-pic/
                ),
   );
 }
@@ -226,8 +225,8 @@ function fb_connect_block($op = 'list', $delta = 0, $edit = array()) {
     $form['config']['user_not_connected']['#description'] = t('Settings when local user is registered, and not connected to Facebook.  Typically the facebook id will be linked to the local id after the user clicks the connect button.');
     $form['config']['user_not_connected']['body']['#description'] = t('Suggestion: %default .', array('%default' => $orig_defaults['user_not_connected']['body']));
     $form['config']['connected']['#title'] = t('Connected user');
-    $form['config']['connected']['#description'] = t('Settings when local user is connected to Facebook.  You may render facebook\'s logout button, and/or information about the user.  Consider using <a target="_blank" href="!xfbml_url">XFBML</a> such as &lt;fb:name uid=!fbu&gt;&lt;/fb:name&gt; or &lt;fb:profile-pic uid=!fbu&gt;&lt;/fb:profile-pic&gt;', array('xfbml_url' => 'http://wiki.developers.facebook.com/index.php/XFBML'));
-    $form['config']['connected']['body']['#description'] .= t('Note that <strong>!fbu</strong> will be replaced with the user\'s facebook id.<br/>Suggestion: %default .', array('%default' => $orig_defaults['connected']['body']));
+    $form['config']['connected']['#description'] = t('Settings when local user is connected to Facebook.  You may render facebook\'s logout button, and/or information about the user.  Consider using <a target="_blank" href="!xfbml_url">XFBML</a> such as &lt;fb:name uid=loggedinuser&gt;&lt;/fb:name&gt; or &lt;fb:profile-pic uid=loggedinuser&gt;&lt;/fb:profile-pic&gt;', array('xfbml_url' => 'http://wiki.developers.facebook.com/index.php/XFBML'));
+    $form['config']['connected']['body']['#description'] .= '<br/>' . t('Suggestion: %default .', array('%default' => $orig_defaults['connected']['body']));
 
     $form['config']['format'] = filter_form($defaults['format']);
     $form['config']['format']['#description'] .= t('<p><strong>Be sure to select a format which allows XFBML tags!</strong> (That is, use <em>Full HTML</em> or <em>PHP code</em>, rather than  <em>Filtered HTML</em>.)</p><p>Format selected will apply to all body fields above.</p>');
@@ -254,19 +253,23 @@ function fb_connect_block($op = 'list', $delta = 0, $edit = array()) {
         $base = drupal_get_path('module', 'fb_connect');
 
         $defaults = variable_get('fb_connect_block_' . $delta, _fb_connect_block_login_defaults());
-        if ($fbu) {
-          $subject = $defaults['connected']['title'];
-          $content = $defaults['connected']['body'];
-          // substitute %fbu
-          $content = str_replace('!fbu', $fbu, $content);
-        }
-        elseif ($GLOBALS['user']->uid >= 1) {
+
+        if (!$fbu && $GLOBALS['user']->uid >= 1) {
+          // Render only logged in user markup.
           $subject = $defaults['user_not_connected']['title'];
           $content = $defaults['user_not_connected']['body'];
+
+          $subject_connected = NULL;
+          $content_connected = NULL;
         }
         else {
+          // Render both connected and not connected markup.
           $subject = $defaults['anon_not_connected']['title'];
           $content = $defaults['anon_not_connected']['body'];
+
+          $subject_connected = $defaults['connected']['title'];
+          $content_connected = $defaults['connected']['body'];
+          $content_connected = str_replace('!fbu', 'loggedinuser', $content_connected); // support deprecated !fbu
         }
 
         // substitute perms
@@ -278,11 +281,16 @@ function fb_connect_block($op = 'list', $delta = 0, $edit = array()) {
         if (isset($defaults['format'])) {
           $subject = check_plain($subject);
           $content = check_markup($content, $defaults['format'], FALSE);
+          if ($content_connected) {
+            $subject_connected = check_plain($subject_connected);
+            $content_connected = check_markup($content_connected, $defaults['format'], FALSE);
+          }
         }
 
         $block = array(
-          'subject' => $subject,
-          'content' => $content,
+          // Theme fb_markup uses javascript to show/hide the right markup.
+          'subject' => theme('fb_markup', $subject, $subject_connected),
+          'content' => theme('fb_markup', $content, $content_connected),
         );
         return $block;
       }
@@ -379,6 +387,7 @@ function fb_connect_theme_registry_alter(&$theme_registry) {
       'arguments' => array('object' => NULL),
       'function' => 'fb_connect_theme_username_override',
       'type' => 'module',
+      'theme path' => array(),
     );
   }
 
@@ -392,6 +401,7 @@ function fb_connect_theme_registry_alter(&$theme_registry) {
       'arguments' => array('account' => NULL),
       'function' => 'fb_connect_theme_user_picture_override',
       'type' => 'module',
+      'theme path' => array(),
     );
   }
 }

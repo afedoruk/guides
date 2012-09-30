@@ -17,7 +17,8 @@
 Drupal.behaviors.fb_connect = function(context) {
 
   // Logout of facebook when logging out of drupal.
-  jQuery("a[href^='" + Drupal.settings.basePath + "logout']", context).click(FB_Connect.logoutHandler);
+  jQuery("a[href^='" + Drupal.settings.basePath + "logout']", context).click(FB_Connect.logoutHandler); // basePath usually "/"
+  jQuery("a[href^='" + Drupal.settings.fb_connect.front_url + "logout']", context).click(FB_Connect.logoutHandler); // front_url includes language.  I.e. "/en/"
 
   // Support markup for dialog boxes.
   FB_Connect.enablePopups(context);
@@ -36,10 +37,13 @@ FB_Connect = function(){};
 FB_Connect.sessionChangeHandler = function(context, status) {
   jQuery('.block-fb_connect')
     .ajaxStart(function() {
-      jQuery(this).html('<div class="progress fb_connect_pb"><div class="bar"><div class="filled"></div></div></div>');
+      // This is an attempt to trigger the drupal progress indicator.  Not convinced that it works.
+      jQuery(this).wrap('<div class="bar filled"></div>').wrap('<div class="bar filled"></div>');
     })
     .ajaxStop(function() {
-      jQuery(this).html('');
+      //jQuery(this).html('');
+      // unwrap() not defined.
+      jQuery(this).parent().removeClass('bar filled').parent().removeClass('bar filled');
     })
   ;
 
@@ -49,19 +53,29 @@ FB_Connect.sessionChangeHandler = function(context, status) {
 
 // click handler
 FB_Connect.logoutHandler = function(event) {
+  // If we need to reload, go to front page.
+  Drupal.settings.fb.reload_url = Drupal.settings.fb_connect.front_url;
+
   if (typeof(FB) != 'undefined') {
-    FB.logout(function () {
-      // Logged out of facebook.  Need we act on this?
-    });
-    // Facebook's invalid cookies persist if third-party cookies disabled.
-    // Let's try to clean up the mess.
-    // @TODO: is this still needed with newer oauth SDK???
-    FB_JS.deleteCookie('fbs_' + FB._apiKey, '/', ''); // app id
-    FB_JS.deleteCookie('fbs_' + Drupal.settings.fb.apikey, '/', ''); // apikey
+    try {
+      FB.logout(function () {
+        // Logged out of facebook.  Session change event will log us out of drupal and
+      });
+      // Facebook's invalid cookies persist if third-party cookies disabled.
+      // Let's try to clean up the mess.
+      // @TODO: is this still needed with newer oauth SDK???
+      //FB_JS.deleteCookie('fbs_' + Drupal.settings.fb.apikey, '/', ''); // apikey
+
+      if (FB.getUserID()) { // @TODO: still needed with newer oauth SDK???
+        // Facebook needs more time to log us out. (http://drupal.org/node/1164048)
+        return false;
+      }
+    }
+    catch (e) {
+      return false;
+    }
   }
-  if (FB.getUser()) { // @TODO: still needed with newer oauth SDK???
-    // Facebook needs more time to log us out. (http://drupal.org/node/1164048)
-    Drupal.settings.fb.reload_url = Drupal.settings.fb_connect.front_url;
+  else {
     return false;
   }
 };

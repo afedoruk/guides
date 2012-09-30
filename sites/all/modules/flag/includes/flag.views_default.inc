@@ -6,14 +6,14 @@
  */
 
 /**
- * Implementation of hook_views_default_views().
+ * Implements hook_views_default_views().
  */
 function flag_views_default_views() {
   // Only setup views for the "bookmarks" flag.
   // If it's been deleted, don't create any views.
   $flag = flag_get_flag('bookmarks');
   if (!$flag) {
-    return;
+    return array();
   }
 
   // Set up properties that are used for both views.
@@ -248,7 +248,7 @@ function flag_views_default_views() {
   );
 
   $view = new view;
-  $view->name = 'flag_'. $flag->name;
+  $view->name = 'flag_' . $flag->name;
   $view->description = 'A page listing the current user\'s bookmarks at /bookmarks.';
   $view->tag = 'flag';
   $view->view_php = '';

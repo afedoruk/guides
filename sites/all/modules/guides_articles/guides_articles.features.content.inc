@@ -425,16 +425,16 @@ function guides_articles_content_default_fields() {
     'description_field' => '0',
     'widget' => array(
       'file_extensions' => 'png gif jpg jpeg',
-      'file_path' => '',
+      'file_path' => 'places',
       'progress_indicator' => 'bar',
       'max_filesize_per_file' => '',
       'max_filesize_per_node' => '',
       'max_resolution' => '0',
       'min_resolution' => '0',
       'alt' => '',
-      'custom_alt' => 0,
+      'custom_alt' => 1,
       'title' => '',
-      'custom_title' => 0,
+      'custom_title' => 1,
       'title_type' => 'textfield',
       'default_image' => NULL,
       'use_default_image' => 0,
@@ -505,6 +505,69 @@ function guides_articles_content_default_fields() {
       'weight' => '2',
       'description' => '',
       'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_place_sources
+  $fields['place-field_place_sources'] = array(
+    'field_name' => 'field_place_sources',
+    'type_name' => 'place',
+    'display_settings' => array(
+      'weight' => '16',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_place_sources][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Источники',
+      'weight' => '16',
+      'description' => '',
+      'type' => 'text_textarea',
       'module' => 'text',
     ),
   );
@@ -1019,7 +1082,7 @@ function guides_articles_content_default_fields() {
       'alt' => '',
       'custom_alt' => 1,
       'title' => '',
-      'custom_title' => 0,
+      'custom_title' => 1,
       'title_type' => 'textfield',
       'default_image' => NULL,
       'use_default_image' => 0,
@@ -1167,9 +1230,73 @@ function guides_articles_content_default_fields() {
     ),
   );
 
+  // Exported field: field_story_sources
+  $fields['story-field_story_sources'] = array(
+    'field_name' => 'field_story_sources',
+    'type_name' => 'story',
+    'display_settings' => array(
+      'weight' => '12',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_story_sources][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Источники',
+      'weight' => '12',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Адрес');
+  t('Источники');
   t('Картинки');
   t('Код карты');
   t('Контакты');
